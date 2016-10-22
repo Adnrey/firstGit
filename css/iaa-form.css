@@ -1,0 +1,172 @@
+/* field */
+
+.iaa-input-field{
+  white-space: nowrap;
+  font-size: 1em;
+}
+
+.iaa-input-caption{
+  /*border: 1px solid rgba(209,148,5,.7);*/
+  font-size: 18px;
+  line-height: 27px;
+  width: 100px;
+  text-align: left;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  cursor: default;
+  vertical-align: middle;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: -5px;
+  margin: 10px 0px 10px 0px;
+}
+
+.iaa-input{
+  border: 1px solid rgba(209,145,5,.7);
+  font-size: inherit;
+  outline: 0;
+  height: 28px;
+  vertical-align: middle;
+  padding: 0px 5px;
+  width: 100px;
+  margin: 10px 0px 10px 0px;
+  
+  z-index: 20;
+  
+  -moz-appearance: textfield; /* убрать стрелки*/
+
+}
+
+.iaa-input:focus{
+  
+  border: 1px solid #a45b13;
+  
+}
+
+.iaa-input::-webkit-inner-spin-button {/* убрать стрелки*/
+  display: none;
+}
+
+.iaa-input[type="number"]{
+  
+  text-align: center;
+  width: 100px;
+  
+}
+
+.iaa-input[type="text"]{
+  
+  text-overflow: ellipsis;
+  text-align: left;
+  width: 164px;
+  
+}
+
+.iaa-button{
+	border: 1px solid rgba(209,148,5,.7);
+	background: #fece2f;
+	font-weight: bold;
+	color: #4c3000;  
+    text-align: center;
+    padding: 1px 6px;
+    cursor: pointer;
+    outline: 0;
+}
+
+.iaa-button:hover{
+	border: 1px solid #a45b13;
+	background: #ffdd57;
+    font-weight: bold;
+	color: #381f00;
+}
+
+.iaa-input-button{
+  position: relative;
+  width: 32px;
+  height: 28px;
+  vertical-align: middle;
+  margin: 10px 0px 10px 0px;
+  
+  z-index: 10;
+}
+
+.iaa-remove-button{
+  margin-right: -5px;  
+}
+
+.iaa-add-button{
+  margin-left: -5px;  
+  /*padding-bottom: 25px;*/   
+}
+
+/*  toolBar  */
+
+.iaa-vertical-tool-bar{
+  
+  width: 10px; border: 0;
+
+}
+
+.iaa-horizontal-tool-bar{
+
+  height: 50px; border: 0;
+
+}
+
+.iaa-group-button{
+  margin: 3px 0px 10px 3px;
+}
+
+.iaa-hidden{
+   border: 0;
+   clip: rect(0 0 0 0);
+   height: 1px;
+   margin: -1px;
+   overflow: hidden;
+   padding: 0;
+   position: absolute;
+   width: 1px;
+}
+
+.iaa-botton:checked + .iaa-label-botton{
+  
+    border: 1px solid #655e4e;
+    background: #ffffff;
+	background-size: 70% 70%;
+	background-repeat: no-repeat;
+	background-position: 8px 8px;
+	
+    font-weight: bold;
+    color: #0074c7;
+	z-index: 100;
+  
+}
+
+.iaa-label-botton{
+  
+    width: 50px;  
+    height: 50px;  
+    border: 1px solid #d19405;
+    background: #fece2f;
+    font-weight: bold;
+    margin: -1px -3px -1px 0px;
+ 
+    display: inline-block;
+    position: relative;
+    line-height: normal;
+    cursor: pointer;
+    vertical-align: middle;
+    text-align: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow: visible;
+  
+	background-size: 70% 70%;
+	background-repeat: no-repeat;
+	background-position: 8px 8px;	
+  
+}
+
