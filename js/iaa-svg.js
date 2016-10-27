@@ -1,5 +1,7 @@
 "use strict"
 
+var myGraphix = new iaaGraphixs(); 
+
 var myCanvas = new iaaCanvas();
 
 // Холст //
@@ -99,7 +101,7 @@ function iaaCanvas(){
 		
 		salf.repaint();
 		
-		//.Времяночка..
+		//++Времяночка..
 		
 		salf.currentDraft.addElement(
 			new elementProperty('Новый Элемент 1', 100, 100, 100, 200, 100, 50,0,0,0)
@@ -109,7 +111,7 @@ function iaaCanvas(){
 			new elementProperty('Новый Элемент 2', 300, 300, 300, 100, 50, 150,0,0,0)
 		);
 		
-		//.Времяночка..
+		//--Времяночка..
 		
 	}
 	
@@ -403,36 +405,98 @@ function iaaGroup(){
 	
 	var salf = this;
 
-	this.parent = undefined;	// родительский элемент
+	this.parent = undefined;		// родительский элемент
 
-	this.name = '';
+	this.name = 'Новый элемент';	// имя
 	
 	
-	this.position = [0,0,0];	// позиция
+	this.position = [0,0,0];		// позиция
 	
-	this.sizes = [0,0,0];		// размеры
+	this.sizes = [0,0,0];			// размеры
 
-	this.turn = [0,0,0];		// поворот
+	this.turn = [0,0,0];			// поворот
 	
 	
-	this.points = [];			// точки
+	this.сentreValue = [0,0,0];		// координаты центра элемента
 	
-	this.faces = [];			// грани
+	this.сentrePoint = [0,0,0,1];	// координаты точки центра элемента  
 	
-	this.attributes = {};		// атрибуты
+	
+	this.points = [];				// точки
+	
+	this.faces = [];				// грани
 
-	this.elements = []			// подчиненные элементы
+	this.attributes = {};			// атрибуты
+
+	this.elements = [];				// подчиненные элементы
  
 
 	this.matrixVolume = [[],[],[],[]]; // матрица объема
 	
-	this.faceVisible = true; // отображаемые грани (true - видимые, false - не видимые)
+	this.faceVisible = true;		// отображаемые грани (true - видимые, false - не видимые)
 	
-	this.gridVisible = false; // отображать сетку
+	this.gridVisible = false;		// отображать сетку
 	
-	this.gridStep = [50,50,50]; // шаг сетки
+	this.gridStep = [50,50,50];		// шаг сетки
 	
-	this.repaint = function(){
+
+	this.setProperty = function(prop){ //Установить свойства
+		
+		if (prop.position != undefined) {
+			
+			this.points = [
+				prop.position.x,
+				prop.position.y,
+				prop.position.z
+			];
+			
+		};
+		
+		if (prop.sizes != undefined) {
+			
+			this.sizes = [
+				prop.sizes.w,
+				prop.sizes.h,
+				prop.sizes.d
+			];
+			
+		};
+		
+		if (prop.turn != undefined) {
+			
+			this.turn = [
+				prop.turn.rx,
+				prop.turn.ry,
+				prop.turn.rz
+			];
+			
+		};
+		
+	}
+	
+	this.recalculate = function(){ // Пересчитать
+		
+		console.log(this)
+		
+		var [x, y, z] = salf.position;
+
+		var [w, h, d] = salf.sizes;
+
+		var [rx, ry, rz] = salf.turn;
+
+		var [m , n, k] = [w/2+x,  h/2+y,  d/2+z];
+
+		salf.сentreValue = [m, n, k];
+		
+		salf.сentrePoint
+			= myGraphix.getCoordinatesPoint
+				(
+				salf, m, n, k, m, n, k, rx, ry, rz
+				);
+
+	}
+	
+	this.repaint = function(){ // Перерисовать
 		
 		for(var i = 0; i < this.elements.length; i++){
 			
@@ -441,16 +505,18 @@ function iaaGroup(){
 		}
 		
 	}
-
-	this.addElement = function(prop){
+	
+	this.addElement = function(prop){ // Добавить элемент
 		
 		var newElement = new iaaЕlement(prop.name, this);
 		
-		newElement.name 
-		
 		this.elements.push(newElement);
 		
-		myCanvas.currentDraft.repaint();
+		newElement.setProperty(prop);
+		
+		newElement.recalculate();
+		
+		//myCanvas.repaint();
 		
 	}
 	
@@ -518,7 +584,7 @@ function iaaЕlement(name, parentElement){
 	
 	var salf = this;
 	
-	var _type = 'Элемент'; // тип
+	var type = 'Элемент'; // тип
 
 	iaaGroup.apply(this, arguments);
 	
@@ -534,7 +600,7 @@ function iaaActionPoint(parentElement, parentFace){
 	
 	var salf = this;
 	
-	var _type = 'Точка действия'; // тип
+	var type = 'Точка действия'; // тип
 
 	iaaGroup.apply(this, arguments);
 	
@@ -552,9 +618,9 @@ function elementProperty(name,x , y, z, w, h, d,rx, ry, rz){
 
 	this.name = name;
 	
-	this.position = [x , y, z]
-	this.sizes = [w, h, d]
-	this.turn = [rx, ry, rz]
+	this.position = {'x':x,'y':y,'z':z};
+	this.sizes = {'w':w,'h':h,'d':d};
+	this.turn = {'rx':rx,'ry':ry,'rz':rz};
 	
 	//console.log(arguments)
 	
