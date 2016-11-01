@@ -217,7 +217,30 @@ function iaaGraphixs(){
 
 	}
 	
+	// Вектор от точки наблюдения до точки
+	this.vectorFromObservationPointToPoint = function(observationPoint, point){
+	 
+		var [x1,y1,z1] = observationPoint;
+		
+		var [x2,y2,z2] = point;
+		
+		var value 
+			= Math.sqrt
+				(
+				Math.pow(x2-x1, 2) +
+				Math.pow(y2-y1, 2) +
+				Math.pow(z2-z1, 2)
+				);
+		
+		return value;
+		
+	}
+
+
+	
+	
+	
+	
+	
+	
 }
-
-
-

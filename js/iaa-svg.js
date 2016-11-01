@@ -421,6 +421,7 @@ function iaaGroup(){
 	
 	this.сentrePoint = [0,0,0,1];	// координаты точки центра элемента  
 	
+	this.depth = 0;					// глубина	
 	
 	this.points = [];				// точки
 	
@@ -444,7 +445,7 @@ function iaaGroup(){
 		
 		if (prop.position != undefined) {
 			
-			this.points = [
+			this.position = [
 				prop.position.x,
 				prop.position.y,
 				prop.position.z
@@ -476,7 +477,7 @@ function iaaGroup(){
 	
 	this.recalculate = function(){ // Пересчитать
 		
-		console.log(this)
+		//console.log(this)
 		
 		var [x, y, z] = salf.position;
 
@@ -486,14 +487,41 @@ function iaaGroup(){
 
 		var [m , n, k] = [w/2+x,  h/2+y,  d/2+z];
 
-		salf.сentreValue = [m, n, k];
+		//----
 		
+		salf.сentreValue = [m, n, k];
+
 		salf.сentrePoint
 			= myGraphix.getCoordinatesPoint
 				(
 				salf, m, n, k, m, n, k, rx, ry, rz
 				);
 
+		salf.depth
+			= myGraphix.vectorFromObservationPointToPoint
+				(
+				[myCanvas.m, myCanvas.n, myCanvas.k],
+				[salf.сentrePoint[0],salf.сentrePoint[1],salf.сentrePoint[2]]
+				);
+		
+		//----
+	
+		salf.clearPoints();
+
+		salf.addPoints(0, 0, d, '1');
+		salf.addPoints(w, 0, d, '2');
+		salf.addPoints(w, 0, 0, '3');
+		salf.addPoints(0, 0, 0, '4');
+
+		salf.addPoints(0, h, d, '5');
+		salf.addPoints(w, h, d, '6');
+		salf.addPoints(w, h, 0, '7');
+		salf.addPoints(0, h, 0, '8');
+		
+		//----
+		
+		//end
+		
 	}
 	
 	this.repaint = function(){ // Перерисовать
@@ -518,7 +546,33 @@ function iaaGroup(){
 		
 		//myCanvas.repaint();
 		
+		console.log(newElement);
+		
 	}
+	
+	//---
+	
+	this.addPoints = function(w, h, d, lit){	//Добавить точку
+		
+		var point = new iaaPoint(salf, w, h, d, lit);
+		
+		salf.points.push(point);
+		
+	}
+	
+	this.clearPoints = function(){				//Очистить точки
+		
+		for (var i = 0; i < salf.points.length; i++) {
+		
+			//this.Точки[i].ЭлементыКарты.remove()
+
+		}
+		
+		salf.points = [];
+		
+	}
+	
+	//---
 	
 }
 
@@ -544,14 +598,28 @@ function iaaPoint(parentElement, w, h, d, lit){
  
 	var salf = this;
 	
-	var _type = 'Точка'; // тип
+	this.type = 'Точка'; // тип
  
- 	var _parent = parentElement; // Родительский элемент
+ 	this.parent = parentElement; // Родительский элемент
 	
-	var _letter = lit;
+	this.letter = lit;
 	
-	var _visible = true;
+	this.visible = true;
 	
+	var [x, y, z] = salf.parent.position;
+	
+	var [m, n, k] = salf.parent.сentreValue;
+
+	var [rx, ry, rz] = salf.parent.turn;
+	
+	this.xyz = [x + w, y + h, z + d];
+	
+	this.xyz1
+		= myGraphix.getCoordinatesPoint
+			(
+			salf.parent, salf.xyz[0], salf.xyz[1], salf.xyz[2], m, n, k, rx, ry, rz
+			); 
+			
  } 
  
 // Проект //
@@ -612,7 +680,7 @@ function iaaActionPoint(parentElement, parentFace){
 
 // Времяночка //
 
-function elementProperty(name,x , y, z, w, h, d,rx, ry, rz){
+function elementProperty(name, x , y, z, w, h, d, rx, ry, rz){
 	
 	var salf = this;
 
@@ -625,3 +693,4 @@ function elementProperty(name,x , y, z, w, h, d,rx, ry, rz){
 	//console.log(arguments)
 	
 }
+
