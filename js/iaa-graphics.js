@@ -4,6 +4,98 @@ function iaaGraphixs(){
 	
 	var salf = this;
 	
+	//..........	
+	
+	// Получить среднии значения координат по точкам
+	this.getAverageCoordinatesOfpoints = function(xyz, points){
+		
+		var pc = [0,0,0];
+		
+		for (var i = 0; i < points.length; i++) {
+		
+			var p = points[i].xyz;
+
+			for (var j = 0; j < 3; j++) {
+			
+				pc[j] = pc[j] + p[j];
+			
+			}
+			
+		}
+		
+		for (var i = 0; i < 3; i++) {
+			pc[i] = pc[i]/points.length
+		}
+		
+		var x = pc[0] - xyz[0];
+		var y = pc[1] - xyz[1];
+		var z = pc[2] - xyz[2];
+
+		return [x, y, z];
+		
+	}	
+	
+	// Получить коэффициенты плоскости
+	this.getCoefficientsPlane = function(points){
+
+		//ax + by + cz + d = 0 уравненеи плоскости
+
+		var p1 = points[0].xyz1
+		
+		var p2 = points[1].xyz1
+		
+		var p3 = points[2].xyz1
+		
+		var p4 = points[3].xyz1	
+
+		var x1 = p1[0], x2 = p2[0], x3 = p3[0], x4 = p4[0];
+
+		var y1 = p1[1], y2 = p2[1], y3 = p3[1], y4 = p4[1]; 
+		
+		var z1 = p1[2], z2 = p2[2], z3 = p3[2], z4 = p4[2]; 
+		
+		var a = (y1 - y2)*(z1 + z2) + (y2 - y3)*(z2 + z3) + (y3 - y4)*(z3 + z4) + (y4 - y1)*(z4 + z1)
+
+		var b = (z1 - z2)*(x1 + x2) + (z2 - z3)*(x2 + x3) + (z3 - z4)*(x3 + x4) + (z4 - z1)*(x4 + x1)
+
+		var c = (x1 - x2)*(y1 + y2) + (x2 - x3)*(y2 + y3) + (x3 - x4)*(y3 + y4) + (x4 - x1)*(y4 + y1)
+
+		var d = -(a * p1[0] + b * p1[1] + c * p1[2])
+		
+		if (a == -0) a = 0
+		if (b == -0) b = 0
+		if (c == -0) c = 0
+		if (d == -0) d = 0
+		
+		return [a, b, c, d]
+
+	}	
+	
+	// Эта фигура выпуклая
+	this.thisConvexShape = function(points){
+		
+		var p1 = points[0].xyz1
+		var p2 = points[1].xyz1
+		var p3 = points[2].xyz1
+		var p4 = points[3].xyz1
+		
+		var V1 = salf.vectorMultiplyRelatedVectors(p4,p1,p2)
+		var V2 = salf.vectorMultiplyRelatedVectors(p1,p2,p3)
+		var V3 = salf.vectorMultiplyRelatedVectors(p2,p3,p4)
+		var V4 = salf.vectorMultiplyRelatedVectors(p3,p4,p1)
+		
+		// надо доделать,
+		//если
+		// результат 0, это не фигура;					возврат  0
+		// все + или 0 выпуклая правая ориентация +;	возврат  1
+		// все - или 0 выпуклая	левая  ориентация -;	возврат -1
+
+		return true
+		
+	}
+	
+	//..........
+	
 	// Добавить матрицу смещения (ДобавитьМатрицуСмещения)
 	this.addShiftMatrix = function(arr, m, n, k){
 		
@@ -236,7 +328,23 @@ function iaaGraphixs(){
 		
 	}
 
+	// Векторное произведение смежных векторов
+	this.vectorMultiplyRelatedVectors = function(p3,p1,p2){
+		
+		var V3V1_i =  p3[0]-p1[0]
+		var V3V1_j =  p3[1]-p1[1]
 
+		var V1V2_i =  p2[0]-p1[0]
+		var V1V2_j =  p2[1]-p1[1]
+		
+		var V = (V3V1_i * V1V2_i * 0)	//i * i = 0
+		  + (V3V1_i * V1V2_j * 1)		//i * j = 1
+		  + (V3V1_j * V1V2_i * -1)		//j * i = -1 
+		  + (V3V1_j * V1V2_j * 0)		//j * j = 0
+		
+		return V
+		
+	}
 	
 	
 	

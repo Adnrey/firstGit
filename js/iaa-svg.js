@@ -104,7 +104,7 @@ function iaaCanvas(){
 		//++Времяночка..
 		
 		salf.currentDraft.addElement(
-			new elementProperty('Новый Элемент 1', 100, 100, 100, 200, 100, 50,0,0,0)
+			new elementProperty('Новый Элемент 1', 200, 150, 100, 100, 100, 50,0,0,0)
 		);
 
 		salf.currentDraft.addElement(
@@ -203,7 +203,7 @@ function iaaCanvas(){
 	
 	function leftToolBarPropertyElement_onclick(e){
 		
-		if (salf.currentElement.type == 'Холст') {
+		if (salf.currentElement != undefined && salf.currentElement.type == 'Холст') {
 
 			var forma = new formPropertyMap();
 		
@@ -247,13 +247,14 @@ function iaaCanvas(){
 
 			var m = salf.scale;
 
-			var value = salf.currentDraft.Позиция
+			var value = salf.currentDraft.position
 
 			var [x, y, z] = value;
 
-			var property = {'Позиция':[sx * m, sy * m, 0]}
-
-			ОбновитьОтображение(undefined, property)
+			var property = {'position':[sx * m, sy * m, 0]}
+			
+			myCanvas.currentDraft.repaint();
+			//ОбновитьОтображение(undefined, property)
 
 		}
 
@@ -271,14 +272,14 @@ function iaaCanvas(){
 
 		if (salf._pressLeftMouseButton == true || salf._pressMouseWheel == true){
 
-			var value = svg.Поворот
+			var value = salf.turn
 
 			var [rx, ry, rz] = value;
 
 			value[0] = rx + (sy/4);
 			value[1] = ry - (sx/4);
 			
-			ОбновитьОтображение()
+			myCanvas.currentDraft.repaint()
 			
 		}
 
@@ -286,7 +287,7 @@ function iaaCanvas(){
 
 	function rightToolBarActionPoint_onclick(e){
 
-		ОбновитьОтображение()
+		//ОбновитьОтображение()
 		
 	}
 	
@@ -440,7 +441,10 @@ function iaaGroup(){
 	
 	this.gridStep = [50,50,50];		// шаг сетки
 	
+	
+	this.snapElements = myCanvas.snap().g(); // svg элементы 
 
+	
 	this.setProperty = function(prop){ //Установить свойства
 		
 		if (prop.position != undefined) {
@@ -489,6 +493,8 @@ function iaaGroup(){
 
 		//----
 		
+		salf.matrixVolume = [[],[],[],[]];
+		
 		salf.сentreValue = [m, n, k];
 
 		salf.сentrePoint
@@ -508,17 +514,30 @@ function iaaGroup(){
 	
 		salf.clearPoints();
 
-		salf.addPoints(0, 0, d, '1');
-		salf.addPoints(w, 0, d, '2');
-		salf.addPoints(w, 0, 0, '3');
-		salf.addPoints(0, 0, 0, '4');
+		salf.addPoint(0, 0, d, '1');
+		salf.addPoint(w, 0, d, '2');
+		salf.addPoint(w, 0, 0, '3');
+		salf.addPoint(0, 0, 0, '4');
 
-		salf.addPoints(0, h, d, '5');
-		salf.addPoints(w, h, d, '6');
-		salf.addPoints(w, h, 0, '7');
-		salf.addPoints(0, h, 0, '8');
+		salf.addPoint(0, h, d, '5');
+		salf.addPoint(w, h, d, '6');
+		salf.addPoint(w, h, 0, '7');
+		salf.addPoint(0, h, 0, '8');
 		
 		//----
+		
+		salf.clearFaces();
+		
+		salf.addFace(2, 3, 7, 6, 'R');
+		salf.addFace(1, 4, 8, 5, 'L');
+
+		salf.addFace(2, 3, 4, 1, 'T');
+		salf.addFace(6, 7, 8, 5, 'B');
+
+		salf.addFace(3, 4, 8, 7, 'H');
+		salf.addFace(2, 1, 5, 6, 'Y');
+		
+		salf.setVisibilityFaces();
 		
 		//end
 		
@@ -526,11 +545,19 @@ function iaaGroup(){
 	
 	this.repaint = function(){ // Перерисовать
 		
-		for(var i = 0; i < this.elements.length; i++){
+		salf.faces.sort(salf.sortFaceAscendingDepth)
+
+		salf.faces.forEach(function(face){
 			
-			console.log(this.elements[i])
+			face.display();
 			
-		}
+		});
+		
+		salf.elements.forEach(function(element){
+			
+			element.repaint();
+			
+		});
 		
 	}
 	
@@ -544,15 +571,13 @@ function iaaGroup(){
 		
 		newElement.recalculate();
 		
-		//myCanvas.repaint();
-		
-		console.log(newElement);
-		
+		myCanvas.repaint();
+
 	}
 	
 	//---
 	
-	this.addPoints = function(w, h, d, lit){	//Добавить точку
+	this.addPoint = function(w, h, d, lit){	//Добавить точку
 		
 		var point = new iaaPoint(salf, w, h, d, lit);
 		
@@ -560,7 +585,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.clearPoints = function(){				//Очистить точки
+	this.clearPoints = function(){			//Очистить точки
 		
 		for (var i = 0; i < salf.points.length; i++) {
 		
@@ -573,23 +598,186 @@ function iaaGroup(){
 	}
 	
 	//---
+
+	this.addFace = function(np1, np2, np3, np4, lit){	  // Добавить грань
+		
+		var face = new iaaFace(salf, np1, np2, np3, np4, lit);
+		
+		salf.faces.push(face);
+		
+		for (var i=0; i < 4; i++) {salf.matrixVolume[i].push(face.coeff[i])}
+		
+	}
+
+	this.clearFaces = function(){						  // Очистить грани
+		
+		for (var i = 0; i < salf.faces.length; i++) {
+		
+			//Тут нужно будет удалить грани
+
+		}
+		
+		salf.faces = [];
+		
+	}
+
+	this.setVisibilityFaces = function(){				  // Определить видимость граней
+		
+		//Приведём матрицу объема (тела) к корректному виду
+		
+		var S = salf.сentrePoint; // Точка точно должна находиться внутри элемента
+		
+		var V = salf.matrixVolume;
+		
+		var SV = myGraphix.multiplyPointByMatrix(S, V); // Умножить точку на матрицу
+		
+		for (var i = 0; i < 6; i++) { // Приводим матрицу объема(тела) к корректному виду, значения для точки внутри должны быть отрицательные
+
+			if (SV[i]>0) {
+				V[0][i] = V[0][i] * -1
+				V[1][i] = V[1][i] * -1
+				V[2][i] = V[2][i] * -1
+				V[3][i] = V[3][i] * -1
+			}
+			
+		}
+		
+		// Определим видимость грани
+		
+		var p1 = myGraphix.getCoordinatesPoint(salf, myCanvas.m, myCanvas.n, myCanvas.k,0,0,0,0,0,0); // Точна наблюдения
+		
+		var p2 = salf.сentrePoint;
+		
+		var F = [p1[0]-p2[0], p1[1]-p2[1], 10000000000, 0] //Вектор из центра элемента в точку наблюдения
+		
+		for (var i = 0; i < salf.faces.length; i++) {
+		
+			var FV = myGraphix.multiplyPointByMatrix(F, V);
+			
+			if (FV[i] <= 0) {salf.faces[i].visible = true}
+
+		}
+		
+		
+	}
+	
+	this.sortFaceAscendingDepth = function(i, j){		  // Cортировать грани по возрастанию глубины
+		
+		if (i.depth > j.depth){
+		
+			return 1
+		
+		} else if (i.depth < j.depth){
+		
+			return -1;
+		
+		}else {
+			
+			return 0;
+			
+		}
+		
+	}
+	
+	this.sortFaceDescendingDepth = function(i, j){		  // Cортировать грани по убыванию глубины
+		
+		if (i.depth > j.depth){
+			
+			return -1;
+		
+		}else if (i.depth < j.depth) {
+		
+			return 1;
+		
+		}else{
+			
+			return 0
+		
+		}
+		
+	}
+	
+	//---
 	
 }
 
 // Грань //
 
 function iaaFace(parentElement, np1, np2, np3, np4, lit){
- 
-	var salf = this;
-	
-	var _type = 'Грань'; // тип
-	
- 	var _parent = parentElement; // Родительский элемент	
- 
- 	var _letter = lit; 
-	
-	var _visible = false;
 
+	var salf = this;
+
+	this.type = 'Грань'; // тип
+
+ 	this.parent = parentElement; // Родительский элемент	
+
+ 	this.letter = lit; 
+
+	this.visible = false;
+
+	this.points = [ // Точки грани
+		parentElement.points[np1-1],
+		parentElement.points[np2-1],
+		parentElement.points[np3-1],
+		parentElement.points[np4-1]
+	];
+
+	this.сentreValue // координаты центра элемента
+		= myGraphix
+			.getAverageCoordinatesOfpoints
+				(
+				parentElement.position,
+				salf.points
+				);
+
+	this.depth = (
+		salf.points[0].xyz1[2] +
+		salf.points[1].xyz1[2] +
+		salf.points[2].xyz1[2] +
+		salf.points[3].xyz1[2]
+	) / 4; // Глубина
+
+	this.coeff = myGraphix.getCoefficientsPlane(salf.points); // Коэффициенты плоскости
+
+	this.thisConvexShape = myGraphix.thisConvexShape(salf.points) // Это выпуклая фигура
+
+	this.snapElement = undefined; // csg элемент
+	
+	this.display = function(){ // Отобразить грань
+		
+		var p1 = salf.points[0].xyz1
+		var p2 = salf.points[1].xyz1
+		var p3 = salf.points[2].xyz1
+		var p4 = salf.points[3].xyz1
+
+		if (salf.visible == salf.parent.faceVisible) {
+		
+			salf.snapElement
+				= myCanvas.snap()
+					.polyline([
+						[p1[0],p1[1]],
+						[p2[0],p2[1]],
+						[p3[0],p3[1]],
+						[p4[0],p4[1]],
+						[p1[0],p1[1]]
+					]);
+
+			salf.snapElement.attr({'stroke': 'black'});
+			
+			salf.snapElement.attr({"stroke-width": 2});
+
+			salf.snapElement.attr({'fill':salf.parent.attributes['fill']});
+		
+			salf.snapElement.attr({'fill-opacity':salf.parent.attributes['fill-opacity']});
+			
+			salf.parent.snapElements.add(salf.snapElement)
+			
+			//ОтобразитьСеткуНаГрани(salf);			
+			
+		}
+		
+	}
+	
  }
 
 // Точка //
