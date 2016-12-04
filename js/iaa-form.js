@@ -550,7 +550,7 @@ function iaaGoupButtonTollBar(name, parent){
 	this.checkButton = function(){
    
 		var checkButtonName = $(this._selector).find('input:checked').attr('id'); 
-
+		
 		return salf._buttons[checkButtonName];
     
 	}

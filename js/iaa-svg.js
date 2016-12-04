@@ -63,11 +63,9 @@ function iaaCanvas(){
 	
 	this.repaint = function(){	// перерисовать элементы
 		
-		if (this.currentDraft != undefined){
-		
-			this.currentDraft.repaint();
-		
-		}
+		if (salf.currentDraft == undefined) return;
+	
+		salf.currentDraft.repaint();
 	
 	}
 	
@@ -98,19 +96,21 @@ function iaaCanvas(){
 		
 		onWindowsResize();
 		
-		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 325);
-		
-		salf.repaint();
-		
 		//++Времяночка..
 		
-		salf.currentDraft.addElement(
-			new elementProperty('Новый Элемент 1', 200, 150, 100, 100, 100, 50,0,0,0)
-		);
+		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 325);
+		
+		salf.currentDraft.recalculate();
+		
+		// salf.currentDraft.addElement(
+			// new elementProperty('Новый Элемент 1', 200, 150, 100, 100, 100, 50,0,0,0)
+		// );
 
-		salf.currentDraft.addElement(
-			new elementProperty('Новый Элемент 2', 300, 300, 300, 100, 50, 150,0,0,0)
-		);
+		// salf.currentDraft.addElement(
+			// new elementProperty('Новый Элемент 2', 300, 300, 300, 100, 50, 150,0,0,0)
+		// );
+		
+		salf.repaint();
 		
 		//--Времяночка..
 		
@@ -254,8 +254,11 @@ function iaaCanvas(){
 
 			var property = {'position':[sx * m, sy * m, 0]}
 			
+			// end
+			
+			myCanvas.currentDraft.recalculate();
+			
 			myCanvas.currentDraft.repaint();
-			//ОбновитьОтображение(undefined, property)
 
 		}
 
@@ -280,6 +283,8 @@ function iaaCanvas(){
 			value[0] = rx + (sy/4);
 			value[1] = ry - (sx/4);
 			
+			myCanvas.currentDraft.recalculate();
+			
 			myCanvas.currentDraft.repaint()
 			
 		}
@@ -288,10 +293,15 @@ function iaaCanvas(){
 
 	function rightToolBarActionPoint_onclick(e){
 
+		myCanvas.currentDraft.recalculate();
+		
+		myCanvas.currentDraft.repaint();
+		
 		//ОбновитьОтображение()
 		
 	}
 	
+	//..........
 	
 	function mapWheelMouse(e) {
 
@@ -315,7 +325,9 @@ function iaaCanvas(){
 		
 			salf.scale = newScale;
 		
-			ОбновитьОтображение()
+			myCanvas.currentDraft.recalculate();
+		
+			myCanvas.currentDraft.repaint();
 			
 		}
 		
@@ -351,21 +363,49 @@ function iaaCanvas(){
 
 	function snapMouseDoun(e){
 		
-		if (e.which == 1) salf._pressLeftMouseButton = true;
-		if (e.which == 2) {salf._pressMouseWheel = true; cancelEvent(e)};	
-		if (e.which == 3) {salf._pressRightMouseButton = true;  cancelEvent(e)};
+		// console.log('snapMouseDoun', e.which);
+		
+		if (e.which == 1) {
+			
+			salf._pressLeftMouseButton = true;
+		
+		} else if (e.which == 2){
+			
+			salf._pressMouseWheel = true;
+
+			cancelEvent(e)
+			
+		} else if (e.which == 3){
+			
+			salf._pressRightMouseButton = true;
+
+			cancelEvent(e)
+			
+		};
+		
+		// console.log('_pressLeftMouseButton', salf._pressLeftMouseButton);
+		// console.log('_pressMouseWheel', salf._pressMouseWheel);
+		// console.log('_pressRightMouseButton', salf._pressRightMouseButton);
 
 	}
 
 	function snapMouseMove(e){
-
-		var [sx,sy,sz] = [0,0,0]
+	
+		var [sx, sy, sz] = [0,0,0]
 
 		if (salf._gx != undefined) {[sx, sy] = [e.clientX - salf._gx, e.clientY - salf._gy]}
 
 		[salf._gx, salf._gy] = [e.clientX, e.clientY]
 
-		if (e.which == 0){salf._pressRightMouseButton = false; salf._pressLeftMouseButton = false;salf._pressMouseWheel = false;}
+		if (e.which == 0){
+			
+			salf._pressRightMouseButton = false;
+
+			salf._pressLeftMouseButton = false;
+
+			salf._pressMouseWheel = false;
+			
+		}
 
 		salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5)
 		
@@ -377,9 +417,19 @@ function iaaCanvas(){
 
 	function snapMouseUp(e){
 
-		if (e.which == 1) salf._pressLeftMouseButton = false;
-		if (e.which == 2) salf._pressMouseWheel = false;
-		if (e.which == 3) salf._pressRightMouseButton = false;
+		if (e.which == 1){
+			
+			salf._pressLeftMouseButton = false
+			
+		} else if (e.which == 2){
+
+			salf._pressMouseWheel = false
+		
+		} else if (e.which == 3){
+
+			salf._pressRightMouseButton = false;
+
+		}
 		
 		[salf._gx, salf._gy] = [undefined, undefined]
 		
@@ -407,46 +457,46 @@ function iaaGroup(){
 	
 	var salf = this;
 
-	this.parent = undefined;		// родительский элемент
+	this.parent = undefined;			// родительский элемент
 
-	this.name = 'Новый элемент';	// имя
+	this.name = 'Новый элемент';		// имя
 	
 	
-	this.position = [0,0,0];		// позиция
+	this.position = [0,0,0];			// позиция
 	
-	this.sizes = [0,0,0];			// размеры
+	this.sizes = [0,0,0];				// размеры
 
-	this.turn = [0,0,0];			// поворот
+	this.turn = [0,0,0];				// поворот
 	
 	
-	this.сentreValue = [0,0,0];		// координаты центра элемента
+	this.сentreValue = [0,0,0];			// координаты центра элемента
 	
-	this.сentrePoint = [0,0,0,1];	// координаты точки центра элемента  
+	this.сentrePoint = [0,0,0,1];		// координаты точки центра элемента  
 	
-	this.depth = 0;					// глубина	
+	this.depth = 0;						// глубина	
 	
-	this.points = [];				// точки
+	this.points = [];					// точки
 	
-	this.faces = [];				// грани
+	this.faces = [];					// грани
 
-	this.attributes = {};			// атрибуты
+	this.attributes = {};				// атрибуты
 
-	this.elements = [];				// подчиненные элементы
+	this.elements = [];					// подчиненные элементы
  
 
-	this.matrixVolume = [[],[],[],[]]; // матрица объема
+	this.matrixVolume = [[],[],[],[]];	// матрица объема
 	
-	this.faceVisible = true;		// отображаемые грани (true - видимые, false - не видимые)
+	this.faceVisible = true;			// отображаемые грани (true - видимые, false - не видимые)
 	
-	this.gridVisible = false;		// отображать сетку
+	this.gridVisible = false;			// отображать сетку
 	
-	this.gridStep = [50,50,50];		// шаг сетки
+	this.gridStep = [50,50,50];			// шаг сетки
 	
 	
 	this.snapElements = myCanvas.snap().g(); // svg элементы 
 
 	
-	this.setProperty = function(prop){ //Установить свойства
+	this.setProperty = function(prop){	//Установить свойства
 		
 		if (prop.position != undefined) {
 			
@@ -480,7 +530,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.recalculate = function(){ // Пересчитать
+	this.recalculate = function(){		// Пересчитать
 		
 		//console.log(this)
 		
@@ -540,11 +590,9 @@ function iaaGroup(){
 		
 		salf.setVisibilityFaces();
 		
-		//end
-		
 	}
 	
-	this.repaint = function(){ // Перерисовать
+	this.repaint = function(){			// Перерисовать
 		
 		salf.faces.sort(salf.sortFaceAscendingDepth)
 
@@ -562,7 +610,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.addElement = function(prop){ // Добавить элемент
+	this.addElement = function(prop){	// Добавить элемент
 		
 		var newElement = new iaaЕlement(prop.name, this);
 		
@@ -572,7 +620,7 @@ function iaaGroup(){
 		
 		newElement.recalculate();
 		
-		myCanvas.repaint();
+		//myCanvas.repaint();
 
 	}
 	
@@ -611,15 +659,15 @@ function iaaGroup(){
 	}
 
 	this.clearFaces = function(){						  // Очистить грани
-		
-		for (var i = 0; i < salf.faces.length; i++) {
-		
-			//Тут нужно будет удалить грани
 
-		}
-		
+		salf.faces.forEach(function(face){
+
+			face.SnapElementRemove();
+
+		});
+
 		salf.faces = [];
-		
+
 	}
 
 	this.setVisibilityFaces = function(){				  // Определить видимость граней
@@ -742,9 +790,13 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 
 	this.thisConvexShape = myGraphix.thisConvexShape(salf.points) // Это выпуклая фигура
 
-	this.snapElement = undefined; // csg элемент
+	this.snapElement = undefined;			// csg элемент
 	
-	this.display = function(){ // Отобразить грань
+	this.display = function(){				// Отобразить грань
+		
+		// console.log(salf, '1.');
+		
+		salf.SnapElementRemove();
 		
 		var p1 = salf.points[0].xyz1
 		var p2 = salf.points[1].xyz1
@@ -777,6 +829,16 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 			
 		}
 		
+	}
+	
+	this.SnapElementRemove = function(){	// удалить csg элемент
+		
+		if (salf.snapElement == undefined) return
+
+		salf.snapElement.remove();
+
+		salf.snapElement = undefined;
+
 	}
 	
  }
