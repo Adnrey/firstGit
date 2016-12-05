@@ -346,8 +346,32 @@ function iaaGraphixs(){
 		
 	}
 	
+	//...........
 	
+	// Создать линию (СоздатьЛинию)
+	this.createLine = function(xyz1, xyz2, color, thickness){
+
+		//thickness - толщина линии
 	
+		var line = myCanvas.snap().line(xyz1[0], xyz1[1], xyz2[0], xyz2[1])
+
+		if (color != undefined) {
+
+			line.attr({"stroke": color})
+
+		}
+
+		if (thickness != undefined) {
+
+			line.attr({"stroke-width": thickness})
+
+		}
+
+		//СоздатьЛинию([], [], "black", 2)
+
+		return line
+
+	}
 	
 	
 	

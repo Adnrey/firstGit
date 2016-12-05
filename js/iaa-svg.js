@@ -596,6 +596,8 @@ function iaaGroup(){
 		
 		salf.faces.sort(salf.sortFaceAscendingDepth)
 
+		this.snapElements.clear();
+		
 		salf.faces.forEach(function(face){
 			
 			face.display();
@@ -825,16 +827,99 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 			
 			salf.parent.snapElements.add(salf.snapElement)
 			
-			//ОтобразитьСеткуНаГрани(salf);			
+			salf.displayGrid();			
 			
 		}
 		
 	}
 	
+	this.displayGrid = function(){			// Отобразить сетку
+	
+		// console.log('displayGrid', salf);
+	
+		if (salf.parent.gridVisible != true) return
+
+		var [x, y, z] = salf.parent.position;	
+
+		var SettingsDisplayGrid = [];		// Настройки отображения сетки
+		
+		if(salf.letter == 'R' || salf.letter == 'L'){
+			
+			SettingsDisplayGrid.push({'S':1,'Z':-1,'P':[3,2,0,1]})	//Y
+			SettingsDisplayGrid.push({'S':2,'Z':1,'P':[1,2,3,0]})	//Z
+			
+		}else if(salf.letter == 'B' || salf.letter == 'T'){	
+
+			SettingsDisplayGrid.push({'S':0,'Z':1,'P':[2,3,0,1]})	//X
+			SettingsDisplayGrid.push({'S':2,'Z':1,'P':[1,2,3,0]})	//Z
+			
+		}else if(salf.letter == 'H' || salf.letter == 'Y'){	
+		
+			SettingsDisplayGrid.push({'S':0,'Z':1,'P':[1,2,0,3]})	//X
+			SettingsDisplayGrid.push({'S':1,'Z':-1,'P':[2,3,0,1]})	//Y
+			
+		}else{
+			
+			return
+			
+		}
+		
+		for(var i=0; i <SettingsDisplayGrid.length; i++){
+			
+			var p1 = salf.points[SettingsDisplayGrid[i].P[0]].xyz.slice()
+			var p2 = salf.points[SettingsDisplayGrid[i].P[1]].xyz.slice()
+			var p3 = salf.points[SettingsDisplayGrid[i].P[2]].xyz.slice()
+			var p4 = salf.points[SettingsDisplayGrid[i].P[3]].xyz.slice()
+
+			var stepGrid  = SettingsDisplayGrid[i].S
+
+			var signGrid = SettingsDisplayGrid[i].Z
+			
+			while (p1[stepGrid] * signGrid < p4[stepGrid] * signGrid && p2[stepGrid]*signGrid < p3[stepGrid]*signGrid) {
+
+				var step = [0,0,0]
+
+				step[stepGrid] = salf.parent.gridStep[stepGrid] * signGrid
+			
+				p1 = [p1[0] + step[0], p1[1] + step[1], p1[2] + step[2]];
+
+				p2 = [p2[0] + step[0], p2[1] + step[1], p2[2] + step[2]];
+				
+				if (p1[stepGrid] * signGrid >= p4[stepGrid] * signGrid && p2[stepGrid] * signGrid >= p3[stepGrid] * signGrid){continue}
+				
+				var pa = new iaaPoint(salf.parent, p1[0]-x, p1[1]-y, p1[2]-z, '')
+				
+				var pв = new iaaPoint(salf.parent, p2[0]-x, p2[1]-y, p2[2]-z, '')
+				
+				salf.parent.snapElements.add
+					(
+					myGraphix.createLine
+						(
+						pa.xyz1,
+						pв.xyz1,
+						salf.parent.attributes.stroke,
+						salf.parent.attributes['stroke-width']
+						)
+					);
+				
+			}
+			
+		}
+		
+	
+	}
+	
 	this.SnapElementRemove = function(){	// удалить csg элемент
 		
+		// Эту процедуру пока оставил временно,
+		// в последствии надо будет удалить. 
+		
+		return 
+
 		if (salf.snapElement == undefined) return
 
+		console.log('SnapElementRemove', salf.snapElement);
+		
 		salf.snapElement.remove();
 
 		salf.snapElement = undefined;
@@ -885,7 +970,7 @@ function iaaDraft(name, w, h, d){
 	
 	this.name = name;
 	
-	this.attributes = {'stroke': 'green', 'fill': 'green', 'stroke-width': 1, 'fill-opacity': 0.5}
+	this.attributes = {'stroke': 'black', 'fill': 'green', 'stroke-width': 1, 'fill-opacity': 0.5}
 	
 	this.sizes = [w, h, d];	// размеры	
 	
