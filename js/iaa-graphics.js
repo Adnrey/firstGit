@@ -373,6 +373,25 @@ function iaaGraphixs(){
 
 	}
 	
+	// Создать круг (СоздатьКруг)
+	this.createСircle = function(xy, radius, color, background, thickness, element){
+
+		//background = цвет фона 
 	
+		//color - цвет линии
+	
+		//thickness - толщина линии
+	
+		var circle = myCanvas.snap().circle(xy[0], xy[1], radius);
+
+		circle.attr({'stroke': color, 'fill': background, "stroke-width": thickness})
+
+		if (element != undefined) element.snapElements.add(circle);
+		
+		return circle
+		
+		//createСircle([], 3, 'blue', 'red', 1)
+
+	}
 	
 }

@@ -49,19 +49,27 @@ function iaaCanvas(){
 
 	this.actionPoints = {points:[]};	// точки действия	
 	
-	var _attributes = {};	// атрибуты
+	var _attributes = {};				// атрибуты
 	
 	$(document).ready(function (){onDocumentLoad()});
 	
 	$(window).resize(function(){onWindowsResize()});
 
-	this.snap = function(){ // swg объект
+	this.snap = function(){			// swg объект
 		
 		return snap;
 		
 	}
 	
-	this.repaint = function(){	// перерисовать элементы
+	this.recalculate = function(){	// пересчитать координаты
+
+		if (salf.currentDraft == undefined) return;
+	
+		salf.currentDraft.recalculate();
+	
+	}
+	
+	this.repaint = function(){		// перерисовать элементы
 		
 		if (salf.currentDraft == undefined) return;
 	
@@ -85,7 +93,6 @@ function iaaCanvas(){
 		
 		//..
 		
-		
 		createToolbar()
 		
 		//..
@@ -96,19 +103,23 @@ function iaaCanvas(){
 		
 		onWindowsResize();
 		
-		//++Времяночка..
+		// ++ Времяночка..
 		
 		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 325);
 		
-		salf.currentDraft.recalculate();
+		salf.currentDraft.addElement(
 		
-		// salf.currentDraft.addElement(
-			// new elementProperty('Новый Элемент 1', 200, 150, 100, 100, 100, 50,0,0,0)
-		// );
+			new elementProperty('Новый Элемент 1', 0, 0, 0, 100, 100, 50,0,0,0)
 
-		// salf.currentDraft.addElement(
-			// new elementProperty('Новый Элемент 2', 300, 300, 300, 100, 50, 150,0,0,0)
-		// );
+		);
+
+		salf.currentDraft.addElement(
+			
+			new elementProperty('Новый Элемент 2', 100, 0, 100, 100, 50, 150,0,0,0)
+		
+		);
+
+		salf.recalculate();
 		
 		salf.repaint();
 		
@@ -129,8 +140,6 @@ function iaaCanvas(){
 		//snap.rect(0, 0, salf.width, salf.height);		
 
 	}
-
-	
 	
 	//.Tool.bar.........
 	
@@ -249,13 +258,12 @@ function iaaCanvas(){
 			var m = salf.scale;
 
 			var value = salf.currentDraft.position
-
+			
 			var [x, y, z] = value;
 
-			var property = {'position':[sx * m, sy * m, 0]}
-			
-			// end
-			
+			value[0] = x + sx * m;
+			value[1] = y + sy * m;
+
 			myCanvas.currentDraft.recalculate();
 			
 			myCanvas.currentDraft.repaint();
@@ -279,7 +287,7 @@ function iaaCanvas(){
 			var value = salf.turn
 
 			var [rx, ry, rz] = value;
-
+			
 			value[0] = rx + (sy/4);
 			value[1] = ry - (sx/4);
 			
@@ -532,27 +540,50 @@ function iaaGroup(){
 	
 	this.recalculate = function(){		// Пересчитать
 		
-		//console.log(this)
-		
-		var [x, y, z] = salf.position;
-
 		var [w, h, d] = salf.sizes;
 
+		// position..................
+		
+		if (salf.parent == undefined) {
+			
+			var [px, py, pz] = salf.position;
+			
+			var [cx, cy, cz] = [w/2 + px,  h/2 + py,  d/2 + pz];
+			
+			var [m, n, k] = [cx, cy, cz];
+			
+			var [x, y, z] = [m, n, k];	
+
+		
+		} else {
+			
+			var [x, y, z] = salf.getGlobalPosition();
+			
+			var [cx, cy, cz] = [x + w/2,  y - h/2 ,  z - d/2];			
+			
+			var [m, n, k] = salf.parent.сentreValue;
+			
+		}
+		
+		// turn..................
+		
 		var [rx, ry, rz] = salf.turn;
 
-		var [m , n, k] = [w/2+x,  h/2+y,  d/2+z];
+		//.......................
 
 		//----
 		
 		salf.matrixVolume = [[],[],[],[]];
 		
-		salf.сentreValue = [m, n, k];
+		salf.сentreValue = [cx, cy, cz];
 
 		salf.сentrePoint
 			= myGraphix.getCoordinatesPoint
 				(
-				salf, m, n, k, m, n, k, rx, ry, rz
+				// salf, m, n, k, m, n, k, rx, ry, rz
+				salf, cx, cy, cz, m, n, k, rx, ry, rz
 				);
+
 
 		salf.depth
 			= myGraphix.vectorFromObservationPointToPoint
@@ -590,6 +621,12 @@ function iaaGroup(){
 		
 		salf.setVisibilityFaces();
 		
+		salf.elements.forEach(function(element){
+			
+			element.recalculate();
+			
+		});
+		
 	}
 	
 	this.repaint = function(){			// Перерисовать
@@ -610,6 +647,10 @@ function iaaGroup(){
 			
 		});
 		
+		salf.points[4].display();
+		
+		// myGraphix.createСircle(salf.сentrePoint, 5, 'blue',	'red', 1, salf);
+		
 	}
 	
 	this.addElement = function(prop){	// Добавить элемент
@@ -620,10 +661,6 @@ function iaaGroup(){
 		
 		newElement.setProperty(prop);
 		
-		newElement.recalculate();
-		
-		//myCanvas.repaint();
-
 	}
 	
 	//---
@@ -650,7 +687,7 @@ function iaaGroup(){
 	
 	//---
 
-	this.addFace = function(np1, np2, np3, np4, lit){	  // Добавить грань
+	this.addFace = function(np1, np2, np3, np4, lit){		// Добавить грань
 		
 		var face = new iaaFace(salf, np1, np2, np3, np4, lit);
 		
@@ -660,7 +697,7 @@ function iaaGroup(){
 		
 	}
 
-	this.clearFaces = function(){						  // Очистить грани
+	this.clearFaces = function(){							// Очистить грани
 
 		salf.faces.forEach(function(face){
 
@@ -672,7 +709,33 @@ function iaaGroup(){
 
 	}
 
-	this.setVisibilityFaces = function(){				  // Определить видимость граней
+	//---
+	
+	this.getGlobalPosition = function(){					// Получить глобальные координаты позиции
+		
+		if (salf.parent == undefined) {
+			
+			return salf.position;
+			
+		}else{
+			
+			var	[px, py, pz] = salf.parent.points[4].xyz;		
+		
+			var [x, y, z] = salf.position;
+
+			x = px + x;
+
+			y = py + y;
+
+			z = pz + z;
+
+			return [x, y, z];
+			
+		}
+		
+	}
+	
+	this.setVisibilityFaces = function(){					// Определить видимость граней
 		
 		//Приведём матрицу объема (тела) к корректному виду
 		
@@ -712,7 +775,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.sortFaceAscendingDepth = function(i, j){		  // Cортировать грани по возрастанию глубины
+	this.sortFaceAscendingDepth = function(i, j){			// Cортировать грани по возрастанию глубины
 		
 		if (i.depth > j.depth){
 		
@@ -730,7 +793,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.sortFaceDescendingDepth = function(i, j){		  // Cортировать грани по убыванию глубины
+	this.sortFaceDescendingDepth = function(i, j){			// Cортировать грани по убыванию глубины
 		
 		if (i.depth > j.depth){
 			
@@ -942,21 +1005,37 @@ function iaaPoint(parentElement, w, h, d, lit){
 	
 	this.visible = true;
 	
-	var [x, y, z] = salf.parent.position;
+	// var [x, y, z] = salf.parent.position;
+	var [x, y, z] = salf.parent.getGlobalPosition();
 	
-	var [m, n, k] = salf.parent.сentreValue;
+	// var [m, n, k] = salf.parent.сentreValue;
+	var [m, n, k] = myCanvas.currentDraft.сentreValue;
 
 	var [rx, ry, rz] = salf.parent.turn;
 	
-	this.xyz = [x + w, y + h, z + d];
+	if (salf.parent.parent == undefined) {
+		
+		this.xyz = [x + w, y + h, z + d];
+		
+	}else{
+		
+		this.xyz = [x + w,  y - h ,  z - d];
+		
+	}
 	
 	this.xyz1
 		= myGraphix.getCoordinatesPoint
 			(
 			salf.parent, salf.xyz[0], salf.xyz[1], salf.xyz[2], m, n, k, rx, ry, rz
 			); 
-			
- } 
+	
+	this.display = function(){		// Отобразить точку
+		
+		myGraphix.createСircle(salf.xyz1, 5, 'blue', 'yellow', 1, salf.parent);
+		
+	}
+
+} 
  
 // Проект //
 
