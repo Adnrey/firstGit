@@ -105,7 +105,7 @@ function iaaCanvas(){
 		
 		// ++ Времяночка..
 		
-		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 325);
+		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 400);
 		
 		salf.currentDraft.addElement(
 		
@@ -115,7 +115,7 @@ function iaaCanvas(){
 
 		salf.currentDraft.addElement(
 			
-			new elementProperty('Новый Элемент 2', 100, 0, 100, 100, 50, 150,0,0,0)
+			new elementProperty('Новый Элемент 2', 120, 50, 50, 100, 10, 150,0,0,0)
 		
 		);
 
@@ -596,16 +596,32 @@ function iaaGroup(){
 	
 		salf.clearPoints();
 
-		salf.addPoint(0, 0, d, '1');
-		salf.addPoint(w, 0, d, '2');
-		salf.addPoint(w, 0, 0, '3');
-		salf.addPoint(0, 0, 0, '4');
+		if (salf.parent == undefined) {
+			
+			salf.addPoint(0, h, d, '1');
+			salf.addPoint(w, h, d, '2');
+			salf.addPoint(w, h, 0, '3');	
+			salf.addPoint(0, h, 0, '4');	
+			
+			salf.addPoint(0, 0, d, '5');
+			salf.addPoint(w, 0, d, '6');
+			salf.addPoint(w, 0, 0, '7');
+			salf.addPoint(0, 0, 0, '8');
 
-		salf.addPoint(0, h, d, '5');
-		salf.addPoint(w, h, d, '6');
-		salf.addPoint(w, h, 0, '7');
-		salf.addPoint(0, h, 0, '8');
-		
+		} else {
+			
+			salf.addPoint(0, 0, 0, '8');			
+			salf.addPoint(w, 0, 0, '7');
+			salf.addPoint(w, 0, d, '6');
+			salf.addPoint(0, 0, d, '5');
+			
+			salf.addPoint(0, h, 0, '4');
+			salf.addPoint(w, h, 0, '3');
+			salf.addPoint(w, h, d, '2');
+			salf.addPoint(0, h, d, '1');
+	
+		}
+			
 		//----
 		
 		salf.clearFaces();
@@ -613,12 +629,12 @@ function iaaGroup(){
 		salf.addFace(2, 3, 7, 6, 'R');
 		salf.addFace(1, 4, 8, 5, 'L');
 
-		salf.addFace(2, 3, 4, 1, 'T');
-		salf.addFace(6, 7, 8, 5, 'B');
+		salf.addFace(5, 6, 7, 8, 'T');
+		salf.addFace(1, 2, 3, 4, 'B');
 
-		salf.addFace(3, 4, 8, 7, 'H');
-		salf.addFace(2, 1, 5, 6, 'Y');
-		
+		salf.addFace(1, 2, 6, 5, 'H');
+		salf.addFace(4, 3, 7, 8, 'Y');
+	
 		salf.setVisibilityFaces();
 		
 		salf.elements.forEach(function(element){
@@ -635,6 +651,8 @@ function iaaGroup(){
 
 		this.snapElements.clear();
 		
+		salf.points[0].display();		
+		
 		salf.faces.forEach(function(face){
 			
 			face.display();
@@ -646,8 +664,6 @@ function iaaGroup(){
 			element.repaint();
 			
 		});
-		
-		salf.points[4].display();
 		
 		// myGraphix.createСircle(salf.сentrePoint, 5, 'blue',	'red', 1, salf);
 		
@@ -719,17 +735,19 @@ function iaaGroup(){
 			
 		}else{
 			
-			var	[px, py, pz] = salf.parent.points[4].xyz;		
+			var	[px, py, pz] = salf.parent.points[0].xyz;		
 		
 			var [x, y, z] = salf.position;
 
 			x = px + x;
 
-			y = py + y;
+			y = py - y;
 
-			z = pz + z;
-
+			z = pz - z;
+			
 			return [x, y, z];
+			
+
 			
 		}
 		
@@ -898,7 +916,7 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 	
 	this.displayGrid = function(){			// Отобразить сетку
 	
-		// console.log('displayGrid', salf);
+		console.log('displayGrid', salf);
 	
 		if (salf.parent.gridVisible != true) return
 
@@ -908,18 +926,18 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 		
 		if(salf.letter == 'R' || salf.letter == 'L'){
 			
-			SettingsDisplayGrid.push({'S':1,'Z':-1,'P':[3,2,0,1]})	//Y
-			SettingsDisplayGrid.push({'S':2,'Z':1,'P':[1,2,3,0]})	//Z
+			SettingsDisplayGrid.push({'S':1,'Z':-1,'P':[0,1,3,2]})	//Y
+			SettingsDisplayGrid.push({'S':2,'Z':-1,'P':[0,3,1,2]})	//Z
 			
 		}else if(salf.letter == 'B' || salf.letter == 'T'){	
 
-			SettingsDisplayGrid.push({'S':0,'Z':1,'P':[2,3,0,1]})	//X
-			SettingsDisplayGrid.push({'S':2,'Z':1,'P':[1,2,3,0]})	//Z
+			SettingsDisplayGrid.push({'S':0,'Z':1,'P':[3,0,2,1]})	//X
+			SettingsDisplayGrid.push({'S':2,'Z':-1,'P':[0,1,3,2]})	//Z
 			
 		}else if(salf.letter == 'H' || salf.letter == 'Y'){	
 		
-			SettingsDisplayGrid.push({'S':0,'Z':1,'P':[1,2,0,3]})	//X
-			SettingsDisplayGrid.push({'S':1,'Z':-1,'P':[2,3,0,1]})	//Y
+			SettingsDisplayGrid.push({'S':0,'Z':1,'P':[0,3,1,2]})	//X
+			SettingsDisplayGrid.push({'S':1,'Z':-1,'P':[0,1,3,2]})	//Y
 			
 		}else{
 			
@@ -934,9 +952,9 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 			var p3 = salf.points[SettingsDisplayGrid[i].P[2]].xyz.slice()
 			var p4 = salf.points[SettingsDisplayGrid[i].P[3]].xyz.slice()
 
-			var stepGrid  = SettingsDisplayGrid[i].S
+			var stepGrid  = SettingsDisplayGrid[i].S	// Величина шага
 
-			var signGrid = SettingsDisplayGrid[i].Z
+			var signGrid = SettingsDisplayGrid[i].Z 	// Знак шага
 			
 			while (p1[stepGrid] * signGrid < p4[stepGrid] * signGrid && p2[stepGrid]*signGrid < p3[stepGrid]*signGrid) {
 
@@ -1074,7 +1092,13 @@ function iaaЕlement(name, parentElement){
 	this.parent = parentElement; // родительский элемент
 	
 	this.name = name; // имя
+	
+	this.attributes = {'stroke': 'black', 'stroke-width': 1, 'fill-opacity': 0.5}
 
+	this.gridVisible = false;
+	
+	this.gridStep = [10,10,10];	
+	
 }
 
 // Точка действия //
