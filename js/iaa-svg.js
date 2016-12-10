@@ -109,7 +109,7 @@ function iaaCanvas(){
 		
 		salf.currentDraft.addElement(
 		
-			new elementProperty('Новый Элемент 1', 0, 0, 0, 100, 100, 50,0,0,0)
+			new elementProperty('Новый Элемент 1', 300, 0, 0, 100, 100, 50,0,0,0)
 
 		);
 
@@ -315,7 +315,7 @@ function iaaCanvas(){
 
 		var i = new mauseWheelEvent(e)
 
-		var [ScaleMin, ScaleMax, ScaleStep] = [0.05, 1.5, 0.1];	
+		var [ScaleMin, ScaleMax, ScaleStep] = [0.1, 1.5, 0.1];	
 		
 		var newScale = salf.scale;
 		
@@ -332,10 +332,12 @@ function iaaCanvas(){
 		if (newScale >= ScaleMin && newScale <= ScaleMax){
 		
 			salf.scale = newScale;
+			
+			if (salf.scale == 0) salf.scale = 0.1;
 		
-			myCanvas.currentDraft.recalculate();
+			myCanvas.recalculate();
 		
-			myCanvas.currentDraft.repaint();
+			myCanvas.repaint();
 			
 		}
 		
@@ -359,7 +361,7 @@ function iaaCanvas(){
 
 			}
 		
-			console.log(sing);
+			// console.log(sing);
 		
 			iaaInput.addStep(sing);
 		
@@ -490,20 +492,20 @@ function iaaGroup(){
 	this.attributes = {};				// атрибуты
 
 	this.elements = [];					// подчиненные элементы
- 
+
 
 	this.matrixVolume = [[],[],[],[]];	// матрица объема
-	
+
 	this.faceVisible = true;			// отображаемые грани (true - видимые, false - не видимые)
-	
+
 	this.gridVisible = false;			// отображать сетку
-	
+
 	this.gridStep = [50,50,50];			// шаг сетки
-	
-	
+
+
 	this.snapElements = myCanvas.snap().g(); // svg элементы 
 
-	
+
 	this.setProperty = function(prop){	//Установить свойства
 		
 		if (prop.position != undefined) {
@@ -544,26 +546,13 @@ function iaaGroup(){
 
 		// position..................
 		
-		if (salf.parent == undefined) {
-			
-			var [px, py, pz] = salf.position;
-			
-			var [cx, cy, cz] = [w/2 + px,  h/2 + py,  d/2 + pz];
-			
-			var [m, n, k] = [cx, cy, cz];
-			
-			var [x, y, z] = [m, n, k];	
+		var [x, y, z] = salf.getGlobalPosition();
 
-		
-		} else {
-			
-			var [x, y, z] = salf.getGlobalPosition();
-			
-			var [cx, cy, cz] = [x + w/2,  y - h/2 ,  z - d/2];			
-			
-			var [m, n, k] = salf.parent.сentreValue;
-			
-		}
+		salf.сentreValue = [x + w/2,  y - h/2 ,  z - d/2]
+
+		var [cx, cy, cz] = salf.сentreValue;			
+
+		var [m, n, k] = salf.getTurnPointValua();
 		
 		// turn..................
 		
@@ -574,13 +563,10 @@ function iaaGroup(){
 		//----
 		
 		salf.matrixVolume = [[],[],[],[]];
-		
-		salf.сentreValue = [cx, cy, cz];
-
+	
 		salf.сentrePoint
 			= myGraphix.getCoordinatesPoint
 				(
-				// salf, m, n, k, m, n, k, rx, ry, rz
 				salf, cx, cy, cz, m, n, k, rx, ry, rz
 				);
 
@@ -588,40 +574,26 @@ function iaaGroup(){
 		salf.depth
 			= myGraphix.vectorFromObservationPointToPoint
 				(
-				[myCanvas.m, myCanvas.n, myCanvas.k],
-				[salf.сentrePoint[0],salf.сentrePoint[1],salf.сentrePoint[2]]
+				[myCanvas.m, myCanvas.n, -10000],
+				[salf.сentrePoint[0],
+				salf.сentrePoint[1],
+				salf.сentrePoint[2]]
 				);
 		
 		//----
 	
 		salf.clearPoints();
 
-		if (salf.parent == undefined) {
-			
-			salf.addPoint(0, h, d, '1');
-			salf.addPoint(w, h, d, '2');
-			salf.addPoint(w, h, 0, '3');	
-			salf.addPoint(0, h, 0, '4');	
-			
-			salf.addPoint(0, 0, d, '5');
-			salf.addPoint(w, 0, d, '6');
-			salf.addPoint(w, 0, 0, '7');
-			salf.addPoint(0, 0, 0, '8');
+		salf.addPoint(0, 0, 0, '8');			
+		salf.addPoint(w, 0, 0, '7');
+		salf.addPoint(w, 0, d, '6');
+		salf.addPoint(0, 0, d, '5');
 
-		} else {
-			
-			salf.addPoint(0, 0, 0, '8');			
-			salf.addPoint(w, 0, 0, '7');
-			salf.addPoint(w, 0, d, '6');
-			salf.addPoint(0, 0, d, '5');
-			
-			salf.addPoint(0, h, 0, '4');
-			salf.addPoint(w, h, 0, '3');
-			salf.addPoint(w, h, d, '2');
-			salf.addPoint(0, h, d, '1');
-	
-		}
-			
+		salf.addPoint(0, h, 0, '4');
+		salf.addPoint(w, h, 0, '3');
+		salf.addPoint(w, h, d, '2');
+		salf.addPoint(0, h, d, '1');
+		
 		//----
 		
 		salf.clearFaces();
@@ -752,6 +724,20 @@ function iaaGroup(){
 		}
 		
 	}
+	
+	this.getTurnPointValua = function(){					// Получить значение точки поворота
+		
+		if (salf.parent == undefined) {
+			
+			return salf.сentreValue;
+			
+		}else{
+			
+			return salf.parent.сentreValue;
+		
+		}
+		
+	}	
 	
 	this.setVisibilityFaces = function(){					// Определить видимость граней
 		
@@ -916,11 +902,18 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 	
 	this.displayGrid = function(){			// Отобразить сетку
 	
-		console.log('displayGrid', salf);
+		// console.log('displayGrid', salf);
 	
 		if (salf.parent.gridVisible != true) return
-
+		
 		var [x, y, z] = salf.parent.position;	
+		
+		var [cx, cy, cz] = salf.parent.сentreValue;			
+
+		var [m, n, k] = salf.parent.getTurnPointValua();
+
+		var [rx, ry, rz] = salf.parent.turn;
+		
 
 		var SettingsDisplayGrid = [];		// Настройки отображения сетки
 		
@@ -944,69 +937,59 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 			return
 			
 		}
-		
-		for(var i=0; i <SettingsDisplayGrid.length; i++){
-			
+
+		for(var i=0; i < SettingsDisplayGrid.length; i++){
+
 			var p1 = salf.points[SettingsDisplayGrid[i].P[0]].xyz.slice()
 			var p2 = salf.points[SettingsDisplayGrid[i].P[1]].xyz.slice()
 			var p3 = salf.points[SettingsDisplayGrid[i].P[2]].xyz.slice()
 			var p4 = salf.points[SettingsDisplayGrid[i].P[3]].xyz.slice()
 
-			var stepGrid  = SettingsDisplayGrid[i].S	// Величина шага
+			var stepGrid  = SettingsDisplayGrid[i].S	// Номер оси величины шага
 
 			var signGrid = SettingsDisplayGrid[i].Z 	// Знак шага
-			
-			while (p1[stepGrid] * signGrid < p4[stepGrid] * signGrid && p2[stepGrid]*signGrid < p3[stepGrid]*signGrid) {
+
+			while (p1[stepGrid] * signGrid < p4[stepGrid] * signGrid && p2[stepGrid]*signGrid < p3[stepGrid] * signGrid) {
 
 				var step = [0,0,0]
 
 				step[stepGrid] = salf.parent.gridStep[stepGrid] * signGrid
-			
+
 				p1 = [p1[0] + step[0], p1[1] + step[1], p1[2] + step[2]];
 
 				p2 = [p2[0] + step[0], p2[1] + step[1], p2[2] + step[2]];
 				
-				if (p1[stepGrid] * signGrid >= p4[stepGrid] * signGrid && p2[stepGrid] * signGrid >= p3[stepGrid] * signGrid){continue}
-				
-				var pa = new iaaPoint(salf.parent, p1[0]-x, p1[1]-y, p1[2]-z, '')
-				
-				var pв = new iaaPoint(salf.parent, p2[0]-x, p2[1]-y, p2[2]-z, '')
-				
-				salf.parent.snapElements.add
-					(
-					myGraphix.createLine
-						(
-						pa.xyz1,
-						pв.xyz1,
-						salf.parent.attributes.stroke,
-						salf.parent.attributes['stroke-width']
-						)
-					);
-				
+				if (p1[stepGrid] * signGrid >= p4[stepGrid] * signGrid && p2[stepGrid] * signGrid >= p3[stepGrid] * signGrid) continue
+
+				var pa = myGraphix.getCoordinatesPoint(salf.parent, p1[0], p1[1], p1[2], m, n, k, rx, ry, rz);	
+
+				var pв = myGraphix.getCoordinatesPoint(salf.parent, p2[0], p2[1], p2[2], m, n, k, rx, ry, rz);	
+
+				salf.parent.snapElements.add(myGraphix.createLine(pa, pв, salf.parent.attributes.stroke, salf.parent.attributes['stroke-width']));
+
 			}
-			
+
 		}
-		
-	
+
 	}
-	
+
 	this.SnapElementRemove = function(){	// удалить csg элемент
-		
+
 		// Эту процедуру пока оставил временно,
 		// в последствии надо будет удалить. 
-		
+
 		return 
 
 		if (salf.snapElement == undefined) return
 
-		console.log('SnapElementRemove', salf.snapElement);
-		
+		// console.log('SnapElementRemove', salf.snapElement);
+
 		salf.snapElement.remove();
 
 		salf.snapElement = undefined;
 
 	}
-	
+
  }
 
 // Точка //
@@ -1023,30 +1006,23 @@ function iaaPoint(parentElement, w, h, d, lit){
 	
 	this.visible = true;
 	
-	// var [x, y, z] = salf.parent.position;
 	var [x, y, z] = salf.parent.getGlobalPosition();
 	
-	// var [m, n, k] = salf.parent.сentreValue;
-	var [m, n, k] = myCanvas.currentDraft.сentreValue;
+	var [m, n, k] = salf.parent.getTurnPointValua();
 
 	var [rx, ry, rz] = salf.parent.turn;
 	
-	if (salf.parent.parent == undefined) {
-		
-		this.xyz = [x + w, y + h, z + d];
-		
-	}else{
-		
-		this.xyz = [x + w,  y - h ,  z - d];
-		
-	}
+	this.xyz = [x + w,  y - h ,  z - d];
 	
 	this.xyz1
 		= myGraphix.getCoordinatesPoint
 			(
-			salf.parent, salf.xyz[0], salf.xyz[1], salf.xyz[2], m, n, k, rx, ry, rz
+			salf.parent,
+			salf.xyz[0],
+			salf.xyz[1],
+			salf.xyz[2], m, n, k, rx, ry, rz
 			); 
-	
+
 	this.display = function(){		// Отобразить точку
 		
 		myGraphix.createСircle(salf.xyz1, 5, 'blue', 'yellow', 1, salf.parent);
@@ -1071,7 +1047,7 @@ function iaaDraft(name, w, h, d){
 	
 	this.sizes = [w, h, d];	// размеры	
 	
-	this.position = [myCanvas.m-w/2, myCanvas.n-h/2, d/2]; // позиция
+	this.position = [myCanvas.m-w/2, myCanvas.n+h/2, 1.3*d]; // позиция
 	
 	this.faceVisible = false;
 	
@@ -1095,9 +1071,9 @@ function iaaЕlement(name, parentElement){
 	
 	this.attributes = {'stroke': 'black', 'stroke-width': 1, 'fill-opacity': 0.5}
 
-	this.gridVisible = false;
+	// this.gridVisible = true;
 	
-	this.gridStep = [10,10,10];	
+	// this.gridStep = [10,10,10];	
 	
 }
 
