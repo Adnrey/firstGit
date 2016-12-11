@@ -159,11 +159,11 @@ function formPropertyMap(){
 
 			ref = element;
 
-			na.value(ref.Имя);
+			na.value(ref.name);
 
-			ex.value(ref.Размеры[0]);
-			ey.value(ref.Размеры[1]);
-			ez.value(ref.Размеры[2]);
+			ex.value(ref.sizes[0]);
+			ey.value(ref.sizes[1]);
+			ez.value(ref.sizes[2]);
 
 		}
 
@@ -175,13 +175,15 @@ function formPropertyMap(){
 
 		if (ref != undefined) {
 
-			ref.Имя = na.value();
+			ref.name = na.value();
 
-			ref.Размеры[0] = +ex.value();
-			ref.Размеры[1] = +ey.value();
-			ref.Размеры[2] = +ez.value();
+			ref.sizes[0] = +ex.value();
+			ref.sizes[1] = +ey.value();
+			ref.sizes[2] = +ez.value();
 			
-			ОбновитьОтображение(ref)
+			ref.recalculate();
+			
+			myCanvas.repaint();
 
 		}
 
@@ -394,23 +396,23 @@ function formPropertyElement(){
 	
 	var na = new iaaInputStringField('elemint_name', 'Название:');
 
-	na._inputchange = function(){propertyOnChange(salf.getref(), 'Имя', na.value())}
+	na._inputchange = function(){myCanvas.propertyOnChange(salf.getref(), 'Имя', na.value())}
 	
 	var px = new iaaInputNumberField('prop_poz_x', 'Лево:');
 	var py = new iaaInputNumberField('prop_poz_y', 'Вверх:');
-	var pz = new iaaInputNumberField('prop_poz_z', 'Назад:');
+	var pz = new iaaInputNumberField('prop_poz_z', 'Вперёд:');
 	
-	px._inputchange = function(){propertyPositionOnChange(salf.getref(), 'x', + px.value())}
-	py._inputchange = function(){propertyPositionOnChange(salf.getref(), 'y', + py.value())}
-	pz._inputchange = function(){propertyPositionOnChange(salf.getref(), 'z', + pz.value())}
+	px._inputchange = function(){myCanvas.propertyPositionOnChange(salf.getref(), 'x', + px.value())}
+	py._inputchange = function(){myCanvas.propertyPositionOnChange(salf.getref(), 'y', + py.value())}
+	pz._inputchange = function(){myCanvas.propertyPositionOnChange(salf.getref(), 'z', + pz.value())}
 	
 	var sx = new iaaInputNumberField('prop_size_x', 'Ширина:');
 	var sy = new iaaInputNumberField('prop_size_y', 'Высота:');
 	var sz = new iaaInputNumberField('prop_size_z', 'Глубина:');
 	
-	sx._inputchange = function(){propertySizeOnChange(salf.getref(), 'x', + sx.value())}
-	sy._inputchange = function(){propertySizeOnChange(salf.getref(), 'y', + sy.value())}
-	sz._inputchange = function(){propertySizeOnChange(salf.getref(), 'z', + sz.value())}
+	sx._inputchange = function(){myCanvas.propertySizeOnChange(salf.getref(), 'x', + sx.value())}
+	sy._inputchange = function(){myCanvas.propertySizeOnChange(salf.getref(), 'y', + sy.value())}
+	sz._inputchange = function(){myCanvas.propertySizeOnChange(salf.getref(), 'z', + sz.value())}
 	
 	//var rx = new iaaInputNumberField('prop_rotation_x', 'Верх-Низ:');
 	//var ry = new iaaInputNumberField('prop_rotation_y', 'Вперед-Назад:');
@@ -454,19 +456,19 @@ function formPropertyElement(){
 
 		salf.ref = actionElement;
 	
-		na.value(salf.ref.Имя);
+		na.value(salf.ref.name);
 		
-		px.value(+salf.ref.Позиция[0]);
-		py.value(+salf.ref.Позиция[1]);
-		pz.value(+salf.ref.Позиция[2]);
+		px.value(+salf.ref.position[0]);
+		py.value(+salf.ref.position[1]);
+		pz.value(+salf.ref.position[2]);
 
-		sx.value(+salf.ref.Размеры[0]);
-		sy.value(+salf.ref.Размеры[1]);
-		sz.value(+salf.ref.Размеры[2]);
+		sx.value(+salf.ref.sizes[0]);
+		sy.value(+salf.ref.sizes[1]);
+		sz.value(+salf.ref.sizes[2]);
 		
-		//rx.value(+salf.ref.Поворот[0]);
-		//ry.value(+salf.ref.Поворот[1]);
-		//rz.value(+salf.ref.Поворот[2]);
+		//rx.value(+salf.ref.turn[0]);
+		//ry.value(+salf.ref.turn[1]);
+		//rz.value(+salf.ref.turn[2]);
 		
 		$(selector).dialog("open");
 		
@@ -752,9 +754,9 @@ function iaaInputNumberField(name, caption){
    	$(this._selector).parent().find('input').change(function(){inputchange()});
  
  
- 	$(this._selector).parent().find('input').mouseover(function(){setHookMouseWheel(this, inputWheelMouse, 1)})
+ 	$(this._selector).parent().find('input').mouseover(function(){setHookMouseWheel(this, myCanvas.inputWheelMouse, 1)})
 
-	$(this._selector).parent().find('input').mouseout(function(){setHookMouseWheel(this, inputWheelMouse)})   
+	$(this._selector).parent().find('input').mouseout(function(){setHookMouseWheel(this, myCanvas.inputWheelMouse)})   
 
  
  

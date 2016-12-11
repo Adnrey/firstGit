@@ -43,11 +43,14 @@ function iaaCanvas(){
 
 	this.scale = 0.60; 		// масштаб
 	
-	this.currentElement = undefined;	// текущий элемент
+	this.currentElement = undefined;		// текущий элемент
 	
-	this.currentDraft = undefined;		// текущий проект
+	this.currentDraft = undefined;			// текущий проект
 
-	this.actionPoints = {points:[]};	// точки действия	
+	this.actionPoints = {points:[]};		// точки действия	
+	
+	this.formPropertyElement = undefined;	// форма свойств элемента
+	
 	
 	var _attributes = {};				// атрибуты
 	
@@ -55,41 +58,21 @@ function iaaCanvas(){
 	
 	$(window).resize(function(){onWindowsResize()});
 
-	this.snap = function(){			// swg объект
-		
-		return snap;
-		
-	}
-	
-	this.recalculate = function(){	// пересчитать координаты
-
-		if (salf.currentDraft == undefined) return;
-	
-		salf.currentDraft.recalculate();
-	
-	}
-	
-	this.repaint = function(){		// перерисовать элементы
-		
-		if (salf.currentDraft == undefined) return;
-	
-		salf.currentDraft.repaint();
-	
-	}
-	
 	function onDocumentLoad(){
 		
 		$('article').append(' <svg id="'+idForm+'"></svg> ');  
 		
 		//..
 		
-		$(selector).mouseover(function(){setHookMouseWheel(this, mapWheelMouse, 1)})
-		$(selector).mouseout(function(){setHookMouseWheel(this, mapWheelMouse)})
+		$(selector).mouseover(function(){setHookMouseWheel(this, mapWheelMouse, 1)});
+		$(selector).mouseout(function(){setHookMouseWheel(this, mapWheelMouse)});
 		
-		$(selector).mousemove(function(e){snapMouseMove(e)})
-		$(selector).mouseup(function(e){snapMouseUp(e)})
-		$(selector).mousedown(function(e){snapMouseDoun(e)})
-		$(selector).mouseleave(function(e){snapMouseLeave(e)})		
+		$(selector).mousemove(function(e){snapMouseMove(e)});
+		$(selector).mouseup(function(e){snapMouseUp(e)});
+		$(selector).mousedown(function(e){snapMouseDoun(e)});
+		$(selector).mouseleave(function(e){snapMouseLeave(e)});
+		
+		$(selector).click(function(e){snapOnClick(e)});
 		
 		//..
 		
@@ -139,6 +122,54 @@ function iaaCanvas(){
 		
 		//snap.rect(0, 0, salf.width, salf.height);		
 
+	}
+	
+	//..
+	
+	this.snap = function(){			// swg объект
+		
+		return snap;
+		
+	}
+	
+	this.recalculate = function(){	// пересчитать координаты
+
+		if (salf.currentDraft == undefined) return;
+	
+		salf.currentDraft.recalculate();
+	
+	}
+	
+	this.repaint = function(){		// перерисовать элементы
+		
+		if (salf.currentDraft == undefined) return;
+	
+		salf.currentDraft.repaint();
+	
+	}
+
+	this.setCurrentElement = function(ref){	// Установить текущий элемент
+		
+		salf.currentElement = ref;
+		
+		if (salf.currentElement == undefined){
+			
+			if (salf.formPropertyElement != undefined) {
+		
+				salf.formPropertyElement.destroy();
+		
+			}
+			
+		} else {
+			
+			if (salf.formPropertyElement != undefined) {
+		
+				salf.formPropertyElement.open(ref);
+		
+			}	
+			
+		}
+		
 	}
 	
 	//.Tool.bar.........
@@ -213,7 +244,7 @@ function iaaCanvas(){
 	
 	function leftToolBarPropertyElement_onclick(e){
 		
-		if (salf.currentElement != undefined && salf.currentElement.type == 'Холст') {
+		if (salf.currentElement == undefined || salf.currentElement.type == 'Холст') {
 
 			var forma = new formPropertyMap();
 		
@@ -301,13 +332,44 @@ function iaaCanvas(){
 
 	function rightToolBarActionPoint_onclick(e){
 
-		myCanvas.currentDraft.recalculate();
+		myCanvas.recalculate();
 		
-		myCanvas.currentDraft.repaint();
-		
-		//ОбновитьОтображение()
+		myCanvas.repaint();
 		
 	}
+	
+	//..........
+
+	this.propertyOnChange = function(ref, name, value){
+		
+		ref[name] = value;
+		
+	}
+
+	this.propertySizeOnChange = function(ref, name, value){
+		
+		if (name == 'x') ref.sizes[0] = value; 
+		if (name == 'y') ref.sizes[1] = value; 
+		if (name == 'z') ref.sizes[2] = value; 
+		
+		ref.recalculate();
+
+		myCanvas.repaint();
+		
+	}
+
+	this.propertyPositionOnChange = function(ref, name, value){
+		
+		if (name == 'x') ref.position[0] = value; 
+		if (name == 'y') ref.position[1] = value; 
+		if (name == 'z') ref.position[2] = value; 
+		
+		ref.recalculate();
+
+		myCanvas.repaint();
+		
+	}
+	
 	
 	//..........
 	
@@ -345,7 +407,7 @@ function iaaCanvas(){
 
 	}
 
-	function inputWheelMouse(e){
+	this.inputWheelMouse = function(e){
 
 		var i = new mauseWheelEvent(e)
 
@@ -457,6 +519,12 @@ function iaaCanvas(){
 		
 	}
 
+	function snapOnClick(e){
+		
+		salf.setCurrentElement(undefined);
+		
+	}
+	
 	//.........
 	
 }
@@ -504,8 +572,29 @@ function iaaGroup(){
 
 
 	this.snapElements = myCanvas.snap().g(); // svg элементы 
+	
+	this.snapElements.click(function(e){snapElementsOnClick(e)}) // событие OnClick
 
+	//...
+	
+	function snapElementsOnClick(e){
+		
+		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
+	
+			myCanvas.setCurrentElement(salf);
 
+			myCanvas.recalculate();
+
+			myCanvas.repaint();
+	
+		}
+		
+		e.stopPropagation(); // Прекратить всплывание
+
+	}
+	
+	//...
+	
 	this.setProperty = function(prop){	//Установить свойства
 		
 		if (prop.position != undefined) {
