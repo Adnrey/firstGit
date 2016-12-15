@@ -76,6 +76,14 @@ function iaaCanvas(){
 		
 		//..
 		
+		// var elementHammertime = document.getElementById(idForm);
+		
+		// var hammertime = new Hammer(elementHammertime);
+		
+		// hammertime.on('pan', function(ev) {snapMouseMoveHamer(ev)});
+		
+		//..
+		
 		createToolbar()
 		
 		//..
@@ -157,16 +165,18 @@ function iaaCanvas(){
 			if (salf.formPropertyElement != undefined) {
 		
 				salf.formPropertyElement.destroy();
+				
+				salf.formPropertyElement = undefined;
 		
 			}
 			
 		} else {
 			
-			if (salf.formPropertyElement != undefined) {
+			// if (salf.formPropertyElement != undefined) {
 		
-				salf.formPropertyElement.open(ref);
+				// salf.formPropertyElement.open(ref);
 		
-			}	
+			// }	
 			
 		}
 		
@@ -244,7 +254,7 @@ function iaaCanvas(){
 	
 	function leftToolBarPropertyElement_onclick(e){
 		
-		if (salf.currentElement == undefined || salf.currentElement.type == 'Холст') {
+		if (salf.currentElement == undefined || salf.currentElement == salf.currentDraft) {
 
 			var forma = new formPropertyMap();
 		
@@ -252,11 +262,7 @@ function iaaCanvas(){
 
 		}else{
 
-			if (salf.formPropertyElement == undefined) {
-
-				salf.formPropertyElement = new formPropertyElement();
-
-			}
+			salf.formPropertyElement = new formPropertyElement();
 
 			salf.formPropertyElement.open(salf.currentElement);
 
@@ -463,7 +469,9 @@ function iaaCanvas(){
 
 	function snapMouseMove(e){
 	
-		var [sx, sy, sz] = [0,0,0]
+		// console.log(e);
+	
+		var [sx, sy] = [0,0]
 
 		if (salf._gx != undefined) {[sx, sy] = [e.clientX - salf._gx, e.clientY - salf._gy]}
 
@@ -487,6 +495,35 @@ function iaaCanvas(){
 
 	}
 
+	function snapMouseMoveHamer(e){
+	
+		// console.log(e);
+	
+		var [sx, sy] = [0, 0]
+
+		if (salf._gx != undefined) {[sx, sy] = [e.deltaX - salf._gx, e.deltaY - salf._gy]}
+
+		[salf._gx, salf._gy] = [e.deltaX, e.deltaY]
+		
+		// alert('sx:' + sx + ', ' + 'sy:' + sy);
+		
+		console.log('sx:' + sx + ', ' + 'sy:' + sy);
+		
+		salf._pressLeftMouseButton = true;
+		
+		salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5)
+		
+		salf._pressLeftMouseButton = false;
+		
+	}
+	
+	
+	function snapOnClick(e){
+		
+		salf.setCurrentElement(undefined);
+		
+	}	
+	
 	function snapMouseUp(e){
 
 		if (e.which == 1){
@@ -519,11 +556,7 @@ function iaaCanvas(){
 		
 	}
 
-	function snapOnClick(e){
-		
-		salf.setCurrentElement(undefined);
-		
-	}
+
 	
 	//.........
 	
@@ -1114,7 +1147,7 @@ function iaaPoint(parentElement, w, h, d, lit){
 
 	this.display = function(){		// Отобразить точку
 		
-		myGraphix.createСircle(salf.xyz1, 5, 'blue', 'yellow', 1, salf.parent);
+		// myGraphix.(salf.xyz1, 5, 'blue', 'yellow', 1, salf.parent);
 		
 	}
 

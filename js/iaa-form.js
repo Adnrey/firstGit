@@ -485,8 +485,6 @@ function formPropertyElement(){
 		close:
 			function(event, ui) {
 		 		
-				svg.formPropertyElement = undefined;
-				
 				$(selector).dialog( "destroy" );
 				$(selector).detach();
 				
