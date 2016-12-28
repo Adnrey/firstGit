@@ -131,8 +131,8 @@
 
 .iaa-botton:checked + .iaa-label-botton{
   
-    border: 1px solid #655e4e;
-    background: #ffffff;
+    border: 1px solid #d19405;
+    background: #fece2f;
 	background-size: 70% 70%;
 	background-repeat: no-repeat;
 	background-position: 8px 8px;
@@ -147,8 +147,8 @@
   
     width: 50px;  
     height: 50px;  
-    border: 1px solid #d19405;
-    background: #fece2f;
+    border: 0px solid #655e4e;
+    /* background: aliceblue; */
     font-weight: bold;
     margin: -1px -3px -1px 0px;
  

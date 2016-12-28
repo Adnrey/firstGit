@@ -10,49 +10,53 @@ function iaaCanvas(){
 	
 	var salf = this;
 	
-	var idForm = 'svgout';
+	{ // Инициализация свойств
+	
+		var idForm = 'svgout';
 
-	var selector = "#" + idForm; 
+		var selector = "#" + idForm; 
 
-	var snap = undefined;
-	
-	//.....	
-	
-	this._gx = undefined;  // Сюда сохраняется дельта x при перемещении курсора
-	this._gy = undefined;  // Сюда сохраняется дельта y при перемещении курсора 
+		var snap = undefined;
+		
+		//.....	
+		
+		this._gx = undefined;  // Сюда сохраняется дельта x при перемещении курсора
+		this._gy = undefined;  // Сюда сохраняется дельта y при перемещении курсора 
 
-	this._pressRightMouseButton = false; // Нажата правая кнопка мыши
-	this._pressLeftMouseButton = false;  // Нажата левая кнопка мыши 
-	this._pressMouseWheel = false;		 // Нажато колёсико мыши
-	
-	//.....
-	
-	this.type = 'Холст';	// тип
-	
-	this.width = 0;			// ширина
-	
-	this.height = 0;		// высота
-	
-	this.m = 0;				// половина ширины
-	
-	this.n = 0;				// половина высоты
-	
-	this.k = 0;				// поидее половина глубины, но всегда 0
-	
-	this.turn = [0,0,0];	// поворот
+		this._pressRightMouseButton = false; // Нажата правая кнопка мыши
+		this._pressLeftMouseButton = false;  // Нажата левая кнопка мыши 
+		this._pressMouseWheel = false;		 // Нажато колёсико мыши
+		
+		//.....
+		
+		this.type = 'Холст';	// тип
+		
+		this.width = 0;			// ширина
+		
+		this.height = 0;		// высота
+		
+		this.m = 0;				// половина ширины
+		
+		this.n = 0;				// половина высоты
+		
+		this.k = 0;				// поидее половина глубины, но всегда 0
+		
+		this.turn = [0,0,0];	// поворот
 
-	this.scale = 0.60; 		// масштаб
-	
-	this.currentElement = undefined;		// текущий элемент
-	
-	this.currentDraft = undefined;			// текущий проект
+		this.scale = 0.60; 		// масштаб
+		
+		this.currentElement = undefined;		// текущий элемент
+		
+		this.currentDraft = undefined;			// текущий проект
 
-	this.actionPoints = {points:[]};		// точки действия	
+		this.actionPoints = [];					// точки действия	
+		
+		this.formPropertyElement = undefined;	// форма свойств элемента
+		
+		
+		var _attributes = {};				// атрибуты
 	
-	this.formPropertyElement = undefined;	// форма свойств элемента
-	
-	
-	var _attributes = {};				// атрибуты
+	}
 	
 	$(document).ready(function (){onDocumentLoad()});
 	
@@ -145,6 +149,8 @@ function iaaCanvas(){
 		if (salf.currentDraft == undefined) return;
 	
 		salf.currentDraft.recalculate();
+		
+		salf.addActionPoint();
 	
 	}
 	
@@ -153,9 +159,55 @@ function iaaCanvas(){
 		if (salf.currentDraft == undefined) return;
 	
 		salf.currentDraft.repaint();
+		
+		salf.actionPoints.forEach(function(actionPoint){
+
+			actionPoint.repaint();
+
+		});
 	
 	}
 
+	//--
+	
+	this.addActionPoint = function(){	// Добавить точки действия
+		
+		salf.clearActionPoint();
+		
+		if (salf.currentElement == undefined) return;
+		
+		if ($("#ButtonActionPoint").prop("checked") == false) return
+	
+		salf.currentElement.faces.forEach(function(face){
+			
+			if (face.visible == salf.currentElement.faceVisible){
+			
+				var newActionPoint = new iaaActionPoint(salf.currentElement, face);
+				
+				myCanvas.actionPoints.push(newActionPoint);
+
+				newActionPoint.recalculate();
+				
+			}
+			
+		});		
+		
+	}
+	
+	this.clearActionPoint = function(){	// Удалить точки действия
+		
+		salf.actionPoints.forEach(function(actionPoint){
+
+			actionPoint.snapElementsDestroy();
+
+		});
+
+		salf.actionPoints = [];
+		
+	}	
+	
+	//--
+	
 	this.setCurrentElement = function(ref){	// Установить текущий элемент
 		
 		salf.currentElement = ref;
@@ -328,9 +380,9 @@ function iaaCanvas(){
 			value[0] = rx + (sy/4);
 			value[1] = ry - (sx/4);
 			
-			myCanvas.currentDraft.recalculate();
+			myCanvas.recalculate();
 			
-			myCanvas.currentDraft.repaint()
+			myCanvas.repaint();
 			
 		}
 
@@ -556,8 +608,6 @@ function iaaCanvas(){
 		
 	}
 
-
-	
 	//.........
 	
 }
@@ -568,46 +618,50 @@ function iaaGroup(){
 	
 	var salf = this;
 
-	this.parent = undefined;			// родительский элемент
-
-	this.name = 'Новый элемент';		// имя
+	{ // Инициализация свойств
 	
+		this.parent = undefined;			// родительский элемент
+
+		this.name = 'Новый элемент';		// имя
+		
+		
+		this.position = [0,0,0];			// позиция
+		
+		this.sizes = [0,0,0];				// размеры
+
+		this.turn = [0,0,0];				// поворот
+		
+		
+		this.сentreValue = [0,0,0];			// координаты центра элемента
+		
+		this.сentrePoint = [0,0,0,1];		// координаты точки центра элемента  
+		
+		this.depth = 0;						// глубина	
+		
+		this.points = [];					// точки
+		
+		this.faces = [];					// грани
+
+		this.attributes = {};				// атрибуты
+
+		this.elements = [];					// подчиненные элементы
+
+
+		this.matrixVolume = [[],[],[],[]];	// матрица объема
+
+		this.faceVisible = true;			// отображаемые грани (true - видимые, false - не видимые)
+
+		this.gridVisible = false;			// отображать сетку
+
+		this.gridStep = [50,50,50];			// шаг сетки
+
+
+		this.snapElements = myCanvas.snap().g(); // svg элементы 
+		
+		this.snapElements.click(function(e){snapElementsOnClick(e)}) // событие OnClick
+
+	}
 	
-	this.position = [0,0,0];			// позиция
-	
-	this.sizes = [0,0,0];				// размеры
-
-	this.turn = [0,0,0];				// поворот
-	
-	
-	this.сentreValue = [0,0,0];			// координаты центра элемента
-	
-	this.сentrePoint = [0,0,0,1];		// координаты точки центра элемента  
-	
-	this.depth = 0;						// глубина	
-	
-	this.points = [];					// точки
-	
-	this.faces = [];					// грани
-
-	this.attributes = {};				// атрибуты
-
-	this.elements = [];					// подчиненные элементы
-
-
-	this.matrixVolume = [[],[],[],[]];	// матрица объема
-
-	this.faceVisible = true;			// отображаемые грани (true - видимые, false - не видимые)
-
-	this.gridVisible = false;			// отображать сетку
-
-	this.gridStep = [50,50,50];			// шаг сетки
-
-
-	this.snapElements = myCanvas.snap().g(); // svg элементы 
-	
-	this.snapElements.click(function(e){snapElementsOnClick(e)}) // событие OnClick
-
 	//...
 	
 	function snapElementsOnClick(e){
@@ -628,11 +682,19 @@ function iaaGroup(){
 	
 	//...
 	
-	this.setProperty = function(prop){	//Установить свойства
+	this.setProperty = function(prop){	// Установить свойства
+		
+		// console.log('prop', prop);
+		
+		if (prop.name != undefined){
+			
+			salf.name = prop.name;
+			
+		}
 		
 		if (prop.position != undefined) {
 			
-			this.position = [
+			salf.position = [
 				prop.position.x,
 				prop.position.y,
 				prop.position.z
@@ -642,7 +704,7 @@ function iaaGroup(){
 		
 		if (prop.sizes != undefined) {
 			
-			this.sizes = [
+			salf.sizes = [
 				prop.sizes.w,
 				prop.sizes.h,
 				prop.sizes.d
@@ -652,7 +714,7 @@ function iaaGroup(){
 		
 		if (prop.turn != undefined) {
 			
-			this.turn = [
+			salf.turn = [
 				prop.turn.rx,
 				prop.turn.ry,
 				prop.turn.rz
@@ -763,9 +825,22 @@ function iaaGroup(){
 		
 	}
 	
+	this.snapElementsDestroy = function(){			// Разрушить группу снап элемента
+		
+		salf.snapElements.remove();
+		
+	}
+	
+	this.snapElementsClear = function(){			// Очистить снап элементы в группе
+		
+		salf.snapElements.clear();
+	}	
+	
+	//---
+	
 	this.addElement = function(prop){	// Добавить элемент
 		
-		var newElement = new iaaЕlement(prop.name, this);
+		var newElement = new iaaЕlement(salf);
 		
 		this.elements.push(newElement);
 		
@@ -1179,7 +1254,7 @@ function iaaDraft(name, w, h, d){
 
 // Элемент //
 
-function iaaЕlement(name, parentElement){
+function iaaЕlement(parentElement){
 	
 	var salf = this;
 	
@@ -1188,8 +1263,6 @@ function iaaЕlement(name, parentElement){
 	iaaGroup.apply(this, arguments);
 	
 	this.parent = parentElement; // родительский элемент
-	
-	this.name = name; // имя
 	
 	this.attributes = {'stroke': 'black', 'stroke-width': 1, 'fill-opacity': 0.5}
 
@@ -1209,15 +1282,133 @@ function iaaActionPoint(parentElement, parentFace){
 
 	iaaGroup.apply(this, arguments);
 	
-	var _parent = parentElement; // Родительский элемент
+	this.parent = parentElement; // Родительский элемент
 	
-	var _face = parentFace; // Родительская грань
+	this.face = parentFace; // Родительская грань
+	
+	{	// Рассчет свойств
+		
+		var dimension = 14;			// Размер
+		
+		var visibleSeeFace = salf.parent.faceVisible;
+		
+		var [x, y, z] = salf.face.сentreValue;
+		
+		var [w, h, d] = [dimension, dimension, dimension];
+		
+		if (visibleSeeFace){
+			
+			if (salf.face.letter == 'R'){
+
+				w = w/4;
+			
+				y -= h/2;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'L'){	
+
+				w = w/4;
+			
+				x -= w;
+				y -= h/2;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'T'){
+
+				h = h/4;
+			
+				x -= w/2;
+				y -= h;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'B'){	
+
+				h = h/4;
+			
+				x -= w/2;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'H'){
+
+				d = d/4;
+			
+				x -= w/2;
+				y -= h/2;
+				z -= d;
+
+			}else if (salf.face.letter == 'Y'){	
+
+				d = d/4;
+			
+				x -= w/2;
+				y -= h/2;
+
+			}
+
+		}else{
+
+			if (salf.face.letter == 'R'){
+
+				w = w/4;
+			
+				x -= w;
+				y -= h/2;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'L'){	
+
+				w = w/4;
+			
+				y -= h/2;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'T'){
+
+				h = h/4;
+			
+				x -= w/2;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'B'){	
+
+				h = h/4;
+			
+				x -= w/2;
+				y -= h;
+				z -= d/2;
+
+			}else if (salf.face.letter == 'H'){
+
+				d = d/4;
+			
+				x -= w/2;
+				y -= h/2;
+
+			}else if (salf.face.letter == 'Y'){	
+
+				d = d/4;
+				
+				x -= w/2;
+				y -= h/2;
+				z -= d;
+
+			}
+
+		}
+
+	} 
+	
+	salf.setProperty(
+	
+		new elementProperty(salf.face.letter, x, y, z, w, h, d, 0, 0, 0)
+	
+	);
 
 }
 
 // Времяночка //
 
-function elementProperty(name, x , y, z, w, h, d, rx, ry, rz){
+function elementProperty(name, x, y, z, w, h, d, rx, ry, rz){
 	
 	var salf = this;
 
