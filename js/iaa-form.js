@@ -265,18 +265,15 @@ function formAddElemrnt(){
 
 		ref = actionPoint;
 		
-		var orderNumber = actionPoint.Родитель.Элементы.length+1;
-		
-		//na.value("Элемент" + orderNumber);
-		na.value("" + orderNumber);
+		na.value("Элемент");
 
-		if (ЭтоКарта(actionPoint.Родитель)){
+		if (myCanvas.currentDraft == actionPoint.parent) {
 		
 			var [w, h, d] = [100, 100, 100];
 		
 		}else{
 			
-			var [w, h, d] = actionPoint.Родитель.Размеры;
+			var [w, h, d] = actionPoint.parent.sizes;
 			
 		}
 		
@@ -294,55 +291,78 @@ function formAddElemrnt(){
 
 		if (ref != undefined) {
 
-			var [x, y, z] = ref.ParentFace.Центр.xyz;
+
+		
+			// var [x, y, z] = ref.face.сentreValue;
+
+			// console.log(ref.parent.position, [x, y, z]);
+		
+			if (myCanvas.currentDraft == ref.parent){
+				
+				var [x, y, z] = ref.face.сentreValue;
+				
+			} else {
+				
+				var [px, py, pz] = ref.parent.position;
+				
+				var [cx, cy, cz] = ref.face.сentreValue;				
+
+				var [x, y, z] = [px + cx, py + cy, pz + cz];
+				
+			}
 			
 			var [w, h, d] = [+ex.value(), +ey.value(), +ez.value()]
 			
-			var ОтображатьВнешниеграни = ref.ParentFace.Родитель.ОтображатьГрани;
+			var visibleSeeFace = ref.face.parent.faceVisible;
 			
-			if (ОтображатьВнешниеграни){
+			var litter = ref.face.letter;
+			
+			if (visibleSeeFace){
 				
-				if (ref.ParentFace.Лит == 'R'){y -= h/2;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'L'){x -= w;y -= h/2;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'T'){x -= w/2;y -= h;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'B'){x -= w/2;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'H'){x -= w/2;y -= h/2;z -= d;
-				}else if (ref.ParentFace.Лит == 'Y'){x -= w/2;y -= h/2;
-				}
+				console.log('hi')
+				
+				if (litter == 'R'){y -= h/2;z -= d/2;
+				
+				}else if (litter == 'L'){x -= w;y -= h/2;z -= d/2;
+				
+				}else if (litter == 'T'){x -= w/2; z -= d/2;
+				
+				}else if (litter == 'B'){x -= w/2;y -= h;z -= d/2;
+				
+				}else if (litter == 'H'){x -= w/2;y -= h/2;z -= d;
+				
+				}else if (litter == 'Y'){x -= w/2;y -= h/2;}
 				
 			}else{	
 			
-				if (ref.ParentFace.Лит == 'R'){x -= w;y -= h/2;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'L'){y -= h/2;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'T'){x -= w/2;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'B'){x -= w/2;y -= h;z -= d/2;
-				}else if (ref.ParentFace.Лит == 'H'){x -= w/2;y -= h/2;
-				}else if (ref.ParentFace.Лит == 'Y'){x -= w/2;y -= h/2;z -= d;
-				}
+				console.log('ho')			
+			
+				if (litter == 'R'){x -= w;y -= h/2;z -= d/2;
+				
+				}else if (litter == 'L'){y -= h/2;z -= d/2;
+				
+				}else if (litter == 'T'){x -= w/2; y -= h; z -= d/2;
+				
+				}else if (litter == 'B'){x -= w/2; z -= d/2;
+				
+				}else if (litter == 'H'){x -= w/2;y -= h/2;
+				
+				}else if (litter == 'Y'){x -= w/2;y -= h/2;z -= d;}
 				
 			}
 
-			var newЭлемент = {}
-		
-			newЭлемент.Родитель = Карта;
-			newЭлемент.Имя = na.value();
-			newЭлемент.ТипЗнч = "Элемент";
-			newЭлемент.ParentFace = ref.ParentFace;
-			newЭлемент.Позиция = [x, y, z];
-			newЭлемент.Размеры = [w, h, d]
-			newЭлемент.Поворот = [0, 0, 0]
-			newЭлемент.ОтображатьЦентр = false;
-			newЭлемент.Атрибуты = {
-				"fill-opacity": 1
-			}
+			var newElement
+				= myCanvas.currentDraft.addElement
+					(
+					new elementProperty(na.value(), x, y, z, w, h, d,0,0,0)
 
-			СоздатьЭлемент(newЭлемент)
-
-			Карта.Элементы.push(newЭлемент)
+				);			
 			
-			УстановитьТекущийЭлемент(newЭлемент);
+			myCanvas.setCurrentElement(newElement);
 			
-			ОбновитьОтображение()
+			myCanvas.recalculate();
+			
+			myCanvas.repaint();
 
 		}
 
@@ -419,15 +439,15 @@ function formPropertyElement(){
 	//var rz = new iaaInputNumberField('prop_rotation_z', 'Лево-Право:');
   
 	//px.min(0); px.max(600);
-	px.step(2);
+	px.step(10);
 	//py.min(0); py.max(600);
-	py.step(2);
+	py.step(10);
 	//pz.min(0); pz.max(600);
-	pz.step(2);
+	pz.step(10);
 
-	sx.min(0); sx.max(600); sx.step(2);
-	sy.min(0); sy.max(600); sy.step(2);
-	sz.min(0); sz.max(600); sz.step(2);
+	sx.min(0); sx.max(600); sx.step(10);
+	sy.min(0); sy.max(600); sy.step(10);
+	sz.min(0); sz.max(600); sz.step(10);
 
 	//rx.min(0); rx.max(360); rx.step(45);
 	//ry.min(0); ry.max(360); ry.step(45);
@@ -489,7 +509,9 @@ function formPropertyElement(){
 				$(selector).detach();
 				
 			}
-			
+		
+		// salf.destroy();
+
 	});	
 	
 }

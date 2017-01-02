@@ -102,18 +102,20 @@ function iaaCanvas(){
 		
 		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 400);
 		
-		salf.currentDraft.addElement(
+		// salf.currentDraft.addElement(
 		
-			new elementProperty('Новый Элемент 1', 300, 0, 0, 100, 100, 50,0,0,0)
+			// new elementProperty('Новый Элемент 1', 0, 0, 0, 100, 100, 50,0,0,0)
 
-		);
+		// );
 
-		salf.currentDraft.addElement(
+		// salf.currentDraft.addElement(
 			
-			new elementProperty('Новый Элемент 2', 120, 50, 50, 100, 10, 150,0,0,0)
+			// new elementProperty('Новый Элемент 2', 200, 0, 10, 150, 10, 150,0,0,0)
 		
-		);
+		// );
 
+		salf.currentElement = salf.currentDraft;
+		
 		salf.recalculate();
 		
 		salf.repaint();
@@ -150,7 +152,7 @@ function iaaCanvas(){
 	
 		salf.currentDraft.recalculate();
 		
-		salf.addActionPoint();
+		salf.addActionPoints();
 	
 	}
 	
@@ -170,7 +172,7 @@ function iaaCanvas(){
 
 	//--
 	
-	this.addActionPoint = function(){	// Добавить точки действия
+	this.addActionPoints = function(){	// Добавить точки действия
 		
 		salf.clearActionPoint();
 		
@@ -211,6 +213,8 @@ function iaaCanvas(){
 	this.setCurrentElement = function(ref){	// Установить текущий элемент
 		
 		salf.currentElement = ref;
+
+		// console.log(ref);
 		
 		if (salf.currentElement == undefined){
 			
@@ -224,13 +228,27 @@ function iaaCanvas(){
 			
 		} else {
 			
-			// if (salf.formPropertyElement != undefined) {
+			if (salf.formPropertyElement != undefined) {
 		
-				// salf.formPropertyElement.open(ref);
+				if (salf.currentElement == salf.currentDraft) {
+					
+					salf.formPropertyElement.destroy();
+					
+					salf.formPropertyElement = undefined;					
+					
+				}else{
+					
+					salf.formPropertyElement.open(ref);					
+					
+				}				
 		
-			// }	
+			}	
 			
 		}
+		
+		myCanvas.recalculate;
+		
+		myCanvas.repaint;
 		
 	}
 	
@@ -353,9 +371,9 @@ function iaaCanvas(){
 			value[0] = x + sx * m;
 			value[1] = y + sy * m;
 
-			myCanvas.currentDraft.recalculate();
+			myCanvas.recalculate();
 			
-			myCanvas.currentDraft.repaint();
+			myCanvas.repaint();
 
 		}
 
@@ -410,7 +428,7 @@ function iaaCanvas(){
 		if (name == 'y') ref.sizes[1] = value; 
 		if (name == 'z') ref.sizes[2] = value; 
 		
-		ref.recalculate();
+		myCanvas.recalculate();
 
 		myCanvas.repaint();
 		
@@ -422,7 +440,7 @@ function iaaCanvas(){
 		if (name == 'y') ref.position[1] = value; 
 		if (name == 'z') ref.position[2] = value; 
 		
-		ref.recalculate();
+		myCanvas.recalculate();
 
 		myCanvas.repaint();
 		
@@ -668,11 +686,33 @@ function iaaGroup(){
 		
 		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
 	
-			myCanvas.setCurrentElement(salf);
+			if (salf.type == 'Точка действия'){
+				
+				if (myCanvas.ElementCommandButton.checkButton()._name == 'ButtonAddElement'){
+					
+					var di = new formAddElemrnt();
+					
+					di.open(salf);
 
-			myCanvas.recalculate();
+				}else if(myCanvas.ElementCommandButton.checkButton()._name == 'ButtonChangePosition'){
+					
+					alert('Действие изменение позиции')
+					
+				}else if(myCanvas.ElementCommandButton.checkButton()._name == 'ButtonChangeSize'){
+				
+					alert('Действие изменение размера')
+					
+				}
+				
+			}else {
+		
+				myCanvas.setCurrentElement(salf);
 
-			myCanvas.repaint();
+				myCanvas.recalculate();
+
+				myCanvas.repaint();
+				
+			}
 	
 		}
 		
@@ -821,7 +861,7 @@ function iaaGroup(){
 			
 		});
 		
-		// myGraphix.createСircle(salf.сentrePoint, 5, 'blue',	'red', 1, salf);
+		//myGraphix.createСircle(salf.сentrePoint, 5, 'blue',	'red', 1, salf);
 		
 	}
 	
@@ -845,6 +885,8 @@ function iaaGroup(){
 		this.elements.push(newElement);
 		
 		newElement.setProperty(prop);
+		
+		return newElement;
 		
 	}
 	
@@ -1041,7 +1083,8 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 		= myGraphix
 			.getAverageCoordinatesOfpoints
 				(
-				parentElement.position,
+				//parentElement.position,
+				parentElement.getGlobalPosition(),
 				salf.points
 				);
 
@@ -1091,8 +1134,8 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 			
 			salf.parent.snapElements.add(salf.snapElement)
 			
-			salf.displayGrid();			
-			
+			salf.displayGrid();		
+
 		}
 		
 	}
@@ -1222,7 +1265,7 @@ function iaaPoint(parentElement, w, h, d, lit){
 
 	this.display = function(){		// Отобразить точку
 		
-		// myGraphix.(salf.xyz1, 5, 'blue', 'yellow', 1, salf.parent);
+		// myGraphix.getAverageCoordinatesOfpoints(salf.xyz1, 5, 'blue', 'yellow', 1, salf.parent);
 		
 	}
 
@@ -1234,10 +1277,10 @@ function iaaDraft(name, w, h, d){
 	
 	var salf = this;
 	
-	this.type = 'Проект'; // тип
-	
 	iaaGroup.apply(this, arguments);
 	
+	this.type = 'Проект'; // тип
+
 	this.name = name;
 	
 	this.attributes = {'stroke': 'black', 'fill': 'green', 'stroke-width': 1, 'fill-opacity': 0.5}
@@ -1258,17 +1301,17 @@ function iaaЕlement(parentElement){
 	
 	var salf = this;
 	
-	var type = 'Элемент'; // тип
-
 	iaaGroup.apply(this, arguments);
 	
+	this.type = 'Элемент'; // тип
+
 	this.parent = parentElement; // родительский элемент
 	
 	this.attributes = {'stroke': 'black', 'stroke-width': 1, 'fill-opacity': 0.5}
 
 	// this.gridVisible = true;
 	
-	// this.gridStep = [10,10,10];	
+	// this.gridStep = [25,25,25];	
 	
 }
 
@@ -1278,14 +1321,16 @@ function iaaActionPoint(parentElement, parentFace){
 	
 	var salf = this;
 	
-	var type = 'Точка действия'; // тип
-
 	iaaGroup.apply(this, arguments);
 	
+	this.type = 'Точка действия'; // тип
+
 	this.parent = parentElement; // Родительский элемент
 	
 	this.face = parentFace; // Родительская грань
 	
+	this.attributes = {'fill': 'yellow', 'fill-opacity': 0.5}
+
 	{	// Рассчет свойств
 		
 		var dimension = 14;			// Размер
@@ -1299,7 +1344,7 @@ function iaaActionPoint(parentElement, parentFace){
 		if (visibleSeeFace){
 			
 			if (salf.face.letter == 'R'){
-
+				
 				w = w/4;
 			
 				y -= h/2;
@@ -1318,14 +1363,16 @@ function iaaActionPoint(parentElement, parentFace){
 				h = h/4;
 			
 				x -= w/2;
-				y -= h;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'B'){	
+			}else if (salf.face.letter == 'B'){
+			
+				this.attributes = {'fill': 'red', 'fill-opacity': 0.5}
 
 				h = h/4;
 			
 				x -= w/2;
+				y -= h;
 				z -= d/2;
 
 			}else if (salf.face.letter == 'H'){
@@ -1346,7 +1393,7 @@ function iaaActionPoint(parentElement, parentFace){
 			}
 
 		}else{
-
+		
 			if (salf.face.letter == 'R'){
 
 				w = w/4;
@@ -1361,20 +1408,20 @@ function iaaActionPoint(parentElement, parentFace){
 			
 				y -= h/2;
 				z -= d/2;
-
+		
 			}else if (salf.face.letter == 'T'){
 
 				h = h/4;
 			
 				x -= w/2;
+				y -= h;
 				z -= d/2;
 
 			}else if (salf.face.letter == 'B'){	
-
+			
 				h = h/4;
 			
 				x -= w/2;
-				y -= h;
 				z -= d/2;
 
 			}else if (salf.face.letter == 'H'){

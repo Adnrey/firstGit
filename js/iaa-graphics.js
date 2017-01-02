@@ -24,12 +24,14 @@ function iaaGraphixs(){
 		}
 		
 		for (var i = 0; i < 3; i++) {
+			
 			pc[i] = pc[i]/points.length
+			
 		}
 		
 		var x = pc[0] - xyz[0];
-		var y = pc[1] - xyz[1];
-		var z = pc[2] - xyz[2];
+		var y = xyz[1] - pc[1];
+		var z = xyz[2] - pc[2];
 
 		return [x, y, z];
 		
@@ -268,27 +270,23 @@ function iaaGraphixs(){
 
 		var matrix = []
 
-		var currentParent = element.Parent;
-		
-		if (currentParent == undefined){
-		
+		if (element.type == 'Точка действия' && element.parent != myCanvas.currentDraft){
+			
+			var parentElement = element.parent.parent;	
+
+			// console.log(element);
+			
+			var [pm, pn, pk] = parentElement.сentreValue;
+
+			var [prx, pry, prz] = parentElement.turn;
+			
+			salf.addTurnAroundPointMatrixs(matrix, pm, pn, pk, prx, pry, prz);			
+			
+		}else{
+
 			salf.addTurnAroundPointMatrixs(matrix, m, n, k, rx, ry, rz);
-			
-		 }else{
-
-			if (element.type == 'Точка действия' && currentParent.Parent != undefined){
-				
-				currentParent = currentParent.Parent;
-				
-			}
-		 
-			var [pm, pn, pk] = currentParent.сentreValue;
-
-			var [prx, pry, prz] = currentParent.turn;
-			
-			salf.addTurnAroundPointMatrixs(matrix, pm, pn, pk, prx, pry, prz);
-			
-		}
+		
+		}		
 		
 		//..
 		
