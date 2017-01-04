@@ -35,21 +35,23 @@ function iaaCanvas(){
 		
 		this.height = 0;		// высота
 		
-		this.m = 0;				// половина ширины
+		this.m = 421;				// половина ширины
 		
-		this.n = 0;				// половина высоты
+		this.n = 380;				// половина высоты
 		
 		this.k = 0;				// поидее половина глубины, но всегда 0
 		
-		this.turn = [0,0,0];	// поворот
+		this.turn = [13,46,0];	// поворот
 
-		this.scale = 0.60; 		// масштаб
+		this.scale = 0.70; 		// масштаб
 		
 		this.currentElement = undefined;		// текущий элемент
 		
 		this.currentDraft = undefined;			// текущий проект
 
 		this.actionPoints = [];					// точки действия	
+		
+		this.actionPointsStep = 10;				// шаг точки действия		
 		
 		this.formPropertyElement = undefined;	// форма свойств элемента
 		
@@ -80,11 +82,7 @@ function iaaCanvas(){
 		
 		//..
 		
-		// var elementHammertime = document.getElementById(idForm);
-		
-		// var hammertime = new Hammer(elementHammertime);
-		
-		// hammertime.on('pan', function(ev) {snapMouseMoveHamer(ev)});
+		loadHammer(idForm);
 		
 		//..
 		
@@ -102,18 +100,6 @@ function iaaCanvas(){
 		
 		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 400);
 		
-		// salf.currentDraft.addElement(
-		
-			// new elementProperty('Новый Элемент 1', 0, 0, 0, 100, 100, 50,0,0,0)
-
-		// );
-
-		// salf.currentDraft.addElement(
-			
-			// new elementProperty('Новый Элемент 2', 200, 0, 10, 150, 10, 150,0,0,0)
-		
-		// );
-
 		salf.currentElement = salf.currentDraft;
 		
 		salf.recalculate();
@@ -288,8 +274,8 @@ function iaaCanvas(){
 
 		var group23 = tolBar2.addGroupButton('ActionPointTrendButton');
 
-		var button235 = group23.addButton('ButtonTrendInside', 'radio');	// Внутрь
-		var button236 = group23.addButton('ButtonTrendOutside', 'radio');	// Наружу
+		var button235 = group23.addButton('ButtonTrendOutside', 'radio');	// Внутрь
+		var button236 = group23.addButton('ButtonTrendInside', 'radio');	// Наружу
 
 		// 
 		
@@ -412,9 +398,9 @@ function iaaCanvas(){
 	}
 
 	function leftToolBarTurn_svg_mousemove(sx, sy){
-
+		
 		if (salf._pressLeftMouseButton == true || salf._pressMouseWheel == true){
-
+		
 			var value = salf.turn
 
 			var [rx, ry, rz] = value;
@@ -472,6 +458,18 @@ function iaaCanvas(){
 	
 	
 	//..........
+	
+	function refresh_gx_gy(deltaX, deltaY){
+		
+		var [sx, sy] = [0,0]
+
+		if (salf._gx != undefined) {[sx, sy] = [deltaX - salf._gx, deltaY - salf._gy]}
+
+		[salf._gx, salf._gy] = [deltaX, deltaY]
+		
+		return [sx, sy];
+		
+	}
 	
 	function mapWheelMouse(e) {
 
@@ -535,8 +533,6 @@ function iaaCanvas(){
 
 	function snapMouseDoun(e){
 		
-		// console.log('snapMouseDoun', e.which);
-		
 		if (e.which == 1) {
 			
 			salf._pressLeftMouseButton = true;
@@ -554,23 +550,11 @@ function iaaCanvas(){
 			cancelEvent(e)
 			
 		};
-		
-		// console.log('_pressLeftMouseButton', salf._pressLeftMouseButton);
-		// console.log('_pressMouseWheel', salf._pressMouseWheel);
-		// console.log('_pressRightMouseButton', salf._pressRightMouseButton);
-
+	
 	}
 
 	function snapMouseMove(e){
 	
-		// console.log(e);
-	
-		var [sx, sy] = [0,0]
-
-		if (salf._gx != undefined) {[sx, sy] = [e.clientX - salf._gx, e.clientY - salf._gy]}
-
-		[salf._gx, salf._gy] = [e.clientX, e.clientY]
-
 		if (e.which == 0){
 			
 			salf._pressRightMouseButton = false;
@@ -579,39 +563,26 @@ function iaaCanvas(){
 
 			salf._pressMouseWheel = false;
 			
+		} else if(salf._pressLeftMouseButton == true) {
+			
+			return; // тут будет работать хамер
+			
+		} else if(salf._pressMouseWheel == true){
+			
+			var [sx, sy] = refresh_gx_gy(e.clientX, e.clientY);
+			
+			leftToolBarTurn_svg_mousemove(sx*1.5, sy*1.5);
+			
+		} else if(salf._pressRightMouseButton == true){
+			
+			var [sx, sy] = refresh_gx_gy(e.clientX, e.clientY);
+			
+			leftToolBarHand_svg_mousemove(sx, sy);	
+			
 		}
 
-		salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5)
-		
-		if (salf._pressMouseWheel == true) leftToolBarTurn_svg_mousemove(sx, sy)
-		
-		if (salf._pressRightMouseButton == true) leftToolBarHand_svg_mousemove(sx, sy)
-
 	}
 
-	function snapMouseMoveHamer(e){
-	
-		// console.log(e);
-	
-		var [sx, sy] = [0, 0]
-
-		if (salf._gx != undefined) {[sx, sy] = [e.deltaX - salf._gx, e.deltaY - salf._gy]}
-
-		[salf._gx, salf._gy] = [e.deltaX, e.deltaY]
-		
-		// alert('sx:' + sx + ', ' + 'sy:' + sy);
-		
-		console.log('sx:' + sx + ', ' + 'sy:' + sy);
-		
-		salf._pressLeftMouseButton = true;
-		
-		salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5)
-		
-		salf._pressLeftMouseButton = false;
-		
-	}
-	
-	
 	function snapOnClick(e){
 		
 		salf.setCurrentElement(undefined);
@@ -650,6 +621,42 @@ function iaaCanvas(){
 		
 	}
 
+	// hammer //
+
+	function loadHammer(elId){
+		
+		var stage = document.getElementById(elId);
+		
+		var jQustage = jQuery(stage);
+
+		var manager = new Hammer.Manager(stage);
+
+		var Pan = new Hammer.Pan();
+		
+		manager.add(Pan);
+
+		manager.on('panmove', function(e) {
+	  
+			salf._pressLeftMouseButton = true;
+	   
+			var [sx, sy] = refresh_gx_gy(e.deltaX, e.deltaY);
+
+			salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);
+			
+		});
+		
+		manager.on('panend', function(e) {
+			
+			salf._pressLeftMouseButton = false;
+			
+			var [sx, sy] = refresh_gx_gy(e.deltaX, e.deltaY);
+
+			salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);			
+			
+		});	
+		
+	}	
+	
 	//.........
 	
 }
@@ -707,46 +714,30 @@ function iaaGroup(){
 	//...
 	
 	function snapElementsOnClick(e){
-		
-		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
-	
-			if (salf.type == 'Точка действия'){
-				
-				if (myCanvas.ElementCommandButton.checkButton()._name == 'ButtonAddElement'){
-					
-					var di = new formAddElemrnt();
-					
-					di.open(salf);
 
-				}else if(myCanvas.ElementCommandButton.checkButton()._name == 'ButtonChangePosition'){
-					
-					alert('Действие изменение позиции')
-					
-				}else if(myCanvas.ElementCommandButton.checkButton()._name == 'ButtonChangeSize'){
-				
-					alert('Действие изменение размера')
-					
-				}
-				
-			}else {
-		
-				myCanvas.setCurrentElement(salf);
+		salf.onClick(e);
 
-				myCanvas.recalculate();
-
-				myCanvas.repaint();
-				
-			}
-	
-		}
-		
 		e.stopPropagation(); // Прекратить всплывание
 
 	}
 	
 	//...
 	
-	this.setProperty = function(prop){	// Установить свойства
+	this.onClick = function(click){							// При нажатии левой кнопкой миши
+		
+		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
+		
+			myCanvas.setCurrentElement(salf);
+
+			myCanvas.recalculate();
+
+			myCanvas.repaint();
+			
+		}			
+		
+	}
+	
+	this.setProperty = function(prop){						// Установить свойства
 		
 		// console.log('prop', prop);
 		
@@ -788,7 +779,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.recalculate = function(){		// Пересчитать
+	this.recalculate = function(){							// Пересчитать
 		
 		var [w, h, d] = salf.sizes;
 
@@ -865,7 +856,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.repaint = function(){			// Перерисовать
+	this.repaint = function(){								// Перерисовать
 		
 		salf.faces.sort(salf.sortFaceAscendingDepth)
 
@@ -889,7 +880,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.delete = function(){			// Удалить элемент
+	this.delete = function(){								// Удалить элемент
 		
 		if (myCanvas.currentElement == salf){
 			
@@ -905,20 +896,20 @@ function iaaGroup(){
 		
 	}
 	
-	this.snapElementsDestroy = function(){			// Разрушить группу снап элемента
+	this.snapElementsDestroy = function(){					// Разрушить группу снап элемента
 		
 		salf.snapElements.remove();
 		
 	}
 	
-	this.snapElementsClear = function(){			// Очистить снап элементы в группе
+	this.snapElementsClear = function(){					// Очистить снап элементы в группе
 		
 		salf.snapElements.clear();
 	}	
 	
 	//---
 	
-	this.addElement = function(prop){	// Добавить вложенный элемент
+	this.addElement = function(prop){						// Добавить вложенный элемент
 		
 		var newElement = new iaaЕlement(salf);
 		
@@ -930,7 +921,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.deleteElement = function(ref){	// Удалить вложенный элемент
+	this.deleteElement = function(ref){						// Удалить вложенный элемент
 		
 		for (var i = 0; i < salf.elements.length; i++) {
 			
@@ -948,7 +939,7 @@ function iaaGroup(){
 	
 	//---
 	
-	this.addPoint = function(w, h, d, lit){	//Добавить точку
+	this.addPoint = function(w, h, d, lit){					//Добавить точку
 		
 		var point = new iaaPoint(salf, w, h, d, lit);
 		
@@ -956,7 +947,7 @@ function iaaGroup(){
 		
 	}
 	
-	this.clearPoints = function(){			//Очистить точки
+	this.clearPoints = function(){							//Очистить точки
 		
 		for (var i = 0; i < salf.points.length; i++) {
 		
@@ -1373,7 +1364,7 @@ function iaaЕlement(parentElement){
 
 // Точка действия //
 
-function iaaActionPoint(parentElement, parentFace){
+function iaaActionPoint(element, face){
 	
 	var salf = this;
 	
@@ -1381,9 +1372,11 @@ function iaaActionPoint(parentElement, parentFace){
 	
 	this.type = 'Точка действия'; // тип
 
-	this.parent = parentElement; // Родительский элемент
+	this.parent = element; // Родительский элемент
 	
-	this.face = parentFace; // Родительская грань
+	this.face = face; // Родительская грань
+	
+	this.letter = face.letter;
 	
 	this.attributes = {'fill': 'yellow', 'fill-opacity': 0.5}
 
@@ -1399,14 +1392,14 @@ function iaaActionPoint(parentElement, parentFace){
 		
 		if (visibleSeeFace){
 			
-			if (salf.face.letter == 'R'){
+			if (salf.letter == 'R'){
 				
 				w = w/4;
 			
 				y -= h/2;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'L'){	
+			}else if (salf.letter == 'L'){	
 
 				w = w/4;
 			
@@ -1414,14 +1407,14 @@ function iaaActionPoint(parentElement, parentFace){
 				y -= h/2;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'T'){
+			}else if (salf.letter == 'T'){
 
 				h = h/4;
 			
 				x -= w/2;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'B'){
+			}else if (salf.letter == 'B'){
 			
 				this.attributes = {'fill': 'red', 'fill-opacity': 0.5}
 
@@ -1431,7 +1424,7 @@ function iaaActionPoint(parentElement, parentFace){
 				y -= h;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'H'){
+			}else if (salf.letter == 'H'){
 
 				d = d/4;
 			
@@ -1439,7 +1432,7 @@ function iaaActionPoint(parentElement, parentFace){
 				y -= h/2;
 				z -= d;
 
-			}else if (salf.face.letter == 'Y'){	
+			}else if (salf.letter == 'Y'){	
 
 				d = d/4;
 			
@@ -1450,7 +1443,7 @@ function iaaActionPoint(parentElement, parentFace){
 
 		}else{
 		
-			if (salf.face.letter == 'R'){
+			if (salf.letter == 'R'){
 
 				w = w/4;
 			
@@ -1458,14 +1451,14 @@ function iaaActionPoint(parentElement, parentFace){
 				y -= h/2;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'L'){	
+			}else if (salf.letter == 'L'){	
 
 				w = w/4;
 			
 				y -= h/2;
 				z -= d/2;
 		
-			}else if (salf.face.letter == 'T'){
+			}else if (salf.letter == 'T'){
 
 				h = h/4;
 			
@@ -1473,21 +1466,21 @@ function iaaActionPoint(parentElement, parentFace){
 				y -= h;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'B'){	
+			}else if (salf.letter == 'B'){	
 			
 				h = h/4;
 			
 				x -= w/2;
 				z -= d/2;
 
-			}else if (salf.face.letter == 'H'){
+			}else if (salf.letter == 'H'){
 
 				d = d/4;
 			
 				x -= w/2;
 				y -= h/2;
 
-			}else if (salf.face.letter == 'Y'){	
+			}else if (salf.letter == 'Y'){	
 
 				d = d/4;
 				
@@ -1500,6 +1493,130 @@ function iaaActionPoint(parentElement, parentFace){
 		}
 
 	} 
+	
+	this.onClick = function(){
+		
+		if (myCanvas.MapCommandButton.checkButton()._name != 'ButtonSelectElement') { return }
+		
+		if (myCanvas.ElementCommandButton.checkButton()._name == 'ButtonAddElement'){
+		
+			var dialog = new formAddElemrnt(); 
+			
+			dialog.open(salf);
+
+		}else{
+		
+			if (myCanvas.currentDraft == salf.parent) { return }
+		
+			var changeSizes = [];
+			
+			var changePosition = [];
+		
+			var trend = salf.getStepChange();
+		
+			if(myCanvas.ElementCommandButton.checkButton()._name == 'ButtonChangePosition'){ // Изменение позиции
+			
+				if (salf.letter == 'R'){ //x
+
+					changePosition.push({property: 0, trend: trend * 1});
+
+				}else if (salf.letter == 'L'){ //x
+
+					changePosition.push({property: 0, trend: trend * -1});
+
+				}else if (salf.letter == 'T'){ //y
+
+					changePosition.push({property: 1, trend: trend * 1});
+
+				}else if (salf.letter == 'B'){ //y
+					
+					changePosition.push({property: 1, trend: trend * -1});
+
+				}else if (salf.letter == 'Y'){ //z	
+
+					changePosition.push({property: 2, trend: trend});
+				
+				}else if (salf.letter == 'H'){ //z
+
+					changePosition.push({property: 2, trend: trend * -1});				
+				
+				}
+			
+			}else if(myCanvas.ElementCommandButton.checkButton()._name == 'ButtonChangeSize'){	// Изменение размера
+		
+				if (salf.letter == 'R'){ //x
+
+					changeSizes.push({property: 0, trend: trend * 1});
+
+				}else if (salf.letter == 'L'){ //x
+
+					changeSizes.push({property: 0, trend: trend * 1});
+					changePosition.push({property: 0, trend: trend * -1});
+
+				}else if (salf.letter == 'T'){ //y
+
+					changeSizes.push({property: 1, trend: trend * 1});
+
+				}else if (salf.letter == 'B'){ //y
+					
+					changeSizes.push({property: 1, trend: trend * 1});					
+					changePosition.push({property: 1, trend: trend * -1});
+
+				}else if (salf.letter == 'Y'){ //z	
+
+					changeSizes.push({property: 2, trend: trend});
+				
+				}else if (salf.letter == 'H'){ //z
+
+					changeSizes.push({property: 2, trend: trend});				
+					changePosition.push({property: 2, trend: trend * -1});				
+				
+				}
+				
+			}
+			
+			changePosition.forEach(function(change){
+				
+				salf.parent.position[change.property]
+					= salf.parent.position[change.property]
+					+ change.trend * myCanvas.actionPointsStep;
+				
+			});
+			
+			changeSizes.forEach(function(change){
+				
+				salf.parent.sizes[change.property]
+					= salf.parent.sizes[change.property]
+					+ change.trend * myCanvas.actionPointsStep;
+				
+			});
+			
+			myCanvas.recalculate();
+			
+			myCanvas.repaint()
+			
+			
+		}
+
+	}
+	
+	this.getStepChange = function(){
+		
+		if(myCanvas.ActionPointTrendButton.checkButton()._name == 'ButtonTrendInside'){
+			
+			return -1;
+			
+		}else if (myCanvas.ActionPointTrendButton.checkButton()._name == 'ButtonTrendOutside'){
+			
+			return 1;
+			
+		} else {
+			
+			return 0;
+			
+		}
+		
+	}
 	
 	salf.setProperty(
 	

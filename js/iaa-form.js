@@ -584,8 +584,6 @@ function formPropertyElement(){
 	
 }
 
-
-
 // Кнопки //
 
 function iaaVerticalToolBar(name, parentSelector){
