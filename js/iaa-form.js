@@ -136,7 +136,7 @@ function formPropertyMap(){
 	$(selector).dialog("option", "height", 320);
 	$(selector).dialog("option", "modal", true)
 	$(selector).dialog("option", "draggable", false ); // Перетаскивание
-	$(selector).dialog("option", "resizable", false);  //Растягивание
+	$(selector).dialog("option", "resizable", false);  // Растягивание
 
 	var buttons = [];
 
@@ -181,7 +181,7 @@ function formPropertyMap(){
 			ref.sizes[1] = +ey.value();
 			ref.sizes[2] = +ez.value();
 			
-			ref.recalculate();
+			myCanvas.recalculate();
 			
 			myCanvas.repaint();
 
@@ -290,8 +290,6 @@ function formAddElemrnt(){
 	this.save = function(){
 
 		if (ref != undefined) {
-
-
 		
 			// var [x, y, z] = ref.face.сentreValue;
 
@@ -319,14 +317,12 @@ function formAddElemrnt(){
 			
 			if (visibleSeeFace){
 				
-				console.log('hi')
-				
 				if (litter == 'R'){y -= h/2;z -= d/2;
-				
+
 				}else if (litter == 'L'){x -= w;y -= h/2;z -= d/2;
-				
+
 				}else if (litter == 'T'){x -= w/2; z -= d/2;
-				
+
 				}else if (litter == 'B'){x -= w/2;y -= h;z -= d/2;
 				
 				}else if (litter == 'H'){x -= w/2;y -= h/2;z -= d;
@@ -334,21 +330,19 @@ function formAddElemrnt(){
 				}else if (litter == 'Y'){x -= w/2;y -= h/2;}
 				
 			}else{	
-			
-				console.log('ho')			
-			
+
 				if (litter == 'R'){x -= w;y -= h/2;z -= d/2;
-				
+
 				}else if (litter == 'L'){y -= h/2;z -= d/2;
-				
+
 				}else if (litter == 'T'){x -= w/2; y -= h; z -= d/2;
-				
+
 				}else if (litter == 'B'){x -= w/2; z -= d/2;
-				
+
 				}else if (litter == 'H'){x -= w/2;y -= h/2;
-				
+
 				}else if (litter == 'Y'){x -= w/2;y -= h/2;z -= d;}
-				
+
 			}
 
 			var newElement
@@ -357,9 +351,83 @@ function formAddElemrnt(){
 					new elementProperty(na.value(), x, y, z, w, h, d,0,0,0)
 
 				);			
-			
+
 			myCanvas.setCurrentElement(newElement);
+
+			myCanvas.recalculate();
+
+			myCanvas.repaint();
+
+		}
+
+		$(selector).dialog( "close" );
+
+	}
+	
+	$(selector).dialog({
+		
+		close:
+			function(event, ui) {
+		 		$(selector).dialog( "destroy" );
+				$(selector).detach();
+			}
 			
+	});	
+	
+}
+
+function formDeleteElement(){
+	
+	var salf = this;
+
+	var idForm = 'formDeleteElement';
+
+	var selector = "#" + idForm; 
+
+	var ref = undefined;
+
+	$('article').append(' <div id="' + idForm + '" title="Удаление элемента"></div> ');  
+
+	//-----
+	
+	$(selector).css('overflow', 'hidden');
+	
+	$(selector).dialog({autoOpen: false});
+	$(selector).dialog("option", "width", 310);
+	$(selector).dialog("option", "height", 320);
+	$(selector).dialog("option", "modal", true)
+	$(selector).dialog("option", "draggable", false ); // Перетаскивание
+	$(selector).dialog("option", "resizable", false);  // Растягивание	
+
+	var buttons = [];
+
+	buttons.push({text: 'Удалить', click: function(){salf.deleteElement()}});
+	buttons.push({text: 'Отмена',    click: function(){salf.destroy()}});
+
+	$(selector).dialog("option", "buttons", buttons);
+
+	this.destroy = function(){
+
+		$(selector).dialog( "destroy" );
+
+		$(selector).detach();
+
+	}
+
+	this.open = function(element){
+
+		ref = element;
+
+		$(selector).dialog("open");
+
+	}
+
+	this.deleteElement = function(){
+
+		if (ref != undefined) {
+
+			ref.delete();
+		
 			myCanvas.recalculate();
 			
 			myCanvas.repaint();
@@ -416,7 +484,7 @@ function formPropertyElement(){
 	
 	var na = new iaaInputStringField('elemint_name', 'Название:');
 
-	na._inputchange = function(){myCanvas.propertyOnChange(salf.getref(), 'Имя', na.value())}
+	na._inputchange = function(){myCanvas.propertyOnChange(salf.getref(), 'name', na.value())}
 	
 	var px = new iaaInputNumberField('prop_poz_x', 'Лево:');
 	var py = new iaaInputNumberField('prop_poz_y', 'Вверх:');
@@ -515,6 +583,8 @@ function formPropertyElement(){
 	});	
 	
 }
+
+
 
 // Кнопки //
 

@@ -267,6 +267,12 @@ function iaaCanvas(){
 		var button122 = group12.addButton('ButtonSelectElement', 'radio'); 
 		var button123 = group12.addButton('ButtonHand',			 'radio'); 
 		var button124 = group12.addButton('ButtonTurn',			 'radio'); 	
+
+		var group13 = tolBar1.addGroupButton('group13');
+		
+		var button131 = group13.addButton('ButtonDeleteElement', 'button'); 
+
+		//-------------
 		
 		var tolBar2 = new iaaVerticalToolBar('rightToolBar',	 'aside.right'); 
 
@@ -282,8 +288,8 @@ function iaaCanvas(){
 
 		var group23 = tolBar2.addGroupButton('ActionPointTrendButton');
 
-		var button235 = group23.addButton('button235', 'radio');
-		var button236 = group23.addButton('button236', 'radio');
+		var button235 = group23.addButton('ButtonTrendInside', 'radio');	// Внутрь
+		var button236 = group23.addButton('ButtonTrendOutside', 'radio');	// Наружу
 
 		// 
 		
@@ -301,6 +307,8 @@ function iaaCanvas(){
 
 		button122.click = function(e){leftToolBarSelectElement_onclick(e)}
 
+		button131.click = function(e){leftToolBarDeleteElement_onclick(e)}
+		
 
 		button123.click = function(e){leftToolBarHand_onclick(e)}
 
@@ -346,10 +354,26 @@ function iaaCanvas(){
 		
 		$("#svgout").css("cursor", "default")
 		
-		//svg.activeButton = but;
-		
 	}
 
+	function leftToolBarDeleteElement_onclick(e){
+		
+		if (salf.currentElement == undefined || salf.currentElement == salf.currentDraft) {
+		
+			// rest
+		
+		}else{
+		
+			var forma = new formDeleteElement();
+		
+			forma.open(salf.currentElement);		
+
+		}
+
+		cancelEvent(e);		
+		
+	}
+	
 	function leftToolBarHand_onclick(e){
 		
 		$("#svgout").css("cursor", "url('images/hand.cur'), auto")
@@ -865,6 +889,22 @@ function iaaGroup(){
 		
 	}
 	
+	this.delete = function(){			// Удалить элемент
+		
+		if (myCanvas.currentElement == salf){
+			
+			myCanvas.currentElement = undefined;
+			
+		}
+		
+		salf.parent.deleteElement(salf);
+		
+		salf.snapElementsDestroy();
+		
+		// salf = undefined;
+		
+	}
+	
 	this.snapElementsDestroy = function(){			// Разрушить группу снап элемента
 		
 		salf.snapElements.remove();
@@ -878,7 +918,7 @@ function iaaGroup(){
 	
 	//---
 	
-	this.addElement = function(prop){	// Добавить элемент
+	this.addElement = function(prop){	// Добавить вложенный элемент
 		
 		var newElement = new iaaЕlement(salf);
 		
@@ -887,6 +927,22 @@ function iaaGroup(){
 		newElement.setProperty(prop);
 		
 		return newElement;
+		
+	}
+	
+	this.deleteElement = function(ref){	// Удалить вложенный элемент
+		
+		for (var i = 0; i < salf.elements.length; i++) {
+			
+			if (salf.elements[i] == ref){
+				
+				salf.elements.splice(i, 1);
+				
+				break;
+				
+			}
+		
+		}
 		
 	}
 	

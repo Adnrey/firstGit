@@ -79,5 +79,25 @@ svg {display: block; position: relative; width: 100%; height: 100%; background: 
 	background-image: url("../images/layer_resize_replicate_h.png");
 }
 
+#ButtonTrendInside + label{
+	
+	background-image: url("../images/ButtonInside.png");
+
+}
+
+#ButtonTrendOutside + label{
+	
+	background-image: url("../images/ButtonOutside.png");
+
+}
+
+#ButtonDeleteElement + label{
+	
+	background-image: url("../images/delete.png");
+
+}
+
+
+
 //...
 
