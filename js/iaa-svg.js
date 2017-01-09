@@ -238,6 +238,38 @@ function iaaCanvas(){
 		
 	}
 	
+	//-- 
+	
+	function scaleAddValue(value){			// Увеличить, уменьшить масштаб
+		
+		var [ScaleMin, ScaleMax, ScaleStep] = [0.1, 1.5, 0.1];	
+		
+		var newScale = salf.scale;
+		
+		if (value > 0){
+
+			newScale = salf.scale - ScaleStep;
+			
+		}else{
+
+			newScale = salf.scale + ScaleStep;
+
+		}
+
+		if (newScale >= ScaleMin && newScale <= ScaleMax){
+		
+			salf.scale = newScale;
+			
+			if (salf.scale == 0) salf.scale = 0.1;
+		
+			myCanvas.recalculate();
+		
+			myCanvas.repaint();
+			
+		}
+		
+	}
+	
 	//.Tool.bar.........
 	
 	function createToolbar(){
@@ -401,12 +433,8 @@ function iaaCanvas(){
 		
 		if (salf._pressLeftMouseButton == true || salf._pressMouseWheel == true){
 		
-			var value = salf.turn
-
-			var [rx, ry, rz] = value;
-			
-			value[0] = rx + (sy/4);
-			value[1] = ry - (sx/4);
+			salf.turn[0] = salf.turn[0] + (sy/4);
+			salf.turn[1] = salf.turn[1] - (sx/4);
 			
 			myCanvas.recalculate();
 			
@@ -455,16 +483,23 @@ function iaaCanvas(){
 		myCanvas.repaint();
 		
 	}
-	
-	
+
 	//..........
 	
 	function refresh_gx_gy(deltaX, deltaY){
 		
 		var [sx, sy] = [0,0]
+		
+		if (salf._gx != undefined) {
+			
+			[sx, sy] = [deltaX - salf._gx, deltaY - salf._gy]
+			
+			var step = 15;
 
-		if (salf._gx != undefined) {[sx, sy] = [deltaX - salf._gx, deltaY - salf._gy]}
+			if ( (sx >= -step && sx <= step ) && (sy >= -step && sy <= step ) ) return undefined;
 
+		}
+		
 		[salf._gx, salf._gy] = [deltaX, deltaY]
 		
 		return [sx, sy];
@@ -475,31 +510,7 @@ function iaaCanvas(){
 
 		var i = new mauseWheelEvent(e)
 
-		var [ScaleMin, ScaleMax, ScaleStep] = [0.1, 1.5, 0.1];	
-		
-		var newScale = salf.scale;
-		
-		if (i.value > 0){
-
-			newScale = salf.scale - ScaleStep;
-			
-		}else{
-
-			newScale = salf.scale + ScaleStep;
-
-		}
-
-		if (newScale >= ScaleMin && newScale <= ScaleMax){
-		
-			salf.scale = newScale;
-			
-			if (salf.scale == 0) salf.scale = 0.1;
-		
-			myCanvas.recalculate();
-		
-			myCanvas.repaint();
-			
-		}
+		scaleAddValue(i.value);
 		
 		return cancelEvent(e);
 
@@ -569,13 +580,21 @@ function iaaCanvas(){
 			
 		} else if(salf._pressMouseWheel == true){
 			
-			var [sx, sy] = refresh_gx_gy(e.clientX, e.clientY);
+			var values = refresh_gx_gy(e.clientX, e.clientY);
 			
-			leftToolBarTurn_svg_mousemove(sx*1.5, sy*1.5);
+			if (values == undefined) return;
+			
+			var [sx, sy] = values;	
+			
+			leftToolBarTurn_svg_mousemove(sx * 1.5, sy * 1.5);
 			
 		} else if(salf._pressRightMouseButton == true){
 			
-			var [sx, sy] = refresh_gx_gy(e.clientX, e.clientY);
+			var values = refresh_gx_gy(e.clientX, e.clientY);
+			
+			if (values == undefined) return;
+			
+			var [sx, sy] = values;				
 			
 			leftToolBarHand_svg_mousemove(sx, sy);	
 			
@@ -632,16 +651,35 @@ function iaaCanvas(){
 		var manager = new Hammer.Manager(stage);
 
 		var Pan = new Hammer.Pan();
+		var Rotate = new Hammer.Rotate();		
+		var Pinch = new Hammer.Pinch();
+		var Tap = new Hammer.Tap({ taps: 1 });
+		var DoubleTap = new Hammer.Tap({ event: 'doubletap', taps: 2 });		
+		
+		Rotate.recognizeWith([Pan]);
+		Pinch.recognizeWith([Rotate, Pan]);
+		DoubleTap.recognizeWith([Tap]);
+		Tap.requireFailure([DoubleTap]);		
 		
 		manager.add(Pan);
-
+		manager.add(Rotate);
+		manager.add(Pinch);
+		manager.add(DoubleTap);
+		manager.add(Tap);
+		
 		manager.on('panmove', function(e) {
 	  
 			salf._pressLeftMouseButton = true;
 	   
-			var [sx, sy] = refresh_gx_gy(e.deltaX, e.deltaY);
+			var values = refresh_gx_gy(e.deltaX, e.deltaY);
+			
+			if (values != undefined){
+				
+				var [sx, sy] = values;			
+				
+				salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);
 
-			salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);
+			};
 			
 		});
 		
@@ -649,11 +687,44 @@ function iaaCanvas(){
 			
 			salf._pressLeftMouseButton = false;
 			
-			var [sx, sy] = refresh_gx_gy(e.deltaX, e.deltaY);
+			var values = refresh_gx_gy(e.deltaX, e.deltaY);
+			
+			if (values != undefined){
+				
+				var [sx, sy] = values;
 
-			salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);			
+				salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);			
+
+			};
 			
 		});	
+		
+		manager.on('pinchmove', function(e) {
+
+			var scale = (salf.scale * e.scale).toFixed(2);
+			
+			scaleAddValue((scale - salf.scale).toFixed(2));
+
+		});
+
+		manager.on('pinchend', function(e) {
+
+			// var scale = (salf.scale * e.scale).toFixed(2);
+			
+			// scaleAddValue((scale - salf.scale).toFixed(2));
+
+		});		
+		
+		manager.on('doubletap', function() {
+		  // console.log('doubletapped');
+		  // var scale = $.Velocity.hook($stage, 'scale');
+		  // if (isShrunken) {
+			// $.Velocity.hook($stage, 'scale', 2 * scale);
+		  // } else {
+			// $.Velocity.hook($stage, 'scale', .5 * scale);
+		  // }
+		  // isShrunken = !isShrunken;
+		});		
 		
 	}	
 	
