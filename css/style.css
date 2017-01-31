@@ -45,7 +45,7 @@ footer{display: none;}
 
 /*  SVG */
 
-svg {display: block; position: relative; width: 100%; height: 100%; background: aliceblue}
+svg {display: block; position: absolute; width: 100%; height: 100%; background: aliceblue}
 
 #ButtonPropertyElement  + label {
 	background-image: url("../images/prop_map.png");

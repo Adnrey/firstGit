@@ -623,7 +623,7 @@ function iaaGoupButtonTollBar(name, parent){
   
 	this._buttons = {};
 
-	$(parent._selector).append(' <div id="' + this._name + '"  name="'+name+'"></div> ');
+	$(parent._selector).append(' <div id="' + this._name +'"></div> ');
   
 	$(this._selector).addClass('iaa-group-button');
   

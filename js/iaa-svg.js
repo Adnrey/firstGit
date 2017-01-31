@@ -506,6 +506,14 @@ function iaaCanvas(){
 		
 	}
 	
+	function clean_gx_gy(){
+		
+		var [sx, sy] = [0,0]
+		
+		[salf._gx, salf._gy] = [undefined, undefined]
+		
+	}	
+	
 	function mapWheelMouse(e) {
 
 		var i = new mauseWheelEvent(e)
@@ -680,12 +688,12 @@ function iaaCanvas(){
 				salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);
 
 			};
+		
+			log(' _gx: ' + salf._gx + ", _gy:" + salf._gy);
 			
 		});
 		
 		manager.on('panend', function(e) {
-			
-			salf._pressLeftMouseButton = false;
 			
 			var values = refresh_gx_gy(e.deltaX, e.deltaY);
 			
@@ -696,6 +704,10 @@ function iaaCanvas(){
 				salf.MapCommandButton.checkButton().svg_mousemove(sx*1.5, sy*1.5);			
 
 			};
+
+			salf._pressLeftMouseButton = false;
+			
+			clean_gx_gy();
 			
 		});	
 		
@@ -729,6 +741,14 @@ function iaaCanvas(){
 	}	
 	
 	//.........
+	
+	function log(text){
+		
+		if ( $( '#console' ).css('display') == 'none') $( '#console' ).css('display', "block")
+		
+		$( '#console' ).text(text);		
+		
+	}
 	
 }
 
