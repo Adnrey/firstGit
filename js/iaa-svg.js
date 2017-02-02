@@ -35,13 +35,13 @@ function iaaCanvas(){
 		
 		this.height = 0;		// высота
 		
-		this.m = 421;				// половина ширины
+		this.m = 421;			// половина ширины
 		
-		this.n = 380;				// половина высоты
+		this.n = 380;			// половина высоты
 		
 		this.k = 0;				// поидее половина глубины, но всегда 0
 		
-		this.turn = [13,46,0];	// поворот
+		this.turn = [0,0,0];	// поворот [13,46,0]
 
 		this.scale = 0.70; 		// масштаб
 		
@@ -56,7 +56,7 @@ function iaaCanvas(){
 		this.formPropertyElement = undefined;	// форма свойств элемента
 		
 		
-		var _attributes = {};				// атрибуты
+		var _attributes = {};					// атрибуты
 	
 	}
 	
@@ -66,7 +66,11 @@ function iaaCanvas(){
 
 	function onDocumentLoad(){
 		
-		$('article').append(' <svg id="'+idForm+'"></svg> ');  
+		createTopToolbar()		
+		
+		//..
+		
+		$('article').prepend(' <svg id="'+idForm+'"></svg> ');  
 		
 		//..
 		
@@ -83,10 +87,6 @@ function iaaCanvas(){
 		//..
 		
 		loadHammer(idForm);
-		
-		//..
-		
-		createToolbar()
 		
 		//..
 
@@ -200,8 +200,6 @@ function iaaCanvas(){
 		
 		salf.currentElement = ref;
 
-		// console.log(ref);
-		
 		if (salf.currentElement == undefined){
 			
 			if (salf.formPropertyElement != undefined) {
@@ -272,81 +270,80 @@ function iaaCanvas(){
 	
 	//.Tool.bar.........
 	
-	function createToolbar(){
+	function createTopToolbar(){
 		
-		var tolBar1 = new iaaVerticalToolBar('leftToolBar', 'aside.left'); 
-
-		var group11 = tolBar1.addGroupButton('group11');
-
-		var button111 = group11.addButton('ButtonPropertyElement', 'button'); 
-
-		var group12 = tolBar1.addGroupButton('MapCommandButton');
-
-		var button122 = group12.addButton('ButtonSelectElement', 'radio'); 
-		var button123 = group12.addButton('ButtonHand',			 'radio'); 
-		var button124 = group12.addButton('ButtonTurn',			 'radio'); 	
-
-		var group13 = tolBar1.addGroupButton('group13');
+		$('article').append( ' <div class=" iaa-top-toolbar iaa-toolbar text-center "></div> ' );
 		
-		var button131 = group13.addButton('ButtonDeleteElement', 'button'); 
+		var tolBar1 = new iaaTopIconToolBar('TopIconToolBar', '.iaa-top-toolbar'); 
+
+		var group0 = tolBar1.addGroupButton('group0');
+
+		var button0 = group0.addButton('ButtonProperty', 'checkbox'); 
+
+		
+		var group1 = tolBar1.addGroupButton('group1');
+
+		var button1 = group1.addButton('ButtonPropertyElement', 'button'); 
+
+		var group2 = tolBar1.addGroupButton('MapCommandButton');
+
+		var button2 = group2.addButton('ButtonSelectElement', 'radio', true); 
+		var button3 = group2.addButton('ButtonHand',			 'radio'); 
+		var button4 = group2.addButton('ButtonTurn',			 'radio'); 	
 
 		//-------------
 		
-		var tolBar2 = new iaaVerticalToolBar('rightToolBar',	 'aside.right'); 
+		var group3 = tolBar1.addGroupButton('group3');
 
-		var group21 = tolBar2.addGroupButton('group21');
+		var button5 = group3.addButton('ButtonActionPoint', 'checkbox', true);
 
-		var button211 = group21.addButton('ButtonActionPoint', 'checkbox');
+		var group4 = tolBar1.addGroupButton('ElementCommandButton');
 
-		var group22 = tolBar2.addGroupButton('ElementCommandButton');
+		var button6 = group4.addButton('ButtonAddElement',		'radio', true);
+		var button7 = group4.addButton('ButtonChangePosition',	'radio');
+		var button8 = group4.addButton('ButtonChangeSize',		'radio');
 
-		var button222 = group22.addButton('ButtonAddElement',		'radio');
-		var button223 = group22.addButton('ButtonChangePosition',	'radio');
-		var button224 = group22.addButton('ButtonChangeSize',		'radio');
+		var group5 = tolBar1.addGroupButton('ActionPointTrendButton');
 
-		var group23 = tolBar2.addGroupButton('ActionPointTrendButton');
+		var button9 = group5.addButton('ButtonTrendOutside', 'radio', true);	// Внутрь
+		var button10 = group5.addButton('ButtonTrendInside', 'radio');	// Наружу
 
-		var button235 = group23.addButton('ButtonTrendOutside', 'radio');	// Внутрь
-		var button236 = group23.addButton('ButtonTrendInside', 'radio');	// Наружу
-
-		// 
+		var group6 = tolBar1.addGroupButton('group6');
 		
-		button122.check(true);
-
-		button211.check(true);
-
-		button222.check(true);
-
-		button235.check(true);
-
-		//
-
-		button111.click = function(e){leftToolBarPropertyElement_onclick(e)}
-
-		button122.click = function(e){leftToolBarSelectElement_onclick(e)}
-
-		button131.click = function(e){leftToolBarDeleteElement_onclick(e)}
+		var button11 = group6.addButton('ButtonDeleteElement', 'button'); 		
 		
+		
+		
+		var group7 = tolBar1.addGroupButton('group7');
+		
+		var button12 = group6.addButton('ButtonStructure', 'checkbox'); 
+		
+		
+		button0.click = function(e){showHidLeftSlidePanel_onclick(e)}
+		
+		button1.click = function(e){leftToolBarPropertyElement_onclick(e)}
 
-		button123.click = function(e){leftToolBarHand_onclick(e)}
+		button2.click = function(e){leftToolBarSelectElement_onclick(e)}
 
-		button123.svg_mousemove = function(sx, sy){leftToolBarHand_svg_mousemove(sx, sy)}
+		button3.click = function(e){leftToolBarHand_onclick(e)}
 
+		button3.svg_mousemove = function(sx, sy){leftToolBarHand_svg_mousemove(sx, sy)}
+		
+		button4.click = function(e){leftToolBarTurn_onclick(e)}
 
-		button124.click = function(e){leftToolBarTurn_onclick(e)}
+		button4.svg_mousemove = function(sx, sy){leftToolBarTurn_svg_mousemove(sx, sy)}
 
-		button124.svg_mousemove = function(sx, sy){leftToolBarTurn_svg_mousemove(sx, sy)}
+		button5.click = function(e){rightToolBarActionPoint_onclick(e)}
 
+		button11.click = function(e){leftToolBarDeleteElement_onclick(e)}
+		
+		button12.click = function(e){showHidRightSlidePanel_onclick(e)}
+		
+		salf.MapCommandButton = group2;
+		salf.ElementCommandButton = group4;
+		salf.ActionPointTrendButton = group5;
 
-		button211.click = function(e){rightToolBarActionPoint_onclick(e)}
-
-		//
-
-		salf.MapCommandButton = group12;
-		salf.ElementCommandButton = group22;
-		salf.ActionPointTrendButton = group23;
-
-	}
+	}	
 	
 	function leftToolBarPropertyElement_onclick(e){
 		
@@ -452,6 +449,20 @@ function iaaCanvas(){
 		
 	}
 	
+	function showHidLeftSlidePanel_onclick(e){
+		
+		$(" #cbp-spmenu-s1 ").toggleClass( 'cbp-spmenu-open' );
+		$(" .iaa-top-toolbar ").toggleClass( 'left-spmenu-open' );
+  
+	}
+	
+	function showHidRightSlidePanel_onclick(e){
+		
+		$(" #cbp-spmenu-s2 ").toggleClass( 'cbp-spmenu-open' );
+		$(" .iaa-top-toolbar ").toggleClass( 'right-spmenu-open' );  
+		
+	}	
+	
 	//..........
 
 	this.propertyOnChange = function(ref, name, value){
@@ -510,7 +521,9 @@ function iaaCanvas(){
 		
 		var [sx, sy] = [0,0]
 		
-		[salf._gx, salf._gy] = [undefined, undefined]
+		salf._gx = undefined
+
+		salf._gy = undefined
 		
 	}	
 	
@@ -539,8 +552,6 @@ function iaaCanvas(){
 				sing = 1;
 
 			}
-		
-			// console.log(sing);
 		
 			iaaInput.addStep(sing);
 		
@@ -689,8 +700,6 @@ function iaaCanvas(){
 
 			};
 		
-			log(' _gx: ' + salf._gx + ", _gy:" + salf._gy);
-			
 		});
 		
 		manager.on('panend', function(e) {
@@ -728,27 +737,20 @@ function iaaCanvas(){
 		});		
 		
 		manager.on('doubletap', function() {
-		  // console.log('doubletapped');
+		  
 		  // var scale = $.Velocity.hook($stage, 'scale');
 		  // if (isShrunken) {
-			// $.Velocity.hook($stage, 'scale', 2 * scale);
+		  //    $.Velocity.hook($stage, 'scale', 2 * scale);
 		  // } else {
-			// $.Velocity.hook($stage, 'scale', .5 * scale);
+		  //    $.Velocity.hook($stage, 'scale', .5 * scale);
 		  // }
 		  // isShrunken = !isShrunken;
+		
 		});		
 		
 	}	
 	
 	//.........
-	
-	function log(text){
-		
-		if ( $( '#console' ).css('display') == 'none') $( '#console' ).css('display', "block")
-		
-		$( '#console' ).text(text);		
-		
-	}
 	
 }
 
@@ -829,8 +831,6 @@ function iaaGroup(){
 	}
 	
 	this.setProperty = function(prop){						// Установить свойства
-		
-		// console.log('prop', prop);
 		
 		if (prop.name != undefined){
 			
@@ -1241,8 +1241,6 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 	
 	this.display = function(){				// Отобразить грань
 		
-		// console.log(salf, '1.');
-		
 		salf.SnapElementRemove();
 		
 		var p1 = salf.points[0].xyz1
@@ -1279,8 +1277,6 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 	}
 	
 	this.displayGrid = function(){			// Отобразить сетку
-	
-		// console.log('displayGrid', salf);
 	
 		if (salf.parent.gridVisible != true) return
 		
@@ -1359,8 +1355,6 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 		return 
 
 		if (salf.snapElement == undefined) return
-
-		// console.log('SnapElementRemove', salf.snapElement);
 
 		salf.snapElement.remove();
 
@@ -1728,8 +1722,6 @@ function elementProperty(name, x, y, z, w, h, d, rx, ry, rz){
 	this.position = {'x':x,'y':y,'z':z};
 	this.sizes = {'w':w,'h':h,'d':d};
 	this.turn = {'rx':rx,'ry':ry,'rz':rz};
-	
-	//console.log(arguments)
 	
 }
 

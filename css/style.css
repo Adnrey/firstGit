@@ -8,7 +8,7 @@ body {
 	width: 100%;
 	height: 100%;
 	margin: 0px;
-	background: url(../images/bgsite.jpg); 
+	/* background: url(../images/bgsite.jpg);  */
 }
 
 .container{
@@ -40,15 +40,110 @@ aside.right{position: absolute; top: 10px; right: 60px;}
 
 footer{display: none;}
 
-.obnulitel{clear: both; height: 0px;}
+/* iaa tool bar*/
+
+.iaa-toolbar-input-label{
+    width: 50px;  
+    height: 50px;  
+    border-width: 0px;
+    margin: 0px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+	background-size: 70%;
+	background-repeat: no-repeat;
+	background-position: 7px 9px;	
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.iaa-toolbar-input:checked + .iaa-toolbar-input-label {
+    border: 1px solid #d19405;
+    background: #fece2f;
+    background-size: 80%;
+    background-repeat: no-repeat;
+    background-position: 4px 6px;
+    z-index: 100;
+}
+
+
+
+input[type=button] + .iaa-toolbar-input-label:active{
+  
+    border: 1px solid #d19405;
+    background: #fece2f;
+    background-size: 80%;
+    background-repeat: no-repeat;
+    background-position: 4px 6px;
+    z-index: 100;
+  
+}
+
+.iaa-toolbar > .pagination > .btn-group > .btn{
+  
+  width: 50px;
+  height: 50px;
+  
+  border-radius: 0px;
+  background-size: 70% 70%;
+  background-repeat: no-repeat;
+  background-position: 8px 8px; 
+  
+}
+
+.iaa-toolbar > .pagination > .btn-group{
+      vertical-align: top;  
+}
+
+.iaa-toolbar > .pagination > .btn-group > .btn:hover{
+  
+  
+ border: 1px solid #d19405;
+ background: #fece2f;
+ background-size: 70% 70%;
+ background-repeat: no-repeat;
+ background-position: 8px 8px;
+  
+} 
+
+.iaa-toolbar > .pagination > .btn-group > .btn:active,
+.iaa-toolbar > .pagination > .btn-group > .btn:focus{
+  
+  border: 1px solid #d19405;
+  background: #fece2f;
+  background-size: 70% 70%;
+  background-repeat: no-repeat;
+  background-position: 8px 8px; 
+  outline: none;
+  
+  
+}
+
+.iaa-top-toolbar.left-spmenu-open{
+  
+  margin-left: 241px;
+  
+}
+
+.iaa-top-toolbar.right-spmenu-open{
+  
+  margin-right: 241px;
+  
+}
 
 
 /*  SVG */
 
 svg {display: block; position: absolute; width: 100%; height: 100%; background: aliceblue}
 
-#ButtonPropertyElement  + label {
+
+#ButtonProperty  + label {
 	background-image: url("../images/prop_map.png");
+}
+
+#ButtonPropertyElement  + label {
+	background-image: url("../images/property.png");
 }
 
 #ButtonSelectElement + label{
@@ -97,7 +192,11 @@ svg {display: block; position: absolute; width: 100%; height: 100%; background: 
 
 }
 
-
+#ButtonStructure + label{
+ 
+	background-image: url("../images/structure.png");
+ 
+}
 
 //...
 

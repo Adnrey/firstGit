@@ -586,34 +586,34 @@ function formPropertyElement(){
 
 // Кнопки //
 
-function iaaVerticalToolBar(name, parentSelector){
-  
-  var salf = this;
-  
-  this._name = name;
-  
-  this._selector = "#" + name;  
-  
-  this._groupsButton = [];
-  
-  $(parentSelector).append(' <div id="' + name + '"></div> ');
-  
-  $(this._selector).addClass('iaa-vertical-tool-bar');
-  
-  this.addGroupButton = function(name){
-    
-    var group = new iaaGoupButtonTollBar(name, salf);
-    
-    salf._groupsButton.push(group);
-    
-    return group;
-    
-  }
-  
-  
+function iaaTopIconToolBar(name, parentSelector){
+
+	var salf = this;
+
+	this._name = name;
+
+	this._selector = "#" + name;  
+
+	this._groupsButton = [];
+
+	$(parentSelector).append
+		(
+		'<div class="pagination" role="toolbar" id="' + name + '"></div> '
+		);
+
+	this.addGroupButton = function(name){
+
+		var group = new iaaTopIconToolBarGoupButton(name, salf);
+
+		salf._groupsButton.push(group);
+
+		return group;
+
+	}
+
 }
 
-function iaaGoupButtonTollBar(name, parent){
+function iaaTopIconToolBarGoupButton(name, parent){
   
 	var salf = this;
 
@@ -623,16 +623,18 @@ function iaaGoupButtonTollBar(name, parent){
   
 	this._buttons = {};
 
-	$(parent._selector).append(' <div id="' + this._name +'"></div> ');
+	$(parent._selector).append(' <div class=" btn-group " role="group" id="' + this._name +'"></div> ');
   
-	$(this._selector).addClass('iaa-group-button');
+	// $(this._selector).addClass(' btn-group ');
   
-	this.addButton = function(name, type){
+	this.addButton = function(name, type, check){
     
-		var button = new iaaButtonTollBar(name, type, salf);
+		var button = new iaaTopIconToolBarButton(name, type, salf);
     
 		salf._buttons[button._name] = button;
     
+		if (check != undefined) { button.check(check) }	
+
 		return button;
     
 	}
@@ -647,7 +649,7 @@ function iaaGoupButtonTollBar(name, parent){
   
 }
 
-function iaaButtonTollBar(name, type, parent){
+function iaaTopIconToolBarButton(name, type, parent){
   
 	var salf = this;
   
@@ -655,11 +657,17 @@ function iaaButtonTollBar(name, type, parent){
   
 	this._selector = "#" + name;  
   
-	$(parent._selector).append(' <input id="' + name + '" name="'+parent._name+'" type="' + type + '" class="iaa-botton iaa-hidden"> ');
+	// $(parent._selector).append(' <input id="' + name + '" name="'+parent._name+'" type="' + type + '" class="iaa-botton iaa-hidden"> ');
   
+	// var input = $(parent._selector).find(this._selector);
+  
+	// $(parent._selector).append(' <label for="' + name + '" class="iaa-label-botton"></label> ');
+   
+    $(parent._selector).append( ' <input type="' + type + '" class="iaa-toolbar-input hidden" name="' + parent._name + '" id="' + name + '"> ' );
+
 	var input = $(parent._selector).find(this._selector);
-  
-	$(parent._selector).append(' <label for="' + name + '" class="iaa-label-botton"></label> ');
+	
+    $(parent._selector).append(' <label class="iaa-toolbar-input-label" for="' + name + '"></label> ');
    
 	input.click(function(e){salf.click(e)});
 	
