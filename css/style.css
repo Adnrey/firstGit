@@ -42,6 +42,10 @@ footer{display: none;}
 
 /* iaa tool bar*/
 
+.iaa-toolbar{
+	user-select: none;
+}
+
 .iaa-toolbar-input-label{
     width: 50px;  
     height: 50px;  
@@ -119,19 +123,6 @@ input[type=button] + .iaa-toolbar-input-label:active{
   
   
 }
-
-.iaa-top-toolbar.left-spmenu-open{
-  
-  margin-left: 241px;
-  
-}
-
-.iaa-top-toolbar.right-spmenu-open{
-  
-  margin-right: 241px;
-  
-}
-
 
 /*  SVG */
 

@@ -16,7 +16,7 @@ function cancelEvent(e) {
 
 	return false;
 	
-}
+ }
 
 function hookEvent(hElem, eventName, callback) {
   
@@ -42,7 +42,7 @@ function hookEvent(hElem, eventName, callback) {
  
 	return true;
 
-}
+ }
 
 function unhookEvent(hElem, eventName, callback) {
  
@@ -69,7 +69,7 @@ function unhookEvent(hElem, eventName, callback) {
   
 	return true;
   
-}
+ }
 
 function setHookMouseWheel(obj, callback, act) {
 	
@@ -91,9 +91,152 @@ function mauseWheelEvent(e){
 	
 	this.value = wheelData;
 	
-}
+ }
 
 // Формы //
+
+function dialog_form(id_form){
+	
+	var salf = this;
+	
+	var selector = "#" + id_form;
+	
+	var option = {};
+	
+	destroy();
+	
+	//--
+	
+	var caption = "";
+	
+	function creat_form(){
+
+		$('article').append(' <div class="ui-dialog" id="' + id_form + '"></div> ');
+
+	}
+	
+	function creat_header(){
+		
+		$(selector).append(
+			'<div class="ui-dialog-header" id="' + id_form + '-header">'+
+			'	<div class="ui-dialog-header-title">'+ salf.option('caption') +'</div>' +
+			'	<div class="btn-group pull-right">' +
+			'		<button type="button" class="btn btn-default btn-close"></button>' +
+			'	</div>' +
+			'</div>'
+		);
+		
+		$(selector + " .btn-close").click(function(){destroy()});
+		
+	}
+	
+	function creat_content(){
+		
+		$(selector).append(
+			'<div class="ui-dialog-content" id="' + id_form + '-content">' +
+			'	<div class="content">' +
+			'	</div>' +
+			'</div>'
+		);
+		
+	}	
+	
+	function creat_footer(){
+		
+		if (salf.option.buttons == undefined) return;
+		
+		$(selector).append('<div class="ui-dialog-footer" id="' + id_form + '-footer"></div>');
+		
+		$(selector+' .ui-dialog-footer').append('<div class="pull-right"></div> ');
+		
+		var group_btn = $(selector + ' .ui-dialog-footer .pull-right');
+		
+		for(var button of salf.option.buttons){
+		
+			group_btn.append(
+			
+				'<button type="button" class="btn btn-default" '+
+				'name = "'+button.name+'"> '+
+				button.text + '</button> '
+			
+			);
+			
+			if (button.click != undefined && typeof salf[button.click] == 'function'){
+
+				group_btn
+					.find('button[name=' + button.name+']')
+						.on('click', button.data, salf[button.click]);	
+					
+			}			
+			
+			
+		}
+
+	}
+
+	function destroy(){
+		
+		$(selector).remove();		
+		
+	}
+	
+	//--
+	
+	this.option = function(key, value){
+		
+		if (salf[key] != undefined && typeof salf[key] == 'function'){
+			
+			return salf[key](value);
+			
+		}else{
+			
+			if (value != undefined){
+				
+				salf.option[key] = value;
+				
+			}
+			
+			return salf.option[key];
+			
+		}
+		
+	}
+	
+	this.open = function(){
+		
+		creat_form();
+		
+		creat_header();
+		
+		creat_content();
+		
+		creat_footer();		
+		
+		drag_element(id_form + "-header", id_form);
+		
+	}
+	
+	this.refresh = function(){
+		
+		console.log("Сработала функция refresh");
+		
+	}
+	
+	this.save = function(){
+		
+		console.log("Сработала функция close");
+		
+	}		
+	
+	this.close = function(){
+		
+		console.log("Сработала функция close");
+		
+		destroy();
+		
+	}	
+	
+}
 
 function formPropertyMap(){
 
@@ -201,7 +344,7 @@ function formPropertyMap(){
 			
 	});	
 
-}
+ }
 
 function formAddElemrnt(){
 	
@@ -374,7 +517,7 @@ function formAddElemrnt(){
 			
 	});	
 	
-}
+ }
 
 function formDeleteElement(){
 	
@@ -448,7 +591,7 @@ function formDeleteElement(){
 			
 	});	
 	
-}
+ }
 
 function formPropertyElement(){
 	
@@ -582,7 +725,7 @@ function formPropertyElement(){
 
 	});	
 	
-}
+ }
 
 // Кнопки //
 
@@ -611,7 +754,7 @@ function iaaTopIconToolBar(name, parentSelector){
 
 	}
 
-}
+ }
 
 function iaaTopIconToolBarGoupButton(name, parent){
   
@@ -647,7 +790,7 @@ function iaaTopIconToolBarGoupButton(name, parent){
     
 	}
   
-}
+ }
 
 function iaaTopIconToolBarButton(name, type, parent){
   
@@ -693,7 +836,7 @@ function iaaTopIconToolBarButton(name, type, parent){
 	
 	}
 	
-}
+ }
 
 // Элементы //
 
@@ -779,7 +922,7 @@ function iaaInputField(name, caption){
 		
 	}
   
-}
+ }
 
 function iaaInputStringField(name, caption){
   
@@ -827,7 +970,7 @@ function iaaInputStringField(name, caption){
 		
 	}
   
-}
+ }
 
 function iaaInputNumberField(name, caption){
   
@@ -968,5 +1111,115 @@ function iaaInputNumberField(name, caption){
     
 	}
    
-}
+ }
 
+// Прочее //
+
+function drag_element(id_element, id_element_drag){
+
+	var salf = this;
+
+	var stage = document.getElementById(id_element);
+
+	var selector = "#" + id_element_drag;
+
+	var mauseHandled = false;
+
+	var left = 0;
+
+	var top = 0;
+
+	var startX = 0;
+
+	var startY = 0;
+
+	function start_drop(e){
+
+		mauseHandled = true;
+
+		startX = e.clientX;
+
+		startY = e.clientY; 
+
+		top = get_top();  
+
+		left = get_left();
+
+	}
+
+	function stop_drop(){
+
+		mauseHandled = false;
+
+	}
+
+	function mousemove(e){
+
+		if (!mauseHandled) return
+
+		// delta X -----------------
+
+		var deltaX = e.clientX - startX;
+
+		if (deltaX != 0){
+
+			var win_width = $(window).width();
+
+			var width = $(selector).width();
+
+			var val = left + deltaX;
+
+			val = Math.max(0,val); 
+			val = Math.min(win_width - width - 2,val);
+
+			if (get_left() != val){
+
+				$(selector).css("left", val+"px");
+
+			}
+
+		}
+
+		// delta Y -----------------
+
+		var deltaY = e.clientY - startY;
+
+		if (deltaY != 0){
+
+			var win_height = $(window).height();
+			var height = $(selector).height();
+
+			var val = top + deltaY;
+
+			val = Math.max(0,val); 
+			val = Math.min(win_height - height - 2,val);
+
+			if (get_top() != val){
+
+				$(selector).css("top", val+"px");
+
+			}
+
+		}
+
+	}
+
+	function get_top(){
+
+		return parseInt($(selector).css( "top" ));
+
+	}
+
+	function get_left(){
+
+		return parseInt($(selector).css( "left" ));
+
+	}
+
+	stage.onmousedown = function(e){start_drop(e)}
+
+	document.onmouseup = function(e){stop_drop()} 		
+
+	document.onmousemove = function(e){mousemove(e)} 	
+
+ }

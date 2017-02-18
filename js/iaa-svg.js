@@ -108,7 +108,7 @@ function iaaCanvas(){
 		
 		//--Времяночка..
 		
-	}
+	 }
 	
 	function onWindowsResize(){
 		
@@ -130,7 +130,7 @@ function iaaCanvas(){
 		
 		return snap;
 		
-	}
+	 }
 	
 	this.recalculate = function(){	// пересчитать координаты
 
@@ -140,7 +140,7 @@ function iaaCanvas(){
 		
 		salf.addActionPoints();
 	
-	}
+	 }
 	
 	this.repaint = function(){		// перерисовать элементы
 		
@@ -154,7 +154,7 @@ function iaaCanvas(){
 
 		});
 	
-	}
+	 }
 
 	//--
 	
@@ -180,7 +180,7 @@ function iaaCanvas(){
 			
 		});		
 		
-	}
+	 }
 	
 	this.clearActionPoint = function(){	// Удалить точки действия
 		
@@ -192,7 +192,7 @@ function iaaCanvas(){
 
 		salf.actionPoints = [];
 		
-	}	
+	 }	
 	
 	//--
 	
@@ -234,7 +234,7 @@ function iaaCanvas(){
 		
 		myCanvas.repaint;
 		
-	}
+	 }
 	
 	//-- 
 	
@@ -266,7 +266,7 @@ function iaaCanvas(){
 			
 		}
 		
-	}
+	 }
 	
 	//.Tool.bar.........
 	
@@ -343,7 +343,7 @@ function iaaCanvas(){
 		salf.ElementCommandButton = group4;
 		salf.ActionPointTrendButton = group5;
 
-	}	
+	 }	
 	
 	function leftToolBarPropertyElement_onclick(e){
 		
@@ -451,15 +451,31 @@ function iaaCanvas(){
 	
 	function showHidLeftSlidePanel_onclick(e){
 		
-		$(" #cbp-spmenu-s1 ").toggleClass( 'cbp-spmenu-open' );
-		$(" .iaa-top-toolbar ").toggleClass( 'left-spmenu-open' );
-  
+		var formProperty = new dialog_form("property_menu");
+		
+		formProperty.option('caption', "Свойства элемента");
+
+		var buttons = [];
+
+		buttons.push({name: 'Обновить',  text: 'Обновить',  click: 'refresh', data: {}});
+		buttons.push({name: 'Отмена',    text: 'Отмена',    click: 'close',   data:{}});
+		buttons.push({name: 'Сохранить', text: 'Сохранить', click: 'save',    data:{ИмяКнопки: 'Сохранить'}});
+
+		formProperty.option("buttons", buttons);
+
+		formProperty.save = function(e){
+			
+			console.log("Сработала функция save", 'параметры', e.data);
+			
+		}
+		
+		formProperty.open();
+		
 	}
 	
 	function showHidRightSlidePanel_onclick(e){
 		
-		$(" #cbp-spmenu-s2 ").toggleClass( 'cbp-spmenu-open' );
-		$(" .iaa-top-toolbar ").toggleClass( 'right-spmenu-open' );  
+		// $(" #cbp-spmenu-s2 ").toggleClass( 'cbp-spmenu-open' );
 		
 	}	
 	
@@ -752,7 +768,7 @@ function iaaCanvas(){
 	
 	//.........
 	
-}
+ }
 
 // Группа //
 
@@ -1401,7 +1417,7 @@ function iaaPoint(parentElement, w, h, d, lit){
 		
 	}
 
-} 
+ } 
  
 // Проект //
 
@@ -1425,7 +1441,7 @@ function iaaDraft(name, w, h, d){
 	
 	this.gridVisible = true;
 	
-}
+ }
 
 // Элемент //
 
@@ -1445,7 +1461,7 @@ function iaaЕlement(parentElement){
 	
 	// this.gridStep = [25,25,25];	
 	
-}
+ }
 
 // Точка действия //
 

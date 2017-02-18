@@ -1,0 +1,184 @@
+.conteiner{
+    margin: 5px;
+    padding: 5px;
+    display: table;
+}
+
+.content{
+
+  padding: 5px 15px;
+
+}
+
+.content .row{
+
+  padding-bottom: 10px;
+
+}
+
+
+/*DIALOG*/
+
+.ui-dialog{
+  position: absolute;
+  background: #feeebd;
+  background: rgba(254, 238, 189, 0.88);  
+  border: 1px solid #494437;
+  min-width: 250px;
+  max-width: 300px;
+  box-shadow: 0 5px 15px #423f3f;
+}
+
+/*DIALOG HEADER*/
+
+.ui-dialog-header{
+  background: #817865;
+  border-bottom: 1px solid #494437; 
+  cursor: move;
+  left: 0;
+
+}
+
+.ui-dialog-header-title{
+  color: #ffffff;
+  /*background: #b1b165;  */
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  float: left;
+  padding: 5px 0 5px 10px;
+  user-select: none;
+}
+
+.ui-dialog-header .btn-group{
+  padding-right: 5px;  
+}
+
+.ui-dialog-header .btn{
+  margin-top: 5px;
+  height: 20px;
+  width: 20px;
+  padding: 0;
+  border: 0; 
+  font-size: 10px;
+  /*background: none;*/
+
+}
+
+/*DIALOG CONTENT*/
+
+.ui-dialog-content{
+  overflow-y: auto;
+  max-height: 300px; 
+  user-select: none;
+  cursor: default;  
+}
+
+/*DIALOG FOOTER*/
+
+.ui-dialog-footer{
+  border-top: 1px solid #494437;
+  padding: 5px; 
+}
+
+.ui-dialog-footer .btn{
+
+
+}
+
+/*-------------*/
+
+.btn-default{
+  color: #4a351b;
+  background-color: #ffdd57;
+  border-color: #836d15;
+  outline: 0;
+}
+
+.btn-default:focus{
+
+}
+.btn-default:hover {
+  background: #fece2f;
+}
+.btn-default:active{
+ 
+}
+
+.btn-default:active:hover{
+
+}
+
+.btn{
+  border-radius: 0;
+}
+
+.btn-turn, .btn-turn:hover{
+  background: url("../images/dialog-header-btn-2.png") center center no-repeat;
+}
+
+.btn-close, .btn-close:hover{
+  background: url("../images/dialog-header-btn-4.png") center center no-repeat;
+}
+
+.btn-close, .btn-close:hover, .btn-turn, .btn-turn:hover{
+  background-size: 100%;
+}
+
+
+.ui-dialog-header:before,
+.ui-dialog-content:before,
+.ui-dialog-footer:before{
+  display: table;
+  content: " ";
+}
+
+.ui-dialog-header:after,
+.ui-dialog-content:after,
+.ui-dialog-footer:after{
+    clear: both;
+    display: table;
+    content: " ";
+}
+
+
+
+.ui-dialog-content::-webkit-scrollbar-button {
+  background-image:url('');
+  background-repeat:no-repeat;
+  width:5px;
+  height:0px;
+}
+
+/*Цвет фона*/
+.ui-dialog-content::-webkit-scrollbar-track {
+  margin: -1px 0; 
+  background-color:#feeebd;
+  border-left: 1px solid #836d15;
+}
+
+/*Кнопка*/
+.ui-dialog-content::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 0px;
+  background-color:#ffdd57;
+  border: 1px solid #836d15;
+  border-right: 0;
+  cursor: pointer;
+}
+
+.ui-dialog-content::-webkit-scrollbar-thumb:hover{
+  background-color:#fece2f;
+}
+
+.ui-dialog-content::-webkit-resizer{
+  background-image:url('');
+  background-repeat:no-repeat;
+  width:4px;
+  height:0px
+}
+
+/*Основная ширина*/
+.ui-dialog-content::-webkit-scrollbar{
+  width: 15px;
+}
