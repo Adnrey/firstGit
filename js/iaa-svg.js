@@ -156,6 +156,14 @@ function iaaCanvas(){
 	
 	 }
 
+	this.refresh = function(){
+		
+		salf.recalculate();
+		
+		salf.repaint();
+		
+	}
+	 
 	//--
 	
 	this.addActionPoints = function(){	// Добавить точки действия
@@ -230,9 +238,7 @@ function iaaCanvas(){
 			
 		}
 		
-		myCanvas.recalculate;
-		
-		myCanvas.repaint;
+		myCanvas.refresh();
 		
 	 }
 	
@@ -260,9 +266,7 @@ function iaaCanvas(){
 			
 			if (salf.scale == 0) salf.scale = 0.1;
 		
-			myCanvas.recalculate();
-		
-			myCanvas.repaint();
+			myCanvas.refresh();
 			
 		}
 		
@@ -278,7 +282,7 @@ function iaaCanvas(){
 
 		var group0 = tolBar1.addGroupButton('group0');
 
-		var button0 = group0.addButton('ButtonProperty', 'checkbox'); 
+		var button0 = group0.addButton('ButtonProperty', 'button'); 
 
 		
 		var group1 = tolBar1.addGroupButton('group1');
@@ -410,9 +414,7 @@ function iaaCanvas(){
 			value[0] = x + sx * m;
 			value[1] = y + sy * m;
 
-			myCanvas.recalculate();
-			
-			myCanvas.repaint();
+			myCanvas.refresh();
 
 		}
 
@@ -433,9 +435,7 @@ function iaaCanvas(){
 			salf.turn[0] = salf.turn[0] + (sy/4);
 			salf.turn[1] = salf.turn[1] - (sx/4);
 			
-			myCanvas.recalculate();
-			
-			myCanvas.repaint();
+			myCanvas.refresh();
 			
 		}
 
@@ -443,9 +443,7 @@ function iaaCanvas(){
 
 	function rightToolBarActionPoint_onclick(e){
 
-		myCanvas.recalculate();
-		
-		myCanvas.repaint();
+		myCanvas.refresh();
 		
 	}
 	
@@ -454,10 +452,38 @@ function iaaCanvas(){
 		var formProperty = new dialog_form("property_menu");
 		
 		formProperty.option('caption', "Свойства элемента");
-
+		
+		formProperty.add_content(
+			new input_string_field('prop_name')
+				.add_option('caption', 'Название элемента')
+				.add_option('caption_position', 'top')
+				.add_option('data_object', myCanvas.currentElement)
+				.add_option('data_name', 'name')
+		);
+		
+		formProperty.add_content(
+			new input_string_field('prop_width')
+				.add_option('caption', 'Ширина')
+				.add_option('data_object', myCanvas.currentElement.sizes)
+				.add_option('data_name', 0)
+		);
+		
+		formProperty.add_content(
+			new input_string_field('prop_height')
+				.add_option('caption', 'Высота')
+				.add_option('data_object', myCanvas.currentElement.sizes)
+				.add_option('data_name', 1)
+		);
+		
+		formProperty.add_content(
+			new input_string_field('prop_depth')
+				.add_option('caption', 'Глубина')
+				.add_option('data_object', myCanvas.currentElement.sizes)
+				.add_option('data_name', 2)
+		);
+		
 		var buttons = [];
 
-		buttons.push({name: 'Обновить',  text: 'Обновить',  click: 'refresh', data: {}});
 		buttons.push({name: 'Отмена',    text: 'Отмена',    click: 'close',   data:{}});
 		buttons.push({name: 'Сохранить', text: 'Сохранить', click: 'save',    data:{ИмяКнопки: 'Сохранить'}});
 
@@ -493,9 +519,7 @@ function iaaCanvas(){
 		if (name == 'y') ref.sizes[1] = value; 
 		if (name == 'z') ref.sizes[2] = value; 
 		
-		myCanvas.recalculate();
-
-		myCanvas.repaint();
+		myCanvas.refresh();
 		
 	}
 
@@ -505,9 +529,7 @@ function iaaCanvas(){
 		if (name == 'y') ref.position[1] = value; 
 		if (name == 'z') ref.position[2] = value; 
 		
-		myCanvas.recalculate();
-
-		myCanvas.repaint();
+		myCanvas.refresh();
 		
 	}
 
@@ -837,10 +859,8 @@ function iaaGroup(){
 		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
 		
 			myCanvas.setCurrentElement(salf);
-
-			myCanvas.recalculate();
-
-			myCanvas.repaint();
+			
+			myCanvas.refresh();
 			
 		}			
 		
@@ -1692,10 +1712,7 @@ function iaaActionPoint(element, face){
 				
 			});
 			
-			myCanvas.recalculate();
-			
-			myCanvas.repaint()
-			
+			myCanvas.refresh();
 			
 		}
 

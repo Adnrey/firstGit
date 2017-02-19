@@ -99,9 +99,18 @@ function dialog_form(id_form){
 	
 	var salf = this;
 	
-	var selector = "#" + id_form;
+	var id_header  = id_form + "-header";
+	var id_content = id_form + "-content";
+	var id_footer  = id_form + "-footer";
+	
+	var selector         = "#" + id_form;
+	var selector_header  = "#" + id_header;
+	var selector_content = "#" + id_content;
+	var selector_footer  = "#" + id_footer;
 	
 	var option = {};
+	
+	var elements = [];
 	
 	destroy();
 	
@@ -118,7 +127,7 @@ function dialog_form(id_form){
 	function creat_header(){
 		
 		$(selector).append(
-			'<div class="ui-dialog-header" id="' + id_form + '-header">'+
+			'<div class="ui-dialog-header" id="' + id_header + '">'+
 			'	<div class="ui-dialog-header-title">'+ salf.option('caption') +'</div>' +
 			'	<div class="btn-group pull-right">' +
 			'		<button type="button" class="btn btn-default btn-close"></button>' +
@@ -132,12 +141,14 @@ function dialog_form(id_form){
 	
 	function creat_content(){
 		
-		$(selector).append(
-			'<div class="ui-dialog-content" id="' + id_form + '-content">' +
-			'	<div class="content">' +
-			'	</div>' +
-			'</div>'
-		);
+		$(selector).append('<div class="ui-dialog-content" id="' + id_content + '"><div class="content"></div></div>');
+		
+		for(var element of elements){
+			
+			element.creat_field(selector_content + ' .content');
+			
+		}
+		
 		
 	}	
 	
@@ -145,7 +156,7 @@ function dialog_form(id_form){
 		
 		if (salf.option.buttons == undefined) return;
 		
-		$(selector).append('<div class="ui-dialog-footer" id="' + id_form + '-footer"></div>');
+		$(selector).append('<div class="ui-dialog-footer" id="' + id_footer + '"></div>');
 		
 		$(selector+' .ui-dialog-footer').append('<div class="pull-right"></div> ');
 		
@@ -216,18 +227,6 @@ function dialog_form(id_form){
 		
 	}
 	
-	this.refresh = function(){
-		
-		console.log("Сработала функция refresh");
-		
-	}
-	
-	this.save = function(){
-		
-		console.log("Сработала функция close");
-		
-	}		
-	
 	this.close = function(){
 		
 		console.log("Сработала функция close");
@@ -235,6 +234,12 @@ function dialog_form(id_form){
 		destroy();
 		
 	}	
+
+	this.add_content = function(element){
+		
+		elements.push(element);
+		
+	}
 	
 }
 
@@ -433,10 +438,6 @@ function formAddElemrnt(){
 	this.save = function(){
 
 		if (ref != undefined) {
-		
-			// var [x, y, z] = ref.face.сentreValue;
-
-			// console.log(ref.parent.position, [x, y, z]);
 		
 			if (myCanvas.currentDraft == ref.parent){
 				
@@ -839,6 +840,220 @@ function iaaTopIconToolBarButton(name, type, parent){
  }
 
 // Элементы //
+
+function input_field(type, name){
+	
+	var salf = this;
+	
+	this.id = 'input_field_' + name;
+	
+	this._selector = '#' + salf.id;
+	
+	//..
+	
+	function get_value_type_default(){
+		
+		if (type == 'number') {
+			
+			return 0;
+			
+		}else if(type == 'text') {
+			
+			return "";
+		
+		}else if(type == 'checkbox') {
+			
+			return false;
+			
+		}
+		
+	}
+
+	//..
+  
+	this.value = function(value){
+    
+		if (value != undefined) {
+		
+			$(this._selector).find('input').prop('value', value);
+		
+			salf.option('value_before_change', value);
+		
+		}
+    
+		return $(this._selector).find('input').prop('value');
+    
+	}
+  
+ 	this.option = function(key, value){
+		
+		if (salf[key] != undefined && typeof salf[key] == 'function'){
+			
+			return salf[key](value);
+			
+		}else{
+			
+			if (value != undefined){
+				
+				salf.option[key] = value;
+				
+			}
+			
+			return salf.option[key];
+			
+		}
+		
+	} 
+  
+	this.add_option = function(key, value){
+		
+		salf.option(key, value);
+		
+		return salf;
+	}
+  
+	//..	
+  
+	this._inputfocus = function(){
+
+		salf.option('value_before_change', salf.value()); 
+    
+	}
+  
+	this._inputkeydown = function(){
+    
+		var field = $(this._selector).find('input');
+       
+		if (event.keyCode == 13) { //Enter
+      
+			field.blur();
+		
+			field.parent().focus();
+
+		}else if(event.keyCode == 27){ //Esc
+      
+			salf.value(salf.option('value_before_change'));
+      
+			field.blur();
+        
+			field.parent().parent().click();
+	
+			cancelEvent();
+      
+		}
+	
+	}
+  
+	this._inputfocusout = function(){
+   
+		salf.option('value_before_change', salf.value());  
+    
+	}
+  
+	this._inputchange = function(){
+		
+		var data_object = salf.option('data_object');
+		
+		data_object[salf.option('data_name')] = salf.value();
+	
+	}
+
+	//..
+	
+	this.option('caption', name);	
+	
+	this.option('value_before_change', get_value_type_default());
+}
+
+function input_string_field(name){
+  
+	var salf = this;
+  
+	var type = 'text';
+  
+	input_field.apply(this, [type, name]);
+
+	var _selector = salf._selector;
+	
+	function inputfocus(){
+   
+		salf._inputfocus();
+    
+	}
+  
+	function inputkeydown(){
+    
+		salf._inputkeydown();
+    
+	}
+  
+	function inputfocusout(){
+	
+		salf._inputfocusout();
+	
+	}
+  
+	function inputchange(){
+		
+		salf._inputchange();
+		
+	}
+  
+	//-------------------------
+  
+  	this.creat_field = function(parent_selector){
+
+		$( parent_selector ).append(' <div class="row" id="' + salf.id + '"> ');
+
+		if (salf.option('caption_position') == 'top'){
+			
+			var caption_col = 12;
+			var field_col = 12;
+			
+		}else{
+			
+			var caption_col = 3;
+			var field_col = 9;			
+			
+		}		
+		
+		// caption --
+		
+		$(_selector).append(
+			
+			'<div class="col-sm-' + caption_col + '">' +
+			'	<p class="form-control-static">' + salf.option('caption') + ':</p>' +
+			'</div>'
+			
+		);		
+		
+		// field --
+		
+		$(_selector).append(
+		
+			'<div class="col-sm-' + field_col + '">' +
+			'	<input type="text" class="form-control" name="' + name + '" placeholder="Введите значение">' +
+			'</div>'
+		
+		);
+		
+		//--
+	 
+		$(this._selector).find('input').focus(function(){inputfocus()});
+	  
+		$(this._selector).find('input').keydown(function(){inputkeydown()});
+
+		$(this._selector).find('input').focusout(function(){inputfocusout()});
+	  
+		$(this._selector).find('input').change(function(){inputchange()});
+		
+		$(this._selector).find('input').prop('value', salf.option('data_object')[salf.option('data_name')]);
+		
+	}	
+   
+ }
+
+//--
 
 function iaaInputField(name, caption){
    
