@@ -112,8 +112,6 @@ function dialog_form(id_form){
 	
 	var elements = [];
 	
-	destroy();
-	
 	//--
 	
 	var caption = "";
@@ -135,7 +133,7 @@ function dialog_form(id_form){
 			'</div>'
 		);
 		
-		$(selector + " .btn-close").click(function(){destroy()});
+		$(selector + " .btn-close").click(function(){salf.close()});
 		
 	}
 	
@@ -185,6 +183,83 @@ function dialog_form(id_form){
 
 	}
 
+	function save_option_form(){ // сохранить настройки
+
+		var jq = $(selector);
+
+		if (jq.length == 0) return;
+		
+		var option_form = {
+			top: parseInt(jq.css( 'top' )),
+			left: parseInt(jq.css( 'left' )),
+			height: jq.height(),
+			width: jq.width()
+		};
+		
+		var json = $.toJSON(option_form);
+		
+		localStorage.setItem('option_form_' + id_form, json);
+		
+		// $.cookie('option_form_' + id_form, "--");
+		
+	}
+	
+	function restore_option_form(){ // Восстановить настройки
+
+		var jq = $(selector);
+		
+		var json = localStorage.getItem('option_form_' + id_form);
+		
+		// var json = $.cookie('option_form_' + id_form);
+		
+		if (json != undefined) {
+			
+			var option_form = $.secureEvalJSON(json);
+			
+			if (option_form.top != undefined) {
+				
+				var win_height = $(window).height();
+				
+				if (win_height <= option_form.height){
+					
+					jq.css( 'top' , 0);
+					
+				}else if (win_height < option_form.top + option_form.height){
+					
+					jq.css( 'top' , win_height - option_form.height);
+					
+				}else{	
+					
+					jq.css( 'top' , option_form.top);
+					
+				}
+			
+			};
+			
+			if (option_form.left != undefined) {
+				
+				var win_width = $(window).width();
+				
+				if (win_width <= option_form.height){
+					
+					jq.css( 'left' , 0);
+					
+				}else if (win_width < option_form.left + option_form.width){
+					
+					jq.css( 'left' , win_width - option_form.width);
+					
+				}else{	
+					
+					jq.css( 'left' , option_form.left);
+					
+				}
+			
+			}
+			
+		}
+		
+	}	
+	
 	function destroy(){
 		
 		$(selector).remove();		
@@ -225,11 +300,13 @@ function dialog_form(id_form){
 		
 		drag_element(id_form + "-header", id_form);
 		
+		restore_option_form();
+		
 	}
 	
 	this.close = function(){
 		
-		console.log("Сработала функция close");
+		save_option_form();
 		
 		destroy();
 		
@@ -240,6 +317,10 @@ function dialog_form(id_form){
 		elements.push(element);
 		
 	}
+	
+	//-----------------
+	
+	salf.close();
 	
 }
 
@@ -850,6 +931,28 @@ function input_field(type, name){
 	this._selector = '#' + salf.id;
 	
 	//..
+
+	function get_value_type(value){
+		
+		if (type == 'number') {
+			
+			return + value;
+			
+		}else if(type == 'text') {
+			
+			return "" + value;
+		
+		}else if(type == 'checkbox') {
+			
+			return value;
+			
+		}else{
+			
+			return value;
+			
+		}
+		
+	}	
 	
 	function get_value_type_default(){
 		
@@ -868,7 +971,7 @@ function input_field(type, name){
 		}
 		
 	}
-
+	
 	//..
   
 	this.value = function(value){
@@ -880,8 +983,10 @@ function input_field(type, name){
 			salf.option('value_before_change', value);
 		
 		}
-    
-		return $(this._selector).find('input').prop('value');
+		
+		var v = get_value_type($(this._selector).find('input').prop('value'));
+		
+		return v;
     
 	}
   
@@ -975,29 +1080,13 @@ function input_string_field(name){
 
 	var _selector = salf._selector;
 	
-	function inputfocus(){
-   
-		salf._inputfocus();
-    
-	}
+	function inputfocus(){ salf._inputfocus() }
   
-	function inputkeydown(){
-    
-		salf._inputkeydown();
-    
-	}
+	function inputchange(){ salf._inputchange() }
+
+	function inputkeydown(){ salf._inputkeydown() }
   
-	function inputfocusout(){
-	
-		salf._inputfocusout();
-	
-	}
-  
-	function inputchange(){
-		
-		salf._inputchange();
-		
-	}
+	function inputfocusout(){ salf._inputfocusout() }
   
 	//-------------------------
   
@@ -1053,6 +1142,106 @@ function input_string_field(name){
    
  }
 
+function input_number_field(name){
+
+	var salf = this;
+
+	var type = 'number';
+  
+	input_field.apply(this, [type, name]);
+
+	var _selector = salf._selector;
+	
+	function inputfocus(){ salf._inputfocus() }
+  
+	function inputchange(){ salf._inputchange() }
+
+	function inputkeydown(){ salf._inputkeydown() }
+  
+	function inputfocusout(){ salf._inputfocusout() }
+
+	//-------------------------
+  
+  	this.creat_field = function(parent_selector){
+
+		$( parent_selector ).append(' <div class="row" id="' + salf.id + '"> ');
+
+		if (salf.option('caption_position') == 'top'){
+			
+			var caption_col = 12;
+			var field_col = 12;
+			
+		}else{
+			
+			var caption_col = 3;
+			var field_col = 9;			
+			
+		}		
+		
+		// caption --
+		
+		$(_selector).append(
+			
+			'<div class="col-sm-' + caption_col + '">' +
+			'	<p class="form-control-static">' + salf.option('caption') + ':</p>' +
+			'</div>'
+			
+		);		
+		
+		// field --
+		
+		var html_text = '<div class="col-sm-' + field_col + '">';
+		
+		html_text += '<div class="input-group">';
+		
+		if (salf.option('btn_subtract_step') == true) {
+			
+			html_text +=			
+			'<span class="input-group-btn">' +
+			'	<button class="btn btn-default" type="button">-</button>'+
+			'</span>';
+			
+		}
+
+		html_text += '<input type="number" class="form-control ';
+		
+		if (salf.option('text_center') == true){
+			
+			html_text += ' text-center ';
+			
+		}
+		
+		html_text += '" name="' + name + '" placeholder="Введите значение">';
+			
+		if (salf.option('btn_add_step') == true) {
+		
+			html_text +=
+			'<span class="input-group-btn">' +
+			' <button class="btn btn-default" type="button">+</button>'+
+			'</span>';
+			
+		}
+		
+		html_text += '</div></div>';
+		
+		$(_selector).append(html_text);
+		
+		//--
+	 
+		$(this._selector).find('input').focus(function(){inputfocus()});
+	  
+		$(this._selector).find('input').keydown(function(){inputkeydown()});
+
+		$(this._selector).find('input').focusout(function(){inputfocusout()});
+	  
+		$(this._selector).find('input').change(function(){inputchange()});
+		
+		$(this._selector).find('input').prop('value', salf.option('data_object')[salf.option('data_name')]);
+		
+	}	
+
+}
+ 
 //--
 
 function iaaInputField(name, caption){

@@ -462,24 +462,33 @@ function iaaCanvas(){
 		);
 		
 		formProperty.add_content(
-			new input_string_field('prop_width')
+			new input_number_field('prop_width')
 				.add_option('caption', 'Ширина')
 				.add_option('data_object', myCanvas.currentElement.sizes)
 				.add_option('data_name', 0)
+				.add_option('text_center', true)
+				.add_option('btn_subtract_step', true)
+				.add_option('btn_add_step', true)
 		);
 		
 		formProperty.add_content(
-			new input_string_field('prop_height')
+			new input_number_field('prop_height')
 				.add_option('caption', 'Высота')
 				.add_option('data_object', myCanvas.currentElement.sizes)
 				.add_option('data_name', 1)
+				.add_option('text_center', true)
+				.add_option('btn_subtract_step', true)
+				.add_option('btn_add_step', true)
 		);
 		
 		formProperty.add_content(
-			new input_string_field('prop_depth')
+			new input_number_field('prop_depth')
 				.add_option('caption', 'Глубина')
 				.add_option('data_object', myCanvas.currentElement.sizes)
 				.add_option('data_name', 2)
+				.add_option('text_center', true)
+				.add_option('btn_subtract_step', true)
+				.add_option('btn_add_step', true)
 		);
 		
 		var buttons = [];
