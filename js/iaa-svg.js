@@ -491,6 +491,14 @@ function iaaCanvas(){
 				.add_option('btn_add_step', true)
 		);
 		
+		formProperty.add_content(
+			new input_checkbox_field('prop_visible')
+				.add_option('caption', 'Видимость элемента')
+				.add_option('data_object', myCanvas.currentElement)
+				.add_option('data_name', 'visible')
+				.add_option('check_right', true)
+		);		
+		
 		var buttons = [];
 
 		buttons.push({name: 'Отмена',    text: 'Отмена',    click: 'close',   data:{}});
@@ -813,6 +821,7 @@ function iaaGroup(){
 
 		this.name = 'Новый элемент';		// имя
 		
+		this.visible = true;				// Видимость
 		
 		this.position = [0,0,0];			// позиция
 		

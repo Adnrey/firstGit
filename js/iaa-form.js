@@ -942,10 +942,6 @@ function input_field(type, name){
 			
 			return "" + value;
 		
-		}else if(type == 'checkbox') {
-			
-			return value;
-			
 		}else{
 			
 			return value;
@@ -976,15 +972,19 @@ function input_field(type, name){
   
 	this.value = function(value){
     
+		var name_prop = 'value';
+		
+		if(type == 'checkbox') name_prop = 'checked';
+	
 		if (value != undefined) {
 		
-			$(this._selector).find('input').prop('value', value);
+			$(this._selector).find('input').prop(name_prop, value);
 		
 			salf.option('value_before_change', value);
 		
 		}
 		
-		var v = get_value_type($(this._selector).find('input').prop('value'));
+		var v = get_value_type($(this._selector).find('input').prop(name_prop));
 		
 		return v;
     
@@ -1092,7 +1092,7 @@ function input_string_field(name){
   
   	this.creat_field = function(parent_selector){
 
-		$( parent_selector ).append(' <div class="row" id="' + salf.id + '"> ');
+		var html_text = ' <div class="row" id="' + salf.id + '"> ';
 
 		if (salf.option('caption_position') == 'top'){
 			
@@ -1107,24 +1107,18 @@ function input_string_field(name){
 		}		
 		
 		// caption --
-		
-		$(_selector).append(
-			
-			'<div class="col-sm-' + caption_col + '">' +
-			'	<p class="form-control-static">' + salf.option('caption') + ':</p>' +
-			'</div>'
-			
-		);		
+
+		html_text += '<div class="col-sm-' + caption_col + '">';
+		html_text += '	<p class="form-control-static">' + salf.option('caption') + ':</p>';
+		html_text += '</div>';
 		
 		// field --
 		
-		$(_selector).append(
+		html_text += '<div class="col-sm-' + field_col + '">';
+		html_text += '	<input type="text" class="form-control" name="' + name + '" placeholder="Введите значение">';
+		html_text += '</div>';
 		
-			'<div class="col-sm-' + field_col + '">' +
-			'	<input type="text" class="form-control" name="' + name + '" placeholder="Введите значение">' +
-			'</div>'
-		
-		);
+		$( parent_selector ).append(html_text);
 		
 		//--
 	 
@@ -1164,7 +1158,7 @@ function input_number_field(name){
   
   	this.creat_field = function(parent_selector){
 
-		$( parent_selector ).append(' <div class="row" id="' + salf.id + '"> ');
+		var html_text = ' <div class="row" id="' + salf.id + '"> ';
 
 		if (salf.option('caption_position') == 'top'){
 			
@@ -1180,17 +1174,13 @@ function input_number_field(name){
 		
 		// caption --
 		
-		$(_selector).append(
-			
-			'<div class="col-sm-' + caption_col + '">' +
-			'	<p class="form-control-static">' + salf.option('caption') + ':</p>' +
-			'</div>'
-			
-		);		
+		html_text += '<div class="col-sm-' + caption_col + '">';
+		html_text += '	<p class="form-control-static">' + salf.option('caption') + ':</p>';
+		html_text += '</div>'
 		
 		// field --
 		
-		var html_text = '<div class="col-sm-' + field_col + '">';
+		html_text += '<div class="col-sm-' + field_col + '">';
 		
 		html_text += '<div class="input-group">';
 		
@@ -1224,7 +1214,7 @@ function input_number_field(name){
 		
 		html_text += '</div></div>';
 		
-		$(_selector).append(html_text);
+		$( parent_selector ).append(html_text);
 		
 		//--
 	 
@@ -1241,6 +1231,56 @@ function input_number_field(name){
 	}	
 
 }
+ 
+function input_checkbox_field(name){
+  
+	var salf = this;
+  
+	var type = 'checkbox';
+  
+	input_field.apply(this, [type, name]);
+
+	var _selector = salf._selector;
+  
+	function inputchange(){ salf._inputchange() }
+  
+	//-------------------------
+  
+  	this.creat_field = function(parent_selector){
+
+		var html_text = ' <div class="row" id="' + salf.id + '"> ';
+	
+		html_text += '<div class="col-sm-12">';
+	
+		if (salf.option('check_right') == true){
+			
+			html_text += '<div class="checkbox checkbox-right">';
+			
+			html_text += '<label>Видимость элемента<input type="checkbox" value="" checked=""></label>';
+			
+		}else{
+			
+			html_text += '<div class="checkbox">';		
+			
+			html_text += '<label><input type="checkbox" value="" checked="">Видимость элемента</label>';
+			
+		}		
+		
+		html_text += '';
+
+		html_text += '</div></div>';
+		
+		$( parent_selector ).append(html_text);
+		
+		//--
+  
+		$(this._selector).find('input').change(function(){inputchange()});
+		
+		$(this._selector).find('input').prop('checked', salf.option('data_object')[salf.option('data_name')]);
+		
+	}	
+   
+ }
  
 //--
 

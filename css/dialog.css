@@ -88,12 +88,26 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
   z-index: 20;
  }
 
-.col-sm-12 > .form-control-static {
+.checkbox{
+    margin: 0;
+ }
+
+.checkbox-right label{
+  padding-left: 0;
+ }
+
+.checkbox-right input[type="checkbox"]{
+
+  margin-left: 5px;
+
+ }
+
+/*.col-sm-12 > .form-control-static {
 
   min-height: 27px;
   padding-top: 0;
 
-}
+}*/
 
 @media (min-width: 400px) {
   
@@ -156,7 +170,7 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
 .ui-dialog{
   position: absolute;
   background: #feeebd;  
-  border: 1px solid #494437;
+  border: 1px solid #635f56;
   min-width: 250px;
   max-width: 300px;
   box-shadow: 0 5px 15px #423f3f;
@@ -166,7 +180,7 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
 
 .ui-dialog-header{
   background: #817865;
-  border-bottom: 1px solid #494437; 
+  border-bottom: 1px solid #635f56; 
   cursor: move;
   left: 0;
  }
@@ -203,13 +217,14 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
   overflow-y: auto;
   max-height: 300px; 
   user-select: none;
-  cursor: default;  
+  cursor: default;
+  padding-bottom: 10px;  
  }
 
 /*DIALOG FOOTER*/
 
 .ui-dialog-footer{
-  border-top: 1px solid #494437;
+  border-top: 1px solid #bdb07a;
   padding: 5px; 
  }
 
