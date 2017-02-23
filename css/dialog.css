@@ -215,7 +215,7 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
 
 .ui-dialog-content{
   overflow-y: auto;
-  max-height: 300px; 
+  max-height: 600px; 
   user-select: none;
   cursor: default;
   padding-bottom: 10px;  

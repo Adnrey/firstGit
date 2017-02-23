@@ -4,6 +4,8 @@ var myGraphix = new iaaGraphixs();
 
 var myCanvas = new iaaCanvas();
 
+var myForms = new list_forms();
+
 // Холст //
 
 function iaaCanvas(){
@@ -53,11 +55,18 @@ function iaaCanvas(){
 		
 		this.actionPointsStep = 10;				// шаг точки действия		
 		
-		this.formPropertyElement = undefined;	// форма свойств элемента
+		mySubscriptions.subscribe(salf, 'Изменение-свойств-элемента-карты');
+		mySubscriptions.subscribe(salf, 'Открыть-форму-свойства-элемента');
+		mySubscriptions.subscribe(salf, 'Закрыть-форму-свойства-элемента');
+		mySubscriptions.subscribe(salf, 'Открыть-форму-структура-проекта');
+		mySubscriptions.subscribe(salf, 'Закрыть-форму-структура-проекта');
+		mySubscriptions.subscribe(salf, 'Открыть-форму-добавления-элемента');
+		mySubscriptions.subscribe(salf, 'Открыть-форму-удаления-элемента');
+		mySubscriptions.subscribe(salf, 'Изменён-текущий-элемент-карты');
 		
 		
 		var _attributes = {};					// атрибуты
-	
+		
 	}
 	
 	$(document).ready(function (){onDocumentLoad()});
@@ -100,11 +109,7 @@ function iaaCanvas(){
 		
 		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 400);
 		
-		salf.currentElement = salf.currentDraft;
-		
-		salf.recalculate();
-		
-		salf.repaint();
+		salf.setCurrentElement(salf.currentDraft);
 		
 		//--Времяночка..
 		
@@ -156,11 +161,13 @@ function iaaCanvas(){
 	
 	 }
 
-	this.refresh = function(){
+	this.refresh = function(){		// пересчитать, перерисовать
 		
 		salf.recalculate();
 		
 		salf.repaint();
+		
+		mySubscriptions.notification(salf,'Обновление-отображения-элементов-карты');
 		
 	}
 	 
@@ -206,41 +213,59 @@ function iaaCanvas(){
 	
 	this.setCurrentElement = function(ref){	// Установить текущий элемент
 		
+		if (salf.currentElement == ref) return;
+		
 		salf.currentElement = ref;
 
-		if (salf.currentElement == undefined){
-			
-			if (salf.formPropertyElement != undefined) {
-		
-				salf.formPropertyElement.destroy();
-				
-				salf.formPropertyElement = undefined;
-		
-			}
-			
-		} else {
-			
-			if (salf.formPropertyElement != undefined) {
-		
-				if (salf.currentElement == salf.currentDraft) {
-					
-					salf.formPropertyElement.destroy();
-					
-					salf.formPropertyElement = undefined;					
-					
-				}else{
-					
-					salf.formPropertyElement.open(ref);					
-					
-				}				
-		
-			}	
-			
-		}
-		
 		myCanvas.refresh();
 		
+		mySubscriptions.notification
+			(
+			undefined,
+			'Изменён-текущий-элемент-карты'
+			);
+		
 	 }
+	
+	this.notification_processing = function(source, event, options){ // Подписка на события
+		
+		if (event == 'Изменение-свойств-элемента-карты'){
+			
+			salf.refresh();
+			
+		} else if (event == 'Изменён-текущий-элемент-карты'){
+			
+			refresh_property_form();
+			
+			refresh_structure_form();
+			
+		} else if (event == 'Открыть-форму-свойства-элемента'){
+			
+			open_property_form();
+			
+		} else if (event == 'Закрыть-форму-свойства-элемента'){
+			
+			close_property_form();
+			
+		} else if (event == 'Открыть-форму-структура-проекта'){
+			
+			open_structure_form();
+			
+		} else if (event == 'Закрыть-форму-структура-проекта'){
+			
+			close_structure_form();
+			
+		} else if (event == 'Открыть-форму-добавления-элемента'){
+			
+			open_add_element_form(source);
+			
+		} else if (event == 'Открыть-форму-удаления-элемента'){
+			
+			open_delete_element_form();
+			
+		}
+	
+	}
 	
 	//-- 
 	
@@ -272,6 +297,360 @@ function iaaCanvas(){
 		
 	 }
 	
+	// form .....................
+	
+	function open_property_form(){
+		
+		var form = new dialog_form("property_form");
+		
+		form.option('caption', "Свойства элемента");
+		
+		if (!_.isUndefined(myCanvas.currentElement)){
+			
+			form.add_content(
+				new input_string_field('prop_name')
+					.add_option('caption', 'Название элемента')
+					.add_option('caption_position', 'top')
+					.add_option('data_object', myCanvas.currentElement)
+					.add_option('data_name', 'name')
+			);
+			
+			form.add_content(
+				new input_number_field('prop_width')
+					.add_option('caption', 'Ширина')
+					.add_option('data_object', myCanvas.currentElement.sizes)
+					.add_option('data_name', 0)
+					.add_option('text_center', true)
+					.add_option('btn_subtract_step', true)
+					.add_option('btn_add_step', true)
+			);
+			
+			form.add_content(
+				new input_number_field('prop_height')
+					.add_option('caption', 'Высота')
+					.add_option('data_object', myCanvas.currentElement.sizes)
+					.add_option('data_name', 1)
+					.add_option('text_center', true)
+					.add_option('btn_subtract_step', true)
+					.add_option('btn_add_step', true)
+			);
+			
+			form.add_content(
+				new input_number_field('prop_depth')
+					.add_option('caption', 'Глубина')
+					.add_option('data_object', myCanvas.currentElement.sizes)
+					.add_option('data_name', 2)
+					.add_option('text_center', true)
+					.add_option('btn_subtract_step', true)
+					.add_option('btn_add_step', true)
+			);
+			
+			if (myCanvas.currentElement != myCanvas.currentDraft){
+				
+				form.add_content(
+					new input_number_field('prop_left')
+						.add_option('caption', 'Лево')
+						.add_option('data_object', myCanvas.currentElement.position)
+						.add_option('data_name', 0)
+						.add_option('text_center', true)
+						.add_option('btn_subtract_step', true)
+						.add_option('btn_add_step', true)
+				);
+
+				form.add_content(
+					new input_number_field('prop_up')
+						.add_option('caption', 'Вверх')
+						.add_option('data_object', myCanvas.currentElement.position)
+						.add_option('data_name', 1)
+						.add_option('text_center', true)
+						.add_option('btn_subtract_step', true)
+						.add_option('btn_add_step', true)
+				);
+
+				form.add_content(
+					new input_number_field('prop_front')
+						.add_option('caption', 'Вперед')
+						.add_option('data_object', myCanvas.currentElement.position)
+						.add_option('data_name', 2)
+						.add_option('text_center', true)
+						.add_option('btn_subtract_step', true)
+						.add_option('btn_add_step', true)
+				);
+				
+				
+			}
+			
+			form.add_content(
+				new input_checkbox_field('prop_visible')
+					.add_option('caption', 'Видимость элемента')
+					.add_option('data_object', myCanvas.currentElement)
+					.add_option('data_name', 'visible')
+					.add_option('check_right', true)
+			);			
+
+			form.change = function(){
+				
+				mySubscriptions.notification(form,'Изменение-свойств-элемента-карты');
+				
+			};
+			
+			// подписка на события
+			
+			mySubscriptions.subscribe(form,'Обновление-отображения-элементов-карты');		
+			
+			form.notification_processing = function(source, event, options){
+				
+				if(event == 'Обновление-отображения-элементов-карты'){
+					
+					form.update_data_content();
+					
+				}
+				
+			}
+		
+			
+		}
+		
+		// -----------------------
+		
+		form.open();
+		
+	}
+	
+	function refresh_property_form(){
+		
+		if (myForms.is_open("property_form")){
+			
+			open_property_form();
+			
+		}
+	
+	}
+	
+	function close_property_form(){
+		
+		new dialog_form("property_form").close();
+		
+	}	
+	
+	//....
+	
+	function open_structure_form(){
+		
+		var form = new dialog_form("structure_form");
+		
+		form.option('caption', "Элементы");
+		
+		form.add_content(
+			new input_number_field('prop_step')
+				.add_option('caption', 'Шаг')
+				.add_option('data_object', myCanvas)
+				.add_option('data_name', 'actionPointsStep')
+				.add_option('text_center', true)
+		);				
+	
+		form.open();	
+		
+	}
+	
+	function refresh_structure_form(){
+		
+		if (myForms.is_open("structure_form")){
+			
+			open_structure_form();
+			
+		}		
+		
+	}	
+	
+	function close_structure_form(){
+		
+		new dialog_form("structure_form").close();	
+		
+	}	
+	
+	//....
+	
+	function open_add_element_form(action_point_ref){
+	
+		var data_element = {};
+
+		data_element.name = 'Элемент';
+		
+		if (myCanvas.currentDraft == action_point_ref.parent) {
+		
+			data_element.sizes = [100, 50, 100];
+		
+		}else{
+			
+			data_element.sizes = _.concat(action_point_ref.parent.sizes);
+			
+		}
+
+		var form = new dialog_form("add_element_form");
+		
+		form.option('caption', "Добавление элемента");
+		
+		{ // Реквизиты
+		
+			form.add_content(
+				new input_string_field('add_elem_prop_name')
+					.add_option('caption', 'Название')
+					// .add_option('caption_position', 'top')
+					.add_option('data_object', data_element)
+					.add_option('data_name', 'name')
+			);		
+			
+			form.add_content(
+				new input_number_field('add_elem_prop_width')
+					.add_option('caption', 'Ширина')
+					.add_option('data_object', data_element.sizes)
+					.add_option('data_name', 0)
+					.add_option('text_center', true)
+					.add_option('btn_subtract_step', true)
+					.add_option('btn_add_step', true)
+			);		
+			
+			form.add_content(
+				new input_number_field('add_elem_prop_height')
+					.add_option('caption', 'Высота')
+					.add_option('data_object', data_element.sizes)
+					.add_option('data_name', 1)
+					.add_option('text_center', true)
+					.add_option('btn_subtract_step', true)
+					.add_option('btn_add_step', true)
+			);		
+
+			form.add_content(
+				new input_number_field('add_elem_prop_depth')
+					.add_option('caption', 'Глубина')
+					.add_option('data_object', data_element.sizes)
+					.add_option('data_name', 2)
+					.add_option('text_center', true)
+					.add_option('btn_subtract_step', true)
+					.add_option('btn_add_step', true)
+			);				
+		
+		}
+		
+		{ // Кнопки
+			
+			var buttons = [];
+
+			// buttons.push({name: 'Отмена',    text: 'Отмена',    click: 'close',   data:{}});
+			buttons.push({name: 'Сохранить', text: 'Сохранить', click: 'save',    data:{}});
+
+			form.option("buttons", buttons);
+			
+			form.save = function(e){
+				
+				if (myCanvas.currentDraft == action_point_ref.parent){
+					
+					var [x, y, z] = action_point_ref.face.сentreValue;
+					
+				} else {
+					
+					var [px, py, pz] = action_point_ref.parent.position;
+					
+					var [cx, cy, cz] = action_point_ref.face.сentreValue;				
+
+					var [x, y, z] = [px + cx, py + cy, pz + cz];
+					
+				}
+				
+				var w = data_element.sizes[0];
+				
+				var h = data_element.sizes[1];
+
+				var d = data_element.sizes[2];
+				
+				var visibleSeeFace = action_point_ref.face.parent.faceVisible;
+				
+				var litter = action_point_ref.face.letter;
+				
+				if (visibleSeeFace){
+					
+					if (litter == 'R'){y -= h/2;z -= d/2;
+
+					}else if (litter == 'L'){x -= w;y -= h/2;z -= d/2;
+
+					}else if (litter == 'T'){x -= w/2; z -= d/2;
+
+					}else if (litter == 'B'){x -= w/2;y -= h;z -= d/2;
+					
+					}else if (litter == 'H'){x -= w/2;y -= h/2;z -= d;
+					
+					}else if (litter == 'Y'){x -= w/2;y -= h/2;}
+					
+				}else{	
+
+					if (litter == 'R'){x -= w;y -= h/2;z -= d/2;
+
+					}else if (litter == 'L'){y -= h/2;z -= d/2;
+
+					}else if (litter == 'T'){x -= w/2; y -= h; z -= d/2;
+
+					}else if (litter == 'B'){x -= w/2; z -= d/2;
+
+					}else if (litter == 'H'){x -= w/2;y -= h/2;
+
+					}else if (litter == 'Y'){x -= w/2;y -= h/2;z -= d;}
+
+				}
+
+				var newElement
+					= myCanvas.currentDraft.addElement
+						(
+						new elementProperty(data_element.name, x, y, z, w, h, d,0,0,0)
+
+					);			
+
+				myCanvas.setCurrentElement(newElement);
+
+				form.close();
+				
+			}
+			
+		}
+		
+		form.open();
+	
+	}
+	
+	function open_delete_element_form(){
+		
+		var form = new dialog_form("delete_element_form");
+		
+		var ref_current_element = myCanvas.currentElement;
+		
+		form.option('caption', "Удаление элемента");
+		
+		{ // Кнопки
+			
+			var buttons = [];
+			
+			buttons.push({name: 'Сохранить', text: 'Удалить', click: 'save',    data:{}});
+
+			form.option("buttons", buttons);
+			
+			form.save = function(e){
+				
+				form.close();
+				
+				if (_.isUndefined(ref_current_element)) return;
+				
+				if (ref_current_element == myCanvas.currentDraft) return;
+				
+				ref_current_element.delete();
+				
+			}
+			
+		}
+		
+		form.open();
+		
+	}
+	
 	//.Tool.bar.........
 	
 	function createTopToolbar(){
@@ -280,14 +659,9 @@ function iaaCanvas(){
 		
 		var tolBar1 = new iaaTopIconToolBar('TopIconToolBar', '.iaa-top-toolbar'); 
 
-		var group0 = tolBar1.addGroupButton('group0');
-
-		var button0 = group0.addButton('ButtonProperty', 'button'); 
-
-		
 		var group1 = tolBar1.addGroupButton('group1');
 
-		var button1 = group1.addButton('ButtonPropertyElement', 'button'); 
+		var button1 = group1.addButton('ButtonPropertyElement', 'checkbox'); 
 
 		var group2 = tolBar1.addGroupButton('MapCommandButton');
 
@@ -322,11 +696,50 @@ function iaaCanvas(){
 		
 		var button12 = group6.addButton('ButtonStructure', 'checkbox'); 
 		
+		//------
 		
-		button0.click = function(e){showHidLeftSlidePanel_onclick(e)}
+		button1.click = function(e){
+			
+			if ($( button1._selector ).prop('checked')){
+				
+				mySubscriptions.notification(button1, 'Открыть-форму-свойства-элемента');
+				
+			}else{
+				
+				mySubscriptions.notification(button1, 'Закрыть-форму-свойства-элемента');
+				
+			}
+			
+		}
 		
-		button1.click = function(e){leftToolBarPropertyElement_onclick(e)}
-
+		mySubscriptions.subscribe(button1, 'Открыта-форма');
+		
+		mySubscriptions.subscribe(button1, 'Закрыта-форма');
+		
+		button1.notification_processing = function(source, event, options){
+			
+			if(event == 'Открыта-форма'){
+				
+				if(source.id == 'property_form'){
+					
+					$( button1._selector ).prop('checked', true);
+					
+				}
+			
+			}else if (event == 'Закрыта-форма'){
+			
+				if(source.id == 'property_form'){
+					
+					$( button1._selector ).prop('checked', false);
+					
+				}			
+			
+			}
+			
+		}		
+		
+		//------
+		
 		button2.click = function(e){leftToolBarSelectElement_onclick(e)}
 
 		button3.click = function(e){leftToolBarHand_onclick(e)}
@@ -339,60 +752,86 @@ function iaaCanvas(){
 
 		button5.click = function(e){rightToolBarActionPoint_onclick(e)}
 
-		button11.click = function(e){leftToolBarDeleteElement_onclick(e)}
+		//------
 		
-		button12.click = function(e){showHidRightSlidePanel_onclick(e)}
+		button11.click = function(e){
+			
+			if (myCanvas.currentElement == undefined || myCanvas.currentElement == myCanvas.currentDraft) {
+			
+				// rest
+			
+			}else{
+			
+				mySubscriptions.notification
+					(
+					undefined,
+					'Открыть-форму-удаления-элемента'
+					);
+
+			}
+
+			cancelEvent(e);		
+			
+		}
+		
+		//------
+		
+		button12.click = function(e){
+			
+			if ($( button12._selector ).prop('checked')){
+				
+				mySubscriptions.notification(button12, 'Открыть-форму-структура-проекта');
+				
+			}else{
+				
+				mySubscriptions.notification(button12, 'Закрыть-форму-структура-проекта');
+				
+			}
+			
+		}
+		
+		mySubscriptions.subscribe(button12, 'Открыта-форма');
+		
+		mySubscriptions.subscribe(button12, 'Закрыта-форма');
+		
+		button12.notification_processing = function(source, event, options){
+			
+			if(event == 'Открыта-форма'){
+				
+				if(source.id == 'structure_form'){
+					
+					$( button12._selector ).prop('checked', true);
+					
+				}
+			
+			}else if (event == 'Закрыта-форма'){
+			
+				if(source.id == 'structure_form'){
+					
+					$( button12._selector ).prop('checked', false);
+					
+				}			
+			
+			}
+			
+		}			
+		
+		//------
 		
 		salf.MapCommandButton = group2;
 		salf.ElementCommandButton = group4;
 		salf.ActionPointTrendButton = group5;
-
-	 }	
+		
+		//--------------------------------------
+		
+	}	
 	
-	function leftToolBarPropertyElement_onclick(e){
-		
-		if (salf.currentElement == undefined || salf.currentElement == salf.currentDraft) {
-
-			var forma = new formPropertyMap();
-		
-			forma.open(salf.currentDraft);
-
-		}else{
-
-			salf.formPropertyElement = new formPropertyElement();
-
-			salf.formPropertyElement.open(salf.currentElement);
-
-		}
-
-		cancelEvent(e);
-
-	}
-
 	function leftToolBarSelectElement_onclick(e){
 		
 		$("#svgout").css("cursor", "default")
 		
 	}
 
-	function leftToolBarDeleteElement_onclick(e){
-		
-		if (salf.currentElement == undefined || salf.currentElement == salf.currentDraft) {
-		
-			// rest
-		
-		}else{
-		
-			var forma = new formDeleteElement();
-		
-			forma.open(salf.currentElement);		
-
-		}
-
-		cancelEvent(e);		
-		
-	}
-	
 	function leftToolBarHand_onclick(e){
 		
 		$("#svgout").css("cursor", "url('images/hand.cur'), auto")
@@ -446,81 +885,6 @@ function iaaCanvas(){
 		myCanvas.refresh();
 		
 	}
-	
-	function showHidLeftSlidePanel_onclick(e){
-		
-		var formProperty = new dialog_form("property_menu");
-		
-		formProperty.option('caption', "Свойства элемента");
-		
-		formProperty.add_content(
-			new input_string_field('prop_name')
-				.add_option('caption', 'Название элемента')
-				.add_option('caption_position', 'top')
-				.add_option('data_object', myCanvas.currentElement)
-				.add_option('data_name', 'name')
-		);
-		
-		formProperty.add_content(
-			new input_number_field('prop_width')
-				.add_option('caption', 'Ширина')
-				.add_option('data_object', myCanvas.currentElement.sizes)
-				.add_option('data_name', 0)
-				.add_option('text_center', true)
-				.add_option('btn_subtract_step', true)
-				.add_option('btn_add_step', true)
-		);
-		
-		formProperty.add_content(
-			new input_number_field('prop_height')
-				.add_option('caption', 'Высота')
-				.add_option('data_object', myCanvas.currentElement.sizes)
-				.add_option('data_name', 1)
-				.add_option('text_center', true)
-				.add_option('btn_subtract_step', true)
-				.add_option('btn_add_step', true)
-		);
-		
-		formProperty.add_content(
-			new input_number_field('prop_depth')
-				.add_option('caption', 'Глубина')
-				.add_option('data_object', myCanvas.currentElement.sizes)
-				.add_option('data_name', 2)
-				.add_option('text_center', true)
-				.add_option('btn_subtract_step', true)
-				.add_option('btn_add_step', true)
-		);
-		
-		formProperty.add_content(
-			new input_checkbox_field('prop_visible')
-				.add_option('caption', 'Видимость элемента')
-				.add_option('data_object', myCanvas.currentElement)
-				.add_option('data_name', 'visible')
-				.add_option('check_right', true)
-		);		
-		
-		var buttons = [];
-
-		buttons.push({name: 'Отмена',    text: 'Отмена',    click: 'close',   data:{}});
-		buttons.push({name: 'Сохранить', text: 'Сохранить', click: 'save',    data:{ИмяКнопки: 'Сохранить'}});
-
-		formProperty.option("buttons", buttons);
-
-		formProperty.save = function(e){
-			
-			console.log("Сработала функция save", 'параметры', e.data);
-			
-		}
-		
-		formProperty.open();
-		
-	}
-	
-	function showHidRightSlidePanel_onclick(e){
-		
-		// $(" #cbp-spmenu-s2 ").toggleClass( 'cbp-spmenu-open' );
-		
-	}	
 	
 	//..........
 
@@ -587,30 +951,6 @@ function iaaCanvas(){
 		var i = new mauseWheelEvent(e)
 
 		scaleAddValue(i.value);
-		
-		return cancelEvent(e);
-
-	}
-
-	this.inputWheelMouse = function(e){
-
-		var i = new mauseWheelEvent(e)
-
-		var iaaInput = $(i.elem).prop('iaaInputNumberField');
-		
-		if (iaaInput != undefined){
-
-			var sing = -1;
-		
-			if (i.value > 0){
-
-				sing = 1;
-
-			}
-		
-			iaaInput.addStep(sing);
-		
-		}
 		
 		return cancelEvent(e);
 
@@ -877,9 +1217,7 @@ function iaaGroup(){
 		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
 		
 			myCanvas.setCurrentElement(salf);
-			
-			myCanvas.refresh();
-			
+		
 		}			
 		
 	}
@@ -1029,7 +1367,7 @@ function iaaGroup(){
 		
 		if (myCanvas.currentElement == salf){
 			
-			myCanvas.currentElement = undefined;
+			myCanvas.setCurrentElement(undefined);
 			
 		}
 		
@@ -1638,10 +1976,8 @@ function iaaActionPoint(element, face){
 		if (myCanvas.MapCommandButton.checkButton()._name != 'ButtonSelectElement') { return }
 		
 		if (myCanvas.ElementCommandButton.checkButton()._name == 'ButtonAddElement'){
-		
-			var dialog = new formAddElemrnt(); 
 			
-			dialog.open(salf);
+			mySubscriptions.notification(salf,'Открыть-форму-добавления-элемента');
 
 		}else{
 		
