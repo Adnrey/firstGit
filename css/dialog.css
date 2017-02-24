@@ -11,7 +11,8 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
 
 .content{
 
-  padding: 5px 15px;
+  padding: 0 15px;
+
  }
 
 .content .row{
@@ -20,7 +21,13 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
 
  }
 
- .content .row:last-child{
+.content .row:first-child{
+
+  padding-top: 10px;
+
+ }
+
+.content .row:last-child{
 
   padding-bottom: 0;
 
@@ -102,27 +109,20 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
 
  }
 
-/*.col-sm-12 > .form-control-static {
-
-  min-height: 27px;
-  padding-top: 0;
-
-}*/
-
-@media (min-width: 400px) {
+@media (min-width: 200px) {
   
-  .col-sm-1,
-  .col-sm-2,
-  .col-sm-3,
-  .col-sm-4,
-  .col-sm-5,
-  .col-sm-6,
-  .col-sm-7,
-  .col-sm-8,
-  .col-sm-9,
-  .col-sm-10,
-  .col-sm-11,
-  .col-sm-12 {
+  .col-sm-1,  .col-md-1,   .col-xs-1,   .col-lg-1,
+  .col-sm-2,  .col-md-2,   .col-xs-2,   .col-lg-2,
+  .col-sm-3,  .col-md-3,   .col-xs-3,   .col-lg-3,
+  .col-sm-4,  .col-md-4,   .col-xs-4,   .col-lg-4,
+  .col-sm-5,  .col-md-5,   .col-xs-5,   .col-lg-5,
+  .col-sm-6,  .col-md-6,   .col-xs-6,   .col-lg-6,
+  .col-sm-7,  .col-md-7,   .col-xs-7,   .col-lg-7,
+  .col-sm-8,  .col-md-8,   .col-xs-8,   .col-lg-8,
+  .col-sm-9,  .col-md-9,   .col-xs-9,   .col-lg-9,
+  .col-sm-10, .col-md-10, .col-xs-10,  .col-lg-10,
+  .col-sm-11, .col-md-11, .col-xs-11,  .col-lg-11,
+  .col-sm-12, .col-md-12, .col-xs-12,  .col-lg-12{
     float: left;
   }
   
@@ -173,7 +173,7 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
   border: 1px solid #635f56;
   min-width: 250px;
   max-width: 300px;
-  box-shadow: 0 5px 15px #423f3f;
+  box-shadow: 0 1px 4px #423f3f;
  }
 
 /*DIALOG HEADER*/
@@ -228,21 +228,19 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
   padding: 5px; 
  }
 
-.ui-dialog-footer .btn{
-
-
- }
 
 .ui-dialog-header:before,
 .ui-dialog-content:before,
-.ui-dialog-footer:before{
+.ui-dialog-footer:before,
+.wood-values:before{
   display: table;
   content: " ";
  }
 
 .ui-dialog-header:after,
 .ui-dialog-content:after,
-.ui-dialog-footer:after{
+.ui-dialog-footer:after,
+.wood-values:after{
   clear: both;
   display: table;
   content: " ";
@@ -289,4 +287,119 @@ input::-webkit-inner-spin-button {/* убрать стрелки*/
   width: 15px;
  }
 
-/*------------------------------*/
+/* WOOD ---------------------------*/
+
+.wood-values{
+  border: 1px solid #bdb07a;
+  min-height: 150px;
+  margin: 0 15px;
+  padding: 0 15px;
+ }
+
+.wood-values a{
+
+  text-decoration: none;
+  color: #333;
+  
+ }
+
+ .wood-values .ref{
+
+  cursor: pointer;
+  
+ }
+
+.wood-values .row{
+  padding-bottom: 0px;
+ }
+
+.wood-values .active{
+
+  background-color: #bdb07a;
+
+ }
+
+.wood-values .sm-text{
+
+  font-size: 80%;
+
+ }
+
+.wood-values .row:last-child,
+.wood-values .row:first-child{
+  
+  padding-top: 2px;
+  padding-bottom: 2px;
+
+ }
+
+.cut-text{
+  overflow: hidden;
+  white-space: nowrap; 
+  text-overflow: ellipsis;
+ }
+
+.wood-values .col-sm-1,
+.wood-values .col-sm-2,
+.wood-values .col-sm-3,
+.wood-values .col-sm-4,
+.wood-values .col-sm-5,
+.wood-values .col-sm-6,
+.wood-values .col-sm-7,
+.wood-values .col-sm-8,
+.wood-values .col-sm-9,
+.wood-values .col-sm-10,
+.wood-values .col-sm-11,
+.wood-values .col-sm-12{
+    padding: 0 3px;
+ }
+
+.wood-values.col-sm-1 {
+  width: 9%;
+ }
+
+.wood-values .col-sm-4 {
+    width: 30.5%;
+ }
+
+ .wood-values .col-sm-7 {
+  width: 59.33333333%;
+ }
+
+.wood-values .level-box{
+  display: inline-block;
+  width: 8px;
+ }
+
+.level-box .btn{
+  width: 13px;
+  height: 11px;
+  padding: 0;
+  outline: 0;
+ }
+
+.level-box .collapse-btn{
+ 
+  background: url("../images/nolines_minus.gif") center center no-repeat;
+ 
+ }
+
+.level-box .expand-btn{
+ 
+  background: url("../images/nolines_plus.gif") center center no-repeat;
+ 
+ }
+
+.wood-values .checkbox{
+  padding: 3px 0 0 5px;
+
+ }
+
+.wood-values input[type="checkbox"]{
+
+  margin: 0;
+  cursor: pointer;
+
+ }
+
+ /*------------------------------*/

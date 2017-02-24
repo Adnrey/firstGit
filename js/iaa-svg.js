@@ -440,6 +440,68 @@ function iaaCanvas(){
 		var form = new dialog_form("structure_form");
 		
 		form.option('caption', "Элементы");
+
+		{ // Дерево
+			
+			var data_wood = new function(){
+				
+				var data = [];
+				
+				function fill(element){
+					
+					data.push({
+						element: element,
+						element_name: element.name,
+						sizes: _.join(element.sizes, '*'),
+						visible:  element.visible,
+						active: element == myCanvas.currentElement
+					});		
+					
+					if (_.isArray(element.elements) && element.elements.length > 0){
+					
+						for(var el of element.elements){
+							
+							fill(el);
+							
+						}
+						
+					}
+					
+				}
+
+				fill(myCanvas.currentDraft);
+				
+				return data;
+				
+			};
+	
+			var wood = new wood_values('wood_structure');
+			
+			wood.add_option('data_wood', data_wood);
+
+			wood.add_column(
+				new wood_column('element_name', 'text')
+					.add_option("width", 'col-sm-7')
+					.add_option("hierarchy", true)
+					.add_option("cut-text", 'cut-text')
+					.add_option("ref", 'ref')
+			);
+			
+			wood.add_column(
+				new wood_column('sizes', 'text')
+					.add_option("width", 'col-sm-4')
+					.add_option("cut-text", 'cut-text')
+					.add_option("smoll-text", 'sm-text')
+			);			
+			
+			wood.add_column(
+				new wood_column('visible', 'checkbox')
+					.add_option("width", 'col-sm-1')
+			);		
+			
+			form.add_content( wood );	
+
+		}
 		
 		form.add_content(
 			new input_number_field('prop_step')
@@ -496,7 +558,6 @@ function iaaCanvas(){
 			form.add_content(
 				new input_string_field('add_elem_prop_name')
 					.add_option('caption', 'Название')
-					// .add_option('caption_position', 'top')
 					.add_option('data_object', data_element)
 					.add_option('data_name', 'name')
 			);		
@@ -538,7 +599,7 @@ function iaaCanvas(){
 			var buttons = [];
 
 			// buttons.push({name: 'Отмена',    text: 'Отмена',    click: 'close',   data:{}});
-			buttons.push({name: 'Сохранить', text: 'Сохранить', click: 'save',    data:{}});
+			buttons.push({name: 'Сохранить', text: 'Создать', click: 'save',    data:{}});
 
 			form.option("buttons", buttons);
 			

@@ -196,13 +196,15 @@ function dialog_form(id_form){
 	
 	function creat_content(){
 		
+		if (elements.length == 0 ) return;
+		
 		$(selector).append('<div class="ui-dialog-content" id="' + id_content + '"><div class="content"></div></div>');
 		
 		for(var element of elements){
 			
 			element.add_option('form', salf);
 			
-			element.creat_field(selector_content + ' .content');
+			element.display(selector_content + ' .content');
 			
 		}
 		
@@ -211,7 +213,7 @@ function dialog_form(id_form){
 	
 	function creat_footer(){
 		
-		if (salf.option.buttons == undefined) return;
+		if (salf.option('buttons') == undefined) return;
 		
 		$(selector).append('<div class="ui-dialog-footer" id="' + id_footer + '"></div>');
 		
@@ -219,7 +221,7 @@ function dialog_form(id_form){
 		
 		var group_btn = $(selector + ' .ui-dialog-footer .pull-right');
 		
-		for(var button of salf.option.buttons){
+		for(var button of salf.option('buttons')){
 		
 			group_btn.append(
 			
@@ -375,11 +377,11 @@ function dialog_form(id_form){
 			
 			if (value != undefined){
 				
-				salf.option[key] = value;
+				option[key] = value;
 				
 			}
 			
-			return salf.option[key];
+			return option[key];
 			
 		}
 		
@@ -416,6 +418,8 @@ function dialog_form(id_form){
 function input_field(type, name){
 	
 	var salf = this;
+	
+	var option = {};	
 	
 	this.id = 'input_field_' + name;
 	
@@ -491,11 +495,11 @@ function input_field(type, name){
 			
 			if (value != undefined){
 				
-				salf.option[key] = value;
+				option[key] = value;
 				
 			}
 			
-			return salf.option[key];
+			return option[key];
 			
 		}
 		
@@ -595,7 +599,7 @@ function input_string_field(name){
   
 	//-------------------------
   
-  	this.creat_field = function(parent_selector){
+  	this.display = function(parent_selector){
 
 		var html_text = ' <div class="row" id="' + salf.id + '"> ';
 
@@ -661,7 +665,7 @@ function input_number_field(name){
 
 	//-------------------------
   
-  	this.creat_field = function(parent_selector){
+  	this.display = function(parent_selector){
 
 		var html_text = ' <div class="row" id="' + salf.id + '"> ';
 
@@ -751,7 +755,7 @@ function input_checkbox_field(name){
   
 	//-------------------------
   
-  	this.creat_field = function(parent_selector){
+  	this.display = function(parent_selector){
 
 		var html_text = ' <div class="row" id="' + salf.id + '"> ';
 	
@@ -786,6 +790,163 @@ function input_checkbox_field(name){
 	}	
    
  }
+ 
+function wood_values(name){
+	
+	var salf = this;
+	
+	this.id = 'wood_' + name;
+	
+	this._selector = '#' + salf.id;
+	
+	var option = {};	
+	
+	var columns = [];
+	
+	//-------------------------
+ 	
+	this.option = function(key, value){
+		
+		if (salf[key] != undefined && typeof salf[key] == 'function'){
+			
+			return salf[key](value);
+			
+		}else{
+			
+			if (value != undefined){
+				
+				option[key] = value;
+				
+			}
+			
+			return option[key];
+			
+		}
+		
+	} 
+	
+	this.add_option = function(key, value){
+		
+		salf.option(key, value);
+		
+		return salf;
+	}	
+	
+	// columns ---------
+	
+	this.add_column = function(column){
+		
+		columns.push(column);
+		
+	}
+	
+	// -----------------
+	
+  	this.display = function(parent_selector){
+	
+		var html_text = ' <div class="row" id="' + salf.id + '"> ';
+
+		html_text += ' <div class="wood-values"> ';
+
+		var data_wood = salf.option('data_wood');
+		
+		if (_.isArray(data_wood) && data_wood.length > 0){
+			
+			console.log("isArray", true);
+			
+			for(var row of data_wood){
+				
+				if (row.active){
+					
+					html_text += '<div class="row active">';
+					
+				}else{
+
+					html_text += '<div class="row">';
+				
+				}
+
+				for(var col of columns){
+					
+					html_text += '<div class="' + col.option('width') + ' ' + col.option('cut-text') + '">';
+					
+					if (col.option('type') == 'text'){
+						
+						html_text += 
+							'<span class="form-control-static'+
+							' ' + col.option('ref') +
+							' ' + col.option('smoll-text') +							
+							'">' +
+							row[col.option('name')] +
+							'</span>';
+
+					
+					}else if(col.option('type') == 'checkbox'){
+					
+						html_text += 
+							'<div class="checkbox">' + 
+							'	<input type="checkbox" value="' + row[col.option('name')] + '" checked="">' +
+							'</div>';
+					
+					}
+					
+					html_text += '</div>';
+					
+				}
+				
+				html_text += '</div>';
+				
+			}
+			
+		}
+		
+		
+		html_text += '</div></div>';
+		
+		$( parent_selector ).append(html_text);
+	
+	}
+	
+} 
+ 
+function wood_column(name, type){
+	
+	var salf = this;
+	
+	var option = {};
+	
+	this.option = function(key, value){
+		
+		if (!_.isUndefined(salf[key]) && _.isFunction(salf[key])){
+			
+			return salf[key](value);
+			
+		}else{
+			
+			if (value != undefined){
+				
+				option[key] = value;
+				
+			}
+			
+			return option[key];
+			
+		}
+		
+	} 	
+	
+	this.add_option = function(key, value){
+		
+		salf.option(key, value);
+		
+		return salf;
+	}		
+
+	salf.option('name', name);
+	
+	salf.option('type', type);
+	
+} 
  
 // Кнопки //
 
