@@ -155,7 +155,11 @@ function iaaCanvas(){
 		
 		salf.actionPoints.forEach(function(actionPoint){
 
-			actionPoint.repaint();
+			if (actionPoint.parent.visible == true) {
+		
+				actionPoint.repaint();
+				
+			}
 
 		});
 	
@@ -267,6 +271,12 @@ function iaaCanvas(){
 	
 	}
 	
+	this.get_action_points_step = function(){
+		
+		return salf.actionPointsStep;
+		
+	}
+	
 	//-- 
 	
 	function scaleAddValue(value){			// Увеличить, уменьшить масштаб
@@ -323,6 +333,7 @@ function iaaCanvas(){
 					.add_option('text_center', true)
 					.add_option('btn_subtract_step', true)
 					.add_option('btn_add_step', true)
+					.add_option('step_value', myCanvas.get_action_points_step)
 			);
 			
 			form.add_content(
@@ -333,6 +344,7 @@ function iaaCanvas(){
 					.add_option('text_center', true)
 					.add_option('btn_subtract_step', true)
 					.add_option('btn_add_step', true)
+					.add_option('step_value', myCanvas.get_action_points_step)
 			);
 			
 			form.add_content(
@@ -343,6 +355,7 @@ function iaaCanvas(){
 					.add_option('text_center', true)
 					.add_option('btn_subtract_step', true)
 					.add_option('btn_add_step', true)
+					.add_option('step_value', myCanvas.get_action_points_step)
 			);
 			
 			if (myCanvas.currentElement != myCanvas.currentDraft){
@@ -355,6 +368,7 @@ function iaaCanvas(){
 						.add_option('text_center', true)
 						.add_option('btn_subtract_step', true)
 						.add_option('btn_add_step', true)
+						.add_option('step_value', myCanvas.get_action_points_step)
 				);
 
 				form.add_content(
@@ -365,6 +379,7 @@ function iaaCanvas(){
 						.add_option('text_center', true)
 						.add_option('btn_subtract_step', true)
 						.add_option('btn_add_step', true)
+						.add_option('step_value', myCanvas.get_action_points_step)
 				);
 
 				form.add_content(
@@ -375,6 +390,7 @@ function iaaCanvas(){
 						.add_option('text_center', true)
 						.add_option('btn_subtract_step', true)
 						.add_option('btn_add_step', true)
+						.add_option('step_value', myCanvas.get_action_points_step)
 				);
 				
 				
@@ -443,55 +459,61 @@ function iaaCanvas(){
 
 		{ // Дерево
 			
-			var data_wood = new function(){
+			var wood = new wood_values('structure');
+			
+			wood.init_data = function(){
 				
-				var data = [];
-				
-				function fill(element){
+				var data_wood = new function(){
 					
-					data.push({
-						element: element,
-						element_name: element.name,
-						sizes: _.join(element.sizes, '*'),
-						visible:  element.visible,
-						active: element == myCanvas.currentElement
-					});		
+					var data = [];
 					
-					if (_.isArray(element.elements) && element.elements.length > 0){
-					
-						for(var el of element.elements){
-							
-							fill(el);
+					function fill(element){
+						
+						data.push({
+							element: element,
+							element_name: element.name,
+							sizes: _.join(element.sizes, '*'),
+							visible:  element.visible,
+							active: element == myCanvas.currentElement
+						});		
+						
+						if (_.isArray(element.elements) && element.elements.length > 0){
+						
+							for(var el of element.elements){
+								
+								fill(el);
+								
+							}
 							
 						}
 						
 					}
+
+					fill(myCanvas.currentDraft);
 					
-				}
-
-				fill(myCanvas.currentDraft);
+					return data;
+					
+				};	
 				
-				return data;
-				
-			};
-	
-			var wood = new wood_values('wood_structure');
+				wood.add_option('data_wood', data_wood);
 			
-			wood.add_option('data_wood', data_wood);
-
+			}
+			
+			wood.init_data();
+			
 			wood.add_column(
 				new wood_column('element_name', 'text')
 					.add_option("width", 'col-sm-7')
 					.add_option("hierarchy", true)
-					.add_option("cut-text", 'cut-text')
-					.add_option("ref", 'ref')
+					.add_option("cut-text", true)
+					.add_option("ref", true)
 			);
 			
 			wood.add_column(
 				new wood_column('sizes', 'text')
 					.add_option("width", 'col-sm-4')
-					.add_option("cut-text", 'cut-text')
-					.add_option("smoll-text", 'sm-text')
+					.add_option("cut-text", true)
+					.add_option("smoll-text", true)
 			);			
 			
 			wood.add_column(
@@ -500,7 +522,29 @@ function iaaCanvas(){
 			);		
 			
 			form.add_content( wood );	
+			
+			wood.on_activate_row = function(row, col){
+				
+				if (col.option('ref') === true){
+					
+					myCanvas.setCurrentElement(row.element);
+				
+				}
+				
+			}
+			
+			wood.on_change_value = function(row, col, value, value_before){
 
+				if(col.option('name') == 'visible'){
+					
+					row.element.visible = row.visible;
+					
+					mySubscriptions.notification(form,'Изменение-свойств-элемента-карты');
+					
+				}
+
+			}
+			
 		}
 		
 		form.add_content(
@@ -510,6 +554,20 @@ function iaaCanvas(){
 				.add_option('data_name', 'actionPointsStep')
 				.add_option('text_center', true)
 		);				
+	
+		// подписка на события
+		
+		mySubscriptions.subscribe(form,'Обновление-отображения-элементов-карты');		
+		
+		form.notification_processing = function(source, event, options){
+			
+			if(event == 'Обновление-отображения-элементов-карты'){
+				
+				form.update_data_content();
+				
+			}
+			
+		}
 	
 		form.open();	
 		
@@ -537,14 +595,16 @@ function iaaCanvas(){
 	
 		var data_element = {};
 
-		data_element.name = 'Элемент';
-		
 		if (myCanvas.currentDraft == action_point_ref.parent) {
 		
+			data_element.name = 'Элемент';
+			
 			data_element.sizes = [100, 50, 100];
 		
 		}else{
 			
+			data_element.name = action_point_ref.parent.name;
+
 			data_element.sizes = _.concat(action_point_ref.parent.sizes);
 			
 		}
@@ -570,6 +630,7 @@ function iaaCanvas(){
 					.add_option('text_center', true)
 					.add_option('btn_subtract_step', true)
 					.add_option('btn_add_step', true)
+					.add_option('step_value', myCanvas.get_action_points_step)
 			);		
 			
 			form.add_content(
@@ -580,6 +641,7 @@ function iaaCanvas(){
 					.add_option('text_center', true)
 					.add_option('btn_subtract_step', true)
 					.add_option('btn_add_step', true)
+					.add_option('step_value', myCanvas.get_action_points_step)
 			);		
 
 			form.add_content(
@@ -590,6 +652,7 @@ function iaaCanvas(){
 					.add_option('text_center', true)
 					.add_option('btn_subtract_step', true)
 					.add_option('btn_add_step', true)
+					.add_option('step_value', myCanvas.get_action_points_step)
 			);				
 		
 		}
@@ -1402,17 +1465,21 @@ function iaaGroup(){
 	
 	this.repaint = function(){								// Перерисовать
 		
-		salf.faces.sort(salf.sortFaceAscendingDepth)
-
 		this.snapElements.clear();
 		
-		salf.points[0].display();		
+		if (salf.visible == true) {
 		
-		salf.faces.forEach(function(face){
+			salf.faces.sort(salf.sortFaceAscendingDepth)
 			
-			face.display();
+			salf.points[0].display();		
 			
-		});
+			salf.faces.forEach(function(face){
+				
+				face.display();
+				
+			});
+			
+		}
 		
 		salf.elements.forEach(function(element){
 			
@@ -1693,7 +1760,7 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 	this.snapElement = undefined;			// csg элемент
 	
 	this.display = function(){				// Отобразить грань
-		
+	
 		salf.SnapElementRemove();
 		
 		var p1 = salf.points[0].xyz1

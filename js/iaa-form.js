@@ -202,9 +202,11 @@ function dialog_form(id_form){
 		
 		for(var element of elements){
 			
+			var sel = selector_content + ' .content';
+			
 			element.add_option('form', salf);
 			
-			element.display(selector_content + ' .content');
+			element.display( sel );
 			
 		}
 		
@@ -369,7 +371,8 @@ function dialog_form(id_form){
 	
 	this.option = function(key, value){
 		
-		if (salf[key] != undefined && typeof salf[key] == 'function'){
+		
+		if (salf[key] != undefined && _.isFunction(option[key])){
 			
 			return salf[key](value);
 			
@@ -381,7 +384,15 @@ function dialog_form(id_form){
 				
 			}
 			
-			return option[key];
+			if(_.isFunction(option[key])){
+				
+				return option[key]();
+			
+			}else{
+				
+				return option[key];
+				
+			}
 			
 		}
 		
@@ -465,6 +476,20 @@ function input_field(type, name){
 	
 	//..
   
+	this.step = function(direction){
+		
+		var current_value = salf.value();
+
+		if(!_.isUndefined(salf.option('step_value'))) direction = direction * salf.option('step_value');
+		
+		current_value += direction;
+		
+		salf.value(current_value);
+
+		salf._inputchange();
+		
+	}
+  
 	this.value = function(value){
     
 		var name_prop = 'value';
@@ -487,7 +512,7 @@ function input_field(type, name){
   
  	this.option = function(key, value){
 		
-		if (salf[key] != undefined && typeof salf[key] == 'function'){
+		if (salf[key] != undefined && _.isFunction(option[key])){
 			
 			return salf[key](value);
 			
@@ -499,7 +524,15 @@ function input_field(type, name){
 				
 			}
 			
-			return option[key];
+			if(_.isFunction(option[key])){
+				
+				return option[key]();
+			
+			}else{
+				
+				return option[key];
+				
+			}
 			
 		}
 		
@@ -697,7 +730,7 @@ function input_number_field(name){
 			
 			html_text +=			
 			'<span class="input-group-btn">' +
-			'	<button class="btn btn-default" type="button">-</button>'+
+			'	<button class="btn btn-default btn-subtract-step" type="button">-</button>'+
 			'</span>';
 			
 		}
@@ -716,7 +749,7 @@ function input_number_field(name){
 		
 			html_text +=
 			'<span class="input-group-btn">' +
-			' <button class="btn btn-default" type="button">+</button>'+
+			' <button class="btn btn-default btn-add-step" type="button">+</button>'+
 			'</span>';
 			
 		}
@@ -734,8 +767,13 @@ function input_number_field(name){
 		$(this._selector).find('input').focusout(function(){inputfocusout()});
 	  
 		$(this._selector).find('input').change(function(){inputchange()});
-		
+
+		$(this._selector).find('input').focus(function(){inputfocus()});
+
 		$(this._selector).find('input').prop('value', salf.option('data_object')[salf.option('data_name')]);
+		
+		$(this._selector).find('.btn-subtract-step').click(function(){salf.step(-1)});
+		$(this._selector).find('.btn-add-step').click(function(){salf.step(1)});
 		
 	}	
 
@@ -804,10 +842,80 @@ function wood_values(name){
 	var columns = [];
 	
 	//-------------------------
+	
+	function wood_onclick(e){
+		
+		var index_row = get_index_fo_class(e.currentTarget.parentElement.classList[1]);
+		
+		var index_col = get_index_fo_class(e.currentTarget.classList[1]);
+		
+		if (_.isNull(index_row) || _.isNull(index_col)) return;
+		
+		var row = salf.get_row(+index_row);
+		
+		var col = salf.get_col(+index_col);
+		
+		salf.on_activate_row(row, col);
+		
+	}
+	
+	function input_change(e){
+		
+		var target = e.currentTarget;
+	
+		var elem = e.currentTarget;
+		
+		var index_row = null;
+		
+		var index_col = null;
+	
+		while (!_.isNull(elem)) {
+			
+			if (elem.classList[0] == 'col'){
+				
+				index_row = get_index_fo_class(elem.parentElement.classList[1]);
+				
+				index_col = get_index_fo_class(elem.classList[1]);
+				
+				break
+				
+			}
+			
+			elem = elem.parentElement;
+			
+		}
+		
+		if (_.isNull(index_row) || _.isNull(index_col)) return;
+		
+		//.................................
+		
+		var row = salf.get_row(+index_row);
+		
+		var col = salf.get_col(+index_col);
+		
+		var value = target.value;
+		
+		if (target.type == 'checkbox') value = target.checked;
+		
+		var value_before = row[col.option('name')];
+		
+		row[col.option('name')] = value;
+		
+		salf.on_change_value(row, col, value, value_before);
+		
+	}
+	
+	function get_index_fo_class(class_name){
+		
+		return class_name.match( /[0-9]+/ )[0];
+		
+	}
+	
+	//-------------------------
  	
 	this.option = function(key, value){
 		
-		if (salf[key] != undefined && typeof salf[key] == 'function'){
+		if (salf[key] != undefined && _.isFunction(option[key])){
 			
 			return salf[key](value);
 			
@@ -819,7 +927,15 @@ function wood_values(name){
 				
 			}
 			
-			return option[key];
+			if(_.isFunction(option[key])){
+				
+				return option[key]();
+			
+			}else{
+				
+				return option[key];
+				
+			}
 			
 		}
 		
@@ -832,60 +948,120 @@ function wood_values(name){
 		return salf;
 	}	
 	
+	this.init_data = function(){
+		
+		
+	}
+	
+	this.update_data = function(){
+		
+		$( salf._selector ).find('.wood-values').remove();
+		
+		salf.init_data();
+		
+		display_wood_elememt();
+		
+		// this.value(salf.option('data_object')[salf.option('data_name')]);
+		
+	}	
+	
+	// rows ---------
+
+	this.get_row = function(index){
+		
+		var data_wood = salf.option('data_wood');
+
+		if (_.isUndefined(data_wood)){
+			
+			return undefined
+			
+		}else{
+		
+			return data_wood[index];
+		
+		}
+		
+	}	
+	
 	// columns ---------
 	
 	this.add_column = function(column){
+		
+		column.index = columns.length;
 		
 		columns.push(column);
 		
 	}
 	
+	this.get_col = function(index){
+		
+		return columns[index];
+		
+	}
+
 	// -----------------
+	
+	this.on_activate_row = function(row, col){}
+	
+	this.on_change_value = function(row, col, value, value_before){}
+	
 	
   	this.display = function(parent_selector){
 	
-		var html_text = ' <div class="row" id="' + salf.id + '"> ';
+		$( parent_selector ).append( ' <div class="row" id="' + salf.id + '"></div> ');	
+		
+		display_wood_elememt();
 
-		html_text += ' <div class="wood-values"> ';
+	}
+	
+	function display_wood_elememt(){
+		
+		var html_text = ' <div class="wood-values"> ';
 
 		var data_wood = salf.option('data_wood');
 		
 		if (_.isArray(data_wood) && data_wood.length > 0){
 			
-			console.log("isArray", true);
+			for (var i = 0; i < data_wood.length; i++) {
 			
-			for(var row of data_wood){
+				var row = data_wood[i];
 				
-				if (row.active){
-					
-					html_text += '<div class="row active">';
-					
-				}else{
-
-					html_text += '<div class="row">';
+				row.index = i;
 				
-				}
-
+				html_text += '<div class="row wood-row-' + i;
+				
+					if (row.active) html_text += ' active';
+				
+				html_text += '">';
+					
 				for(var col of columns){
 					
-					html_text += '<div class="' + col.option('width') + ' ' + col.option('cut-text') + '">';
+					html_text += '<div class="col wood-col-' + col.index + ' ' + col.option('width');
+					
+						if (!_.isUndefined(col.option('ref'))) html_text += ' ref';
+						
+						if (!_.isUndefined(col.option('cut-text'))) html_text += ' cut-text'; 
+					
+					html_text += '">'
 					
 					if (col.option('type') == 'text'){
 						
-						html_text += 
-							'<span class="form-control-static'+
-							' ' + col.option('ref') +
-							' ' + col.option('smoll-text') +							
-							'">' +
-							row[col.option('name')] +
-							'</span>';
+						html_text += '<span class="form-control-static';
+						
+						if (!_.isUndefined(col.option('smoll-text'))) html_text += ' sm-text';							
+						
+						html_text += '">' + row[col.option('name')] + '</span>';
 
 					
 					}else if(col.option('type') == 'checkbox'){
 					
+						var checked = '';
+
+						if (row[col.option('name')] == true) checked = ' checked';
+					
 						html_text += 
 							'<div class="checkbox">' + 
-							'	<input type="checkbox" value="' + row[col.option('name')] + '" checked="">' +
+							'	<input type="checkbox"' +checked+'>' +
 							'</div>';
 					
 					}
@@ -900,11 +1076,14 @@ function wood_values(name){
 			
 		}
 		
+		html_text += '</div>';
 		
-		html_text += '</div></div>';
+		$( salf._selector ).append(html_text);
 		
-		$( parent_selector ).append(html_text);
-	
+		$( salf._selector ).find('.col').click(function(e){wood_onclick(e)});
+		
+		$( salf._selector ).find('input').change(function(e){input_change(e)});		
+		
 	}
 	
 } 
@@ -917,7 +1096,7 @@ function wood_column(name, type){
 	
 	this.option = function(key, value){
 		
-		if (!_.isUndefined(salf[key]) && _.isFunction(salf[key])){
+		if (salf[key] != undefined && _.isFunction(option[key])){
 			
 			return salf[key](value);
 			
@@ -929,7 +1108,15 @@ function wood_column(name, type){
 				
 			}
 			
-			return option[key];
+			if(_.isFunction(option[key])){
+				
+				return option[key]();
+			
+			}else{
+				
+				return option[key];
+				
+			}
 			
 		}
 		
@@ -941,7 +1128,7 @@ function wood_column(name, type){
 		
 		return salf;
 	}		
-
+	
 	salf.option('name', name);
 	
 	salf.option('type', type);
@@ -1080,32 +1267,107 @@ function drag_element(id_element, id_element_drag){
 	var startY = 0;
 
 	function start_drop(e){
+	
+		if (e.type == 'mousedown'){
+
+			startX = e.clientX;
+
+			startY = e.clientY; 
+
+			document.addEventListener('mouseup', stop_drop);
+
+			document.addEventListener('mousemove', mousemove);	
+
+		}else if(e.type == 'touchstart'){
+
+			if (event.targetTouches.length == 1) {
+
+				var touch = event.targetTouches[0];
+
+				startX = touch.clientX;
+
+				startY = touch.clientY; 
+
+				document.addEventListener('touchend', stop_drop);
+
+				document.addEventListener('touchmove', mousemove);						
+
+			}else{
+
+				return;
+
+			}
+
+		}else{
+
+			return;
+
+		}
 
 		mauseHandled = true;
 
-		startX = e.clientX;
-
-		startY = e.clientY; 
-
 		top = get_top();  
 
-		left = get_left();
+		left = get_left();			
 
 	}
 
-	function stop_drop(){
-
+	function stop_drop(e){
+	
 		mauseHandled = false;
 
+		if (e.type == 'mouseup'){
+
+			document.removeEventListener('mouseup', stop_drop);
+
+			document.removeEventListener('mousemove', mousemove);		
+
+		}else if(e.type == 'touchend'){
+		
+			document.addEventListener('touchend', stop_drop);
+
+			document.addEventListener('touchmove', mousemove);	
+
+		}	
+
+		
 	}
 
 	function mousemove(e){
 
 		if (!mauseHandled) return
 
+		if (e.type == 'mousemove'){
+
+			var clientX = e.clientX;
+
+			var clientY = e.clientY; 
+
+		}else if(e.type == 'touchmove'){
+
+			if (event.targetTouches.length == 1) {
+
+				var touch = event.targetTouches[0];
+
+				var clientX = touch.clientX;
+
+				var clientY = touch.clientY; 
+
+			}else{
+
+				return;
+
+			}
+
+		}else{
+
+			return;
+
+		}
+
 		// delta X -----------------
 
-		var deltaX = e.clientX - startX;
+		var deltaX = clientX - startX;
 
 		if (deltaX != 0){
 
@@ -1128,7 +1390,7 @@ function drag_element(id_element, id_element_drag){
 
 		// delta Y -----------------
 
-		var deltaY = e.clientY - startY;
+		var deltaY = clientY - startY;
 
 		if (deltaY != 0){
 
@@ -1162,11 +1424,9 @@ function drag_element(id_element, id_element_drag){
 
 	}
 
-	stage.onmousedown = function(e){start_drop(e)}
+	stage.addEventListener('mousedown', start_drop);
 
-	document.onmouseup = function(e){stop_drop()} 		
-
-	document.onmousemove = function(e){mousemove(e)} 	
+	stage.addEventListener('touchstart', start_drop);
 
  }
  
