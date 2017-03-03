@@ -105,6 +105,8 @@ function list_forms(){
 	
 	var list = {};
 	
+	var activ_form = undefined;
+	
 	this.add_form = function(form_ref){
 		
 		salf.remove_form(form_ref);
@@ -127,6 +129,30 @@ function list_forms(){
 		
 	}
 	
+	this.activate_form = function(form_ref){
+	
+		if (activ_form == form_ref) return;
+	
+		activ_form = form_ref;
+	
+		var arr_form = _.remove(_.values(list), function(item){return item != form_ref});
+		
+		arr_form.push(form_ref);
+		
+		var zIndex = 1000;
+		
+		_.forEach(arr_form, function(item) {
+			
+			document.getElementById(item.id).style.zIndex = zIndex;
+			
+			zIndex += 50;
+		
+		});		
+		
+		list = _.keyBy(arr_form, 'id');
+		
+	}
+	
 	this.is_open = function(id){
 		
 		return !_.isUndefined(list[id]);
@@ -140,12 +166,18 @@ function list_forms(){
 	}
 	
 	mySubscriptions.subscribe(salf, 'Закрыта-форма');
+	mySubscriptions.subscribe(salf, 'Активирована-форма');
 	
 	this.notification_processing = function(source, event, options){
 		
 		if (event == 'Закрыта-форма'){
 		
 			salf.remove_form(source);
+			
+		}else if(event == 'Активирована-форма'){
+			
+			salf.activate_form(source);
+			
 		}
 		
 	}		
@@ -176,6 +208,10 @@ function dialog_form(id_form){
 	function creat_form(){
 
 		$('article').append(' <div class="ui-dialog" id="' + id_form + '"></div> ');
+		
+		$( selector ).mousedown(function(){activation()});
+		
+		document.getElementById(salf.id).addEventListener('touchstart', activation);
 
 	}
 	
@@ -246,6 +282,12 @@ function dialog_form(id_form){
 
 	}
 
+	function activation(){
+		
+		mySubscriptions.notification(salf, 'Активирована-форма');
+		
+	}
+	
 	function save_option_form(){ // сохранить настройки
 
 		var jq = $(selector);
@@ -356,6 +398,8 @@ function dialog_form(id_form){
 		restore_option_form();
 		
 		mySubscriptions.notification(salf, 'Открыта-форма');
+		
+		activation();
 		
 	}
 	
@@ -828,6 +872,62 @@ function input_checkbox_field(name){
 	}	
    
  }
+ 
+function input_color_field(name){
+  
+	var salf = this;
+  
+	var type = 'color';
+  
+	input_field.apply(this, [type, name]);
+
+	var _selector = salf._selector;
+  
+	function inputchange(){ salf._inputchange() }
+  
+	//-------------------------
+  
+  	this.display = function(parent_selector){
+
+		var html_text = ' <div class="row" id="' + salf.id + '"> ';
+
+		if (salf.option('caption_position') == 'top'){
+			
+			var caption_col = 12;
+			var field_col = 12;
+			
+		}else{
+			
+			var caption_col = 3;
+			var field_col = 9;			
+			
+		}	
+		
+		// caption --
+
+		html_text += '<div class="col-sm-' + caption_col + '">';
+		html_text += '	<p class="form-control-static">' + salf.option('caption') + ':</p>';
+		html_text += '</div>';
+		
+		// field --
+		
+		html_text += '<div class="col-sm-' + field_col + '">';
+		html_text += '	<input type="color" list="colorList'+name+'" class="form-control" name="' + name + '>';
+		html_text += '		<datalist id="colorList'+name+'">'
+		html_text += '		</datalist>'
+		html_text += '</div>';
+		
+		$( parent_selector ).append(html_text);
+		
+		//--
+  
+		$(this._selector).find('input').change(function(){inputchange()});
+		
+		$(this._selector).find('input').prop('value', salf.option('data_object')[salf.option('data_name')]);
+		
+	}	
+   
+}
  
 function wood_values(name){
 	
@@ -1347,6 +1447,10 @@ function drag_element(id_element, id_element_drag){
 
 			if (event.targetTouches.length == 1) {
 
+				// e.preventDefault();
+				
+				e.stopPropagation();
+			
 				var touch = event.targetTouches[0];
 
 				var clientX = touch.clientX;

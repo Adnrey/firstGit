@@ -47,6 +47,8 @@ function iaaCanvas(){
 
 		this.scale = 0.70; 		// масштаб
 		
+		this.bg_alfa = 0.5;		// Прозрачность элементов
+		
 		this.currentElement = undefined;		// текущий элемент
 		
 		this.currentDraft = undefined;			// текущий проект
@@ -361,6 +363,13 @@ function iaaCanvas(){
 			if (myCanvas.currentElement != myCanvas.currentDraft){
 				
 				form.add_content(
+					new input_color_field('prop_bg_color')
+						.add_option('caption', 'Фон')
+						.add_option('data_object', myCanvas.currentElement)
+						.add_option('data_name', 'bg_color')
+				);					
+				
+				form.add_content(
 					new input_number_field('prop_left')
 						.add_option('caption', 'Лево')
 						.add_option('data_object', myCanvas.currentElement.position)
@@ -393,6 +402,38 @@ function iaaCanvas(){
 						.add_option('step_value', myCanvas.get_action_points_step)
 				);
 				
+				// form.add_content(
+					// new input_number_field('prop_torn_x')
+						// .add_option('caption', 'Поворот x')
+						// .add_option('data_object', myCanvas.currentElement.turn)
+						// .add_option('data_name', 0)
+						// .add_option('text_center', true)
+						// .add_option('btn_subtract_step', true)
+						// .add_option('btn_add_step', true)
+						// .add_option('step_value', myCanvas.get_action_points_step)
+				// );			
+
+				// form.add_content(
+					// new input_number_field('prop_torn_y')
+						// .add_option('caption', 'Поворот y')
+						// .add_option('data_object', myCanvas.currentElement.turn)
+						// .add_option('data_name', 1)
+						// .add_option('text_center', true)
+						// .add_option('btn_subtract_step', true)
+						// .add_option('btn_add_step', true)
+						// .add_option('step_value', myCanvas.get_action_points_step)
+				// );		
+				
+				// form.add_content(
+					// new input_number_field('prop_torn_z')
+						// .add_option('caption', 'Поворот z')
+						// .add_option('data_object', myCanvas.currentElement.turn)
+						// .add_option('data_name', 2)
+						// .add_option('text_center', true)
+						// .add_option('btn_subtract_step', true)
+						// .add_option('btn_add_step', true)
+						// .add_option('step_value', myCanvas.get_action_points_step)
+				// );						
 				
 			}
 			
@@ -600,12 +641,16 @@ function iaaCanvas(){
 			data_element.name = 'Элемент';
 			
 			data_element.sizes = [100, 50, 100];
+			
+			data_element.bg_color = '#ffffff'; 
 		
 		}else{
 			
 			data_element.name = action_point_ref.parent.name;
 
 			data_element.sizes = _.concat(action_point_ref.parent.sizes);
+			
+			data_element.bg_color = action_point_ref.parent.bg_color;
 			
 		}
 
@@ -654,6 +699,13 @@ function iaaCanvas(){
 					.add_option('btn_add_step', true)
 					.add_option('step_value', myCanvas.get_action_points_step)
 			);				
+		
+			form.add_content(
+				new input_color_field('add_elem_prop_bg_color')
+					.add_option('caption', 'Фон')
+					.add_option('data_object', data_element)
+					.add_option('data_name', 'bg_color')
+			);			
 		
 		}
 		
@@ -729,6 +781,8 @@ function iaaCanvas(){
 
 					);			
 
+				newElement.bg_color = data_element.bg_color;
+					
 				myCanvas.setCurrentElement(newElement);
 
 				form.close();
@@ -1285,6 +1339,8 @@ function iaaGroup(){
 
 		this.name = 'Новый элемент';		// имя
 		
+		this.bg_color = '#ffffff';				// цвет фона
+		
 		this.visible = true;				// Видимость
 		
 		this.position = [0,0,0];			// позиция
@@ -1784,9 +1840,9 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 			
 			salf.snapElement.attr({"stroke-width": 2});
 
-			salf.snapElement.attr({'fill':salf.parent.attributes['fill']});
+			salf.snapElement.attr({'fill':salf.parent.bg_color});
 		
-			salf.snapElement.attr({'fill-opacity':salf.parent.attributes['fill-opacity']});
+			salf.snapElement.attr({'fill-opacity':myCanvas.bg_alfa});
 			
 			salf.parent.snapElements.add(salf.snapElement)
 			
@@ -1935,7 +1991,9 @@ function iaaDraft(name, w, h, d){
 
 	this.name = name;
 	
-	this.attributes = {'stroke': 'black', 'fill': 'green', 'stroke-width': 1, 'fill-opacity': 0.5}
+	this.bg_color = '#008000';
+	
+	this.attributes = {'stroke': 'black', 'stroke-width': 1}
 	
 	this.sizes = [w, h, d];	// размеры	
 	
@@ -1959,7 +2017,7 @@ function iaaЕlement(parentElement){
 
 	this.parent = parentElement; // родительский элемент
 	
-	this.attributes = {'stroke': 'black', 'stroke-width': 1, 'fill-opacity': 0.5}
+	this.attributes = {'stroke': 'black', 'stroke-width': 1}
 
 	// this.gridVisible = true;
 	
@@ -1983,7 +2041,7 @@ function iaaActionPoint(element, face){
 	
 	this.letter = face.letter;
 	
-	this.attributes = {'fill': 'yellow', 'fill-opacity': 0.5}
+	this.bg_color = '#ffff00';
 
 	{	// Рассчет свойств
 		
@@ -1999,6 +2057,8 @@ function iaaActionPoint(element, face){
 			
 			if (salf.letter == 'R'){
 				
+				salf.bg_color = '#0000ff'; // синий
+				
 				w = w/4;
 			
 				y -= h/2;
@@ -2006,6 +2066,8 @@ function iaaActionPoint(element, face){
 
 			}else if (salf.letter == 'L'){	
 
+				salf.bg_color = '#0000ff'; // синий
+				
 				w = w/4;
 			
 				x -= w;
@@ -2014,6 +2076,8 @@ function iaaActionPoint(element, face){
 
 			}else if (salf.letter == 'T'){
 
+				salf.bg_color = '#ff0000'; // красный
+			
 				h = h/4;
 			
 				x -= w/2;
@@ -2021,7 +2085,7 @@ function iaaActionPoint(element, face){
 
 			}else if (salf.letter == 'B'){
 			
-				this.attributes = {'fill': 'red', 'fill-opacity': 0.5}
+				// salf.bg_color = '#ff0000'; // красный
 
 				h = h/4;
 			
@@ -2031,6 +2095,8 @@ function iaaActionPoint(element, face){
 
 			}else if (salf.letter == 'H'){
 
+				salf.bg_color = '#00ff00'; // зелёный
+			
 				d = d/4;
 			
 				x -= w/2;
@@ -2038,6 +2104,8 @@ function iaaActionPoint(element, face){
 				z -= d;
 
 			}else if (salf.letter == 'Y'){	
+			
+				salf.bg_color = '#00ff00'; // зелёный
 
 				d = d/4;
 			
