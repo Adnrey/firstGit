@@ -47,7 +47,9 @@ function iaaCanvas(){
 
 		this.scale = 0.70; 		// масштаб
 		
-		this.bg_alfa = 0.5;		// Прозрачность элементов
+		this.bg_alfa = 0.8;		// Прозрачность элементов
+		
+		this.surfaces = new iaaSurFaces();		// список поверхностей
 		
 		this.currentElement = undefined;		// текущий элемент
 		
@@ -107,15 +109,57 @@ function iaaCanvas(){
 		
 		onWindowsResize();
 		
-		// ++ Времяночка..
+		{// ++ Времяночка..
+			
+			// myCanvas.m = 350.5;
+			// myCanvas.n = 374;
+			// myCanvas.scale = 0.7;
+			// myCanvas.scale = 0.1;
+			// myCanvas.turn = [-90.375, 197.625,0];
+			// myCanvas.turn = [27.375,-56.25,0];
+			
+			var draft = new iaaDraft('Новый проект', 600, 300, 400);
+			
+			// draft.position = [myCanvas.m - draft.sizes[0]/2, myCanvas.n + draft.sizes[1]/2, draft.sizes[2] * 1.3]; // позиция
+			
+			draft.position = [myCanvas.m - draft.sizes[0]/2, myCanvas.n + draft.sizes[1]/2, draft.sizes[2] * 1.3]
+			
+			draft.position = [12, 552, 520];
+			
+			draft.visible = false;
+			
+			salf.currentDraft = draft;
+			
+			// var newElement = myCanvas.currentDraft.addElement(
+				// new elementProperty('3', 300, 125, 150, 100, 50, 100,0,0,0) //зелёный
+			// );			
+
+			// newElement.bg_color = '#00ff00';
+			
+			var newElement = myCanvas.currentDraft.addElement(
+				new elementProperty('red', 200, 125, 200, 100, 50, 100,0,0,0) // красный
+			);			
+
+			newElement.bg_color = '#ff0000';
+			
+			var newElement = myCanvas.currentDraft.addElement(
+				new elementProperty('blu', 250, 175, 175, 100, 50, 100,0,0,0) // синий
+			);			
+
+			newElement.bg_color = '#0000ff';
+			
+			// var newElement = myCanvas.currentDraft.addElement(
+				// new elementProperty('4', 150, 125, 100, 100, 50, 100,0,0,0) //розовый
+			// );			
+
+			// newElement.bg_color = '#ff00ff';
+			
+			
+			salf.setCurrentElement(salf.currentDraft);		
+			
+		} //--Времяночка..
 		
-		salf.currentDraft = new iaaDraft('Новый проект', 600, 300, 400);
-		
-		salf.setCurrentElement(salf.currentDraft);
-		
-		//--Времяночка..
-		
-	 }
+	}
 	
 	function onWindowsResize(){
 		
@@ -127,8 +171,6 @@ function iaaCanvas(){
 
 		salf.m = salf.width / 2; salf.n = salf.height / 2; salf.k = 0;
 		
-		//snap.rect(0, 0, salf.width, salf.height);		
-
 	}
 	
 	//..
@@ -137,35 +179,27 @@ function iaaCanvas(){
 		
 		return snap;
 		
-	 }
+	}
 	
 	this.recalculate = function(){	// пересчитать координаты
 
 		if (salf.currentDraft == undefined) return;
 	
+		salf.surfaces.destroy();
+	
 		salf.currentDraft.recalculate();
 		
 		salf.addActionPoints();
-	
-	 }
+
+	}
 	
 	this.repaint = function(){		// перерисовать элементы
 		
 		if (salf.currentDraft == undefined) return;
 	
-		salf.currentDraft.repaint();
-		
-		salf.actionPoints.forEach(function(actionPoint){
-
-			if (actionPoint.parent.visible == true) {
-		
-				actionPoint.repaint();
-				
-			}
-
-		});
+		salf.surfaces.display();
 	
-	 }
+	}
 
 	this.refresh = function(){		// пересчитать, перерисовать
 		
@@ -176,14 +210,18 @@ function iaaCanvas(){
 		mySubscriptions.notification(salf,'Обновление-отображения-элементов-карты');
 		
 	}
-	 
+
 	//--
 	
 	this.addActionPoints = function(){	// Добавить точки действия
 		
+		return
+		
 		salf.clearActionPoint();
 		
 		if (salf.currentElement == undefined) return;
+
+		if (salf.currentElement.visible == false) return;
 		
 		if ($("#ButtonActionPoint").prop("checked") == false) return
 	
@@ -201,20 +239,20 @@ function iaaCanvas(){
 			
 		});		
 		
-	 }
-	
+	}
+
 	this.clearActionPoint = function(){	// Удалить точки действия
 		
 		salf.actionPoints.forEach(function(actionPoint){
 
-			actionPoint.snapElementsDestroy();
+			// actionPoint.snapElementsDestroy();
 
 		});
 
 		salf.actionPoints = [];
 		
-	 }	
-	
+	}	
+
 	//--
 	
 	this.setCurrentElement = function(ref){	// Установить текущий элемент
@@ -231,8 +269,8 @@ function iaaCanvas(){
 			'Изменён-текущий-элемент-карты'
 			);
 		
-	 }
-	
+	}
+
 	this.notification_processing = function(source, event, options){ // Подписка на события
 		
 		if (event == 'Изменение-свойств-элемента-карты'){
@@ -307,7 +345,7 @@ function iaaCanvas(){
 			
 		}
 		
-	 }
+	}
 	
 	// form .....................
 	
@@ -360,7 +398,7 @@ function iaaCanvas(){
 					.add_option('step_value', myCanvas.get_action_points_step)
 			);
 			
-			if (myCanvas.currentElement != myCanvas.currentDraft){
+			// if (myCanvas.currentElement != myCanvas.currentDraft){
 				
 				form.add_content(
 					new input_color_field('prop_bg_color')
@@ -435,7 +473,7 @@ function iaaCanvas(){
 						// .add_option('step_value', myCanvas.get_action_points_step)
 				// );						
 				
-			}
+			// }
 			
 			form.add_content(
 				new input_checkbox_field('prop_visible')
@@ -843,8 +881,8 @@ function iaaCanvas(){
 
 		var group2 = tolBar1.addGroupButton('MapCommandButton');
 
-		var button2 = group2.addButton('ButtonSelectElement', 'radio', true); 
-		var button3 = group2.addButton('ButtonHand',			 'radio'); 
+		var button2 = group2.addButton('ButtonSelectElement', 'radio'); 
+		var button3 = group2.addButton('ButtonHand',			 'radio', true); 
 		var button4 = group2.addButton('ButtonTurn',			 'radio'); 	
 
 		//-------------
@@ -1102,7 +1140,9 @@ function iaaCanvas(){
 			
 			[sx, sy] = [deltaX - salf._gx, deltaY - salf._gy]
 			
-			var step = 15;
+			// var step = 15;
+			
+			var step = 10;
 
 			if ( (sx >= -step && sx <= step ) && (sy >= -step && sy <= step ) ) return undefined;
 
@@ -1373,34 +1413,9 @@ function iaaGroup(){
 
 		this.gridStep = [50,50,50];			// шаг сетки
 
-
-		this.snapElements = myCanvas.snap().g(); // svg элементы 
-		
-		this.snapElements.click(function(e){snapElementsOnClick(e)}) // событие OnClick
-
 	}
 	
 	//...
-	
-	function snapElementsOnClick(e){
-
-		salf.onClick(e);
-
-		e.stopPropagation(); // Прекратить всплывание
-
-	}
-	
-	//...
-	
-	this.onClick = function(click){							// При нажатии левой кнопкой миши
-		
-		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
-		
-			myCanvas.setCurrentElement(salf);
-		
-		}			
-		
-	}
 	
 	this.setProperty = function(prop){						// Установить свойства
 		
@@ -1478,8 +1493,8 @@ function iaaGroup(){
 				(
 				[myCanvas.m, myCanvas.n, -10000],
 				[salf.сentrePoint[0],
-				salf.сentrePoint[1],
-				salf.сentrePoint[2]]
+				 salf.сentrePoint[1],
+				 salf.сentrePoint[2]]
 				);
 		
 		//----
@@ -1511,6 +1526,8 @@ function iaaGroup(){
 	
 		salf.setVisibilityFaces();
 		
+		salf.pushVisibilityFacesInSurFace();
+		
 		salf.elements.forEach(function(element){
 			
 			element.recalculate();
@@ -1519,60 +1536,17 @@ function iaaGroup(){
 		
 	}
 	
-	this.repaint = function(){								// Перерисовать
-		
-		this.snapElements.clear();
-		
-		if (salf.visible == true) {
-		
-			salf.faces.sort(salf.sortFaceAscendingDepth)
-			
-			salf.points[0].display();		
-			
-			salf.faces.forEach(function(face){
-				
-				face.display();
-				
-			});
-			
-		}
-		
-		salf.elements.forEach(function(element){
-			
-			element.repaint();
-			
-		});
-		
-		//myGraphix.createСircle(salf.сentrePoint, 5, 'blue',	'red', 1, salf);
-		
-	}
-	
 	this.delete = function(){								// Удалить элемент
 		
+		salf.parent.deleteElement(salf);
+
 		if (myCanvas.currentElement == salf){
 			
 			myCanvas.setCurrentElement(undefined);
 			
 		}
 		
-		salf.parent.deleteElement(salf);
-		
-		salf.snapElementsDestroy();
-		
-		// salf = undefined;
-		
 	}
-	
-	this.snapElementsDestroy = function(){					// Разрушить группу снап элемента
-		
-		salf.snapElements.remove();
-		
-	}
-	
-	this.snapElementsClear = function(){					// Очистить снап элементы в группе
-		
-		salf.snapElements.clear();
-	}	
 	
 	//---
 	
@@ -1672,8 +1646,6 @@ function iaaGroup(){
 			
 			return [x, y, z];
 			
-
-			
 		}
 		
 	}
@@ -1732,43 +1704,15 @@ function iaaGroup(){
 		
 	}
 	
-	this.sortFaceAscendingDepth = function(i, j){			// Cортировать грани по возрастанию глубины
+	this.pushVisibilityFacesInSurFace = function(){			// Добавить грани в поверхности холста
 		
-		if (i.depth > j.depth){
+		_.forEach(salf.faces, function(item){
 		
-			return 1
-		
-		} else if (i.depth < j.depth){
-		
-			return -1;
-		
-		}else {
-			
-			return 0;
-			
-		}
+			myCanvas.surfaces.add_surface(item);
+
+		});
 		
 	}
-	
-	this.sortFaceDescendingDepth = function(i, j){			// Cортировать грани по убыванию глубины
-		
-		if (i.depth > j.depth){
-			
-			return -1;
-		
-		}else if (i.depth < j.depth) {
-		
-			return 1;
-		
-		}else{
-			
-			return 0
-		
-		}
-		
-	}
-	
-	//---
 	
 }
 
@@ -1809,47 +1753,45 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 		salf.points[3].xyz1[2]
 	) / 4; // Глубина
 
-	this.coeff = myGraphix.getCoefficientsPlane(salf.points); // Коэффициенты плоскости
+	this.coeff = myGraphix.getCoefficientsPlane4(salf.points); // Коэффициенты плоскости
 
 	this.thisConvexShape = myGraphix.thisConvexShape(salf.points) // Это выпуклая фигура
 
 	this.snapElement = undefined;			// csg элемент
 	
 	this.display = function(){				// Отобразить грань
-	
+
 		salf.SnapElementRemove();
-		
+
 		var p1 = salf.points[0].xyz1
 		var p2 = salf.points[1].xyz1
 		var p3 = salf.points[2].xyz1
 		var p4 = salf.points[3].xyz1
 
-		if (salf.visible == salf.parent.faceVisible) {
-		
-			salf.snapElement
-				= myCanvas.snap()
-					.polyline([
-						[p1[0],p1[1]],
-						[p2[0],p2[1]],
-						[p3[0],p3[1]],
-						[p4[0],p4[1]],
-						[p1[0],p1[1]]
-					]);
+		if (!salf.displayed()) return
 
-			salf.snapElement.attr({'stroke': 'black'});
-			
-			salf.snapElement.attr({"stroke-width": 2});
+		salf.snapElement
+			= myCanvas.snap()
+				.polyline([
+					[p1[0],p1[1]],
+					[p2[0],p2[1]],
+					[p3[0],p3[1]],
+					[p4[0],p4[1]],
+					[p1[0],p1[1]]
+				]);
 
-			salf.snapElement.attr({'fill':salf.parent.bg_color});
-		
-			salf.snapElement.attr({'fill-opacity':myCanvas.bg_alfa});
-			
-			salf.parent.snapElements.add(salf.snapElement)
-			
-			salf.displayGrid();		
+		salf.snapElement.attr({'stroke': 'black'});
 
-		}
-		
+		salf.snapElement.attr({"stroke-width": 2});
+
+		salf.snapElement.attr({'fill':salf.parent.bg_color});
+
+		salf.snapElement.attr({'fill-opacity':myCanvas.bg_alfa});
+
+		salf.parent.snapElements.add(salf.snapElement)
+
+		salf.displayGrid();
+
 	}
 	
 	this.displayGrid = function(){			// Отобразить сетку
@@ -1923,6 +1865,12 @@ function iaaFace(parentElement, np1, np2, np3, np4, lit){
 
 	}
 
+	this.displayed = function(){			// Отображаемая грань
+		
+		return salf.parent.visible && salf.visible == salf.parent.faceVisible;
+		
+	}
+	
 	this.SnapElementRemove = function(){	// удалить csg элемент
 
 		// Эту процедуру пока оставил временно,
@@ -1997,8 +1945,6 @@ function iaaDraft(name, w, h, d){
 	
 	this.sizes = [w, h, d];	// размеры	
 	
-	this.position = [myCanvas.m-w/2, myCanvas.n+h/2, 1.3*d]; // позиция
-	
 	this.faceVisible = false;
 	
 	this.gridVisible = true;
@@ -2025,6 +1971,396 @@ function iaaЕlement(parentElement){
 	
  }
 
+// Поверхности //
+
+function iaaSurFaces(){
+	
+	var salf = this;
+	
+	var surfaces = [];
+	
+	var snap_elements = [];
+	
+	function sort_face(){
+		
+		surfaces.sort(function(i, j){
+			
+			var p1 = {x:myCanvas.m, y:myCanvas.n, z:1000};		
+
+			if (i.element == j.element) return 0;
+			
+			for (var item of j.points){
+				
+				var p2 = {x:item.x, y:item.y, z:item.z};
+				
+				var p3 = myGraphix.intersectionSegmentAndPlane(i, p1, p2);
+				
+				console.log(i.element.name, i.face.letter, ' => ', j.element.name, j.face.letter, '(', i.element.name,')');
+				
+				if (!_.isUndefined(p3) && !myGraphix.points_equal(p2, p3) && myGraphix.pointBelongsRange(i.lines, p3)){
+					
+					myGraphix.createLine([p1.x,p1.y], [p2.x, p2.y], 'blue', 1);
+					
+					myGraphix.createСircle([p3.x, p3.y], 3, 'blue', 'blue', 1);
+				
+					return 1;
+					
+				// }else{
+					
+					// return 0;
+					
+				}
+				
+			};
+		
+			for (var item of i.points){
+				
+				var p2 = {x:item.x, y:item.y, z:item.z};
+				
+				var p3 = myGraphix.intersectionSegmentAndPlane(j, p1, p2);
+				
+				console.log(i.element.name, i.face.letter, ' => ', j.element.name, j.face.letter, '(', j.element.name,')');
+				
+				if (!_.isUndefined(p3) && !myGraphix.points_equal(p2, p3) && myGraphix.pointBelongsRange(i.lines, p3)){
+					
+					myGraphix.createLine([p1.x,p1.y], [p2.x, p2.y], 'red', 1);
+				
+					myGraphix.createСircle([p3.x, p3.y], 3, 'red', 'red', 1);
+				
+					return -1;
+					
+				}
+				
+			};		
+		
+		});
+		
+	}
+	
+	function snap_element_click(e, element){
+
+		if (myCanvas.MapCommandButton.checkButton()._name == 'ButtonSelectElement') {
+		
+			myCanvas.setCurrentElement(element);
+		
+		}	
+
+		e.stopPropagation(); // Прекратить всплывание
+
+	}	
+	
+	function snap_element_destroy(){
+		
+		// _.forEach(snap_elements, function(snap_element){
+			
+			// console.log(snap_element);
+			
+			// snap_element.snapElements.clear();
+			
+			// snap_element.snapElements.remove();
+			
+			myCanvas.snap().clear();
+			
+		// });		
+	
+	}	
+	
+	this.add_surface = function(iaaFace){
+		
+		if (!iaaFace.displayed()) return
+	
+		// if (
+			// !(iaaFace.letter == 'T' && iaaFace.parent.name == 'red')
+			// &&
+			// !((iaaFace.letter == 'Y' || iaaFace.letter == 'Y') && iaaFace.parent.name == 'blu')
+		// ) return
+		
+		// if (
+			// !((iaaFace.letter == 'B' || iaaFace.letter == 'T') && iaaFace.parent.name == 'red')
+			// &&
+			// !((iaaFace.letter == 'B' || iaaFace.letter == 'T') && iaaFace.parent.name == 'blu')
+		// ) return
+
+		// if (
+			// !(iaaFace.letter == 'R' && iaaFace.parent.name == 'red')
+			// &&
+			// !(iaaFace.letter == 'Y' && iaaFace.parent.name == 'blu')
+		// ) return		
+		
+		var arr_point = [];
+		
+		_.forEach(iaaFace.points, function(item){
+		
+			arr_point.push(
+				myGraphix.get_point(
+					item.xyz1[0],
+					item.xyz1[1],
+					item.xyz1[2],
+					myCanvas.m,
+					myCanvas.n,
+					0
+				)
+			);
+			
+		});
+		
+		var surface = myGraphix.get_surface(arr_point);
+		
+		surface.element = iaaFace.parent;
+		
+		surface.face = iaaFace;
+		
+		surface.depth_e = _.round(iaaFace.parent.depth, 3);
+		
+		surface.depth = _.round(iaaFace.depth, 3);
+		
+		surfaces.push(surface);
+		
+	}
+	
+	this.destroy = function(){
+		
+		surfaces = [];
+		
+	}
+
+	this.display = function(){
+	
+		console.clear();
+		
+		snap_element_destroy();
+	
+		display1();
+		
+		return;
+
+		sort_face();	
+
+		myGraphix.createСircle([myCanvas.m, myCanvas.n], 3, 'black', 'black', 1);
+		
+		var stroke_width = 1;
+
+		var fill_opacity = 0.5;
+		
+		_.forEach(surfaces, function(surface){
+			
+			var snap_element = myCanvas.snap().polyline(surface.xy);
+		
+			snap_element.click(function(e){snap_element_click(e, surface.element)});
+			
+			// snap_element.attr({'stroke': 'black'});
+			snap_element.attr({'stroke': surface.element.bg_color});
+
+			snap_element.attr({"stroke-width": 1});
+			// snap_element.attr({"stroke-width": stroke_width});
+
+			// snap_element.attr({'fill-opacity': 1});
+			snap_element.attr({'fill-opacity': fill_opacity});
+
+			snap_element.attr({'fill':surface.element.bg_color});
+			
+			stroke_width += 2;
+			
+			fill_opacity += 0.1;
+			
+			//......................
+			
+			surface.snap_element = myCanvas.snap().g();
+			
+			snap_elements.push(surface.snap_element);
+			
+			surface.snap_element.add(snap_element);	
+			
+			//......................
+			
+			_.forEach(surface.points, function(point){
+				
+				// console.log('name', surface.element.name, 'z', point.y);
+				
+				// myGraphix.createLine([point.x,point.y], [myCanvas.m, myCanvas.n], 'red', 1);
+				
+				// console.log(surface.element.name,'d:',point.d);
+				
+				// myGraphix.createText([point.x, point.y], _.round(point.d), 'black');
+				
+				// if (point.d ==  surface.max_d){
+
+					// var color = 'red';
+				
+					// if (surface.element.name == 'blu') color = 'blue';
+
+					// myGraphix.createСircle([point.x, point.y], 3, color, color, 1);
+
+					// myGraphix.createLine([point.x,point.y], [myCanvas.m, myCanvas.n], 'black', 2);				
+					
+				// }
+				
+			});
+			
+			// console.log(surface.element.name,surface.face.letter,'m:',surface.max_d);
+			
+			//......................
+			
+		});
+		
+	}
+	
+	function display1(){
+		
+		var a1 = myGraphix.get_point(5, 5, 0);
+		var a2 = myGraphix.get_point(7, 1, 0);
+		var b1 = myGraphix.get_point(3, 2, 0);
+		var b2 = myGraphix.get_point(9, 4, 0);
+		
+		var line1 = myGraphix.get_line(a1, a2);
+		
+		var line2 = myGraphix.get_line(b1, b2);
+		
+		var p = myGraphix.getPointIntersectionLine(line1, line2);
+		
+		console.log("p", p);
+		
+		// return
+		
+		// Пересечение отрезка и плоскости
+		
+		var draft = myCanvas.currentDraft;
+		
+		// Координаты точки поворота.
+		
+		var m = draft.сentreValue[0]; 
+		
+		var n = draft.сentreValue[1];
+		
+		var k = draft.сentreValue[2];
+		
+		// Координаты смещения
+		
+		var d_x = draft.position[0] + 80;
+
+		var d_y = draft.position[1] - 200;
+		
+		var d_z = draft.position[2];
+		
+		{// Рисуем прямоугольники синий
+		
+			var p1 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y - 100, d_z - 100, m, n, k, 0, 0, 0);
+			var p2 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y - 100, d_z - 100, m, n, k, 0, 0, 0);
+			var p7 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y + 100, d_z - 400, m, n, k, 0, 0, 0);
+			var p8 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y + 100, d_z - 400, m, n, k, 0, 0, 0);
+			
+			var color = 'blue';
+		
+			myGraphix.createСircle([p1[0], p1[1]], 3, color, color, 1);		
+			myGraphix.createСircle([p2[0], p2[1]], 3, color, color, 1);		
+			myGraphix.createСircle([p7[0], p7[1]], 3, color, color, 1);		
+			myGraphix.createСircle([p8[0], p8[1]], 3, color, color, 1);	
+
+			myCanvas.snap().polyline([p1[0], p1[1]], [p2[0], p2[1]], [p7[0], p7[1]], [p8[0], p8[1]])
+				.attr({'stroke': color, "stroke-width": 2, 'fill':color, 'fill-opacity': 0.8});
+
+		}
+
+		{// Рисуем прямоугольники красный
+		
+			var p5 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y - 100, d_z - 400, m, n, k, 0, 0, 0);
+			var p6 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y - 100, d_z - 400, m, n, k, 0, 0, 0);
+			var p3 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y + 100, d_z - 100, m, n, k, 0, 0, 0);
+			var p4 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y + 100, d_z - 100, m, n, k, 0, 0, 0);
+			
+			var color = 'red';
+			
+			myGraphix.createСircle([p5[0], p5[1]], 3, color, color, 1);		
+			myGraphix.createСircle([p6[0], p6[1]], 3, color, color, 1);		
+			myGraphix.createСircle([p3[0], p3[1]], 3, color, color, 1);		
+			myGraphix.createСircle([p4[0], p4[1]], 3, color, color, 1);	
+
+			myCanvas.snap().polyline([p5[0], p5[1]], [p6[0], p6[1]], [p3[0], p3[1]], [p4[0], p4[1]])
+				.attr({'stroke': color, "stroke-width": 2, 'fill':color, 'fill-opacity': 0.8});
+			
+		}
+
+		p1 = myGraphix.get_point(p1[0],p1[1],p1[2]);
+		p2 = myGraphix.get_point(p2[0],p2[1],p2[2]);
+		p3 = myGraphix.get_point(p3[0],p3[1],p3[2]);
+		p4 = myGraphix.get_point(p4[0],p4[1],p4[2]);
+		p5 = myGraphix.get_point(p5[0],p5[1],p5[2]);		
+		p6 = myGraphix.get_point(p6[0],p6[1],p6[2]);		
+		p7 = myGraphix.get_point(p7[0],p7[1],p7[2]);
+		p8 = myGraphix.get_point(p8[0],p8[1],p8[2]);
+		
+		var blue_fase = myGraphix.get_surface([p1,p2,p7,p8]);
+
+		var red_fase = myGraphix.get_surface([p5,p6,p3,p4]);
+
+		var cofb = myGraphix.getCoefficientsPlane(blue_fase.points);
+		var cofr = myGraphix.getCoefficientsPlane(red_fase.points);
+		
+		var A1 = cofr.a, B1 = cofr.b, C1 = cofr.c, D1 = cofr.d;
+		var A2 = cofb.a, B2 = cofb.b, C2 = cofb.c, D2 = cofb.d;
+		
+		var nv = {
+			x:   B2 * C1 - B1 * C2,
+			y: - (A2 * C1 - A1 * C2),
+			z:   A2 * B1 - A1 * B2
+		};
+		
+		if (B1*C2-B2*C1 != 0) { // x = 0
+		
+			var opr =  B1 *  C2 -   B2  *  C1;
+			var d1  = -D1 *  C2 - (-D2) *  C1;
+			var d2  =  B1 * -D2 -   B2  * -D1;
+			var x1 = 0;
+			var y1 = _.round(d1/opr, 9);
+			var z1 = _.round(d2/opr, 9);
+			
+		}else if (A1*C2-A2*C1 != 0){// y = 0
+		
+			var opr =  A1 *  C2 -   A2  *  C1;
+			var d1  = -D1 *  C2 - (-D2) *  C1;
+			var d2  =  A1 * -D2 -   A2  * -D1;
+			var x1 = _.round(d1/opr, 9);
+			var y1 = 0;
+			var z1 = _.round(d2/opr, 9);
+			
+		}else if (A1*B2-A2*B1 != 0) {// z = 0
+		
+			var opr =  A1 *  B2 -   A2  *  B1;
+			var d1  = -D1 *  B2 - (-D2) *  B1;
+			var d2  =  A1 * -D2 -   A2  * -D1;
+			var x1 = _.round(d1/opr, 9);
+			var y1 = _.round(d2/opr, 9);
+			var z1 = 0;
+			
+		}
+		
+		var t = -1;
+		
+		var x2 = nv.x * t + x1;
+		
+		var y2 = nv.y * t + y1;
+
+		var z2 = nv.z * t + z1;
+		
+		// console.log("nx",nv.x,'ny',nv.y,'nz',nv.z);
+		// console.log("x1",x1,'y1',y1,'z1',z1);
+		// console.log("x2",x2,'y2',y2,'z2',z2);		
+
+		var p_otr1 = myGraphix.get_point(x1, y1, z1);
+		var p_otr2 = myGraphix.get_point(x2, y2, z2);
+		
+		myGraphix.createLine([p_otr1.x,p_otr1.y], [p_otr2.x, p_otr2.y], 'black', 1);
+		
+		myGraphix.createСircle([p_otr1.x, p_otr1.y], 3, 'black', 'black', 1);	
+		myGraphix.createСircle([p_otr2.x, p_otr2.y], 3, 'black', 'black', 1);
+		
+		// console.log(myGraphix.intersectionSegmentAndPlane(red_fase, p_otr1, p_otr2));
+		// console.log(myGraphix.intersectionSegmentAndPlane(blue_fase, p_otr1, p_otr2));
+		
+	}	
+	
+}
+ 
 // Точка действия //
 
 function iaaActionPoint(element, face){
@@ -2307,4 +2643,4 @@ function elementProperty(name, x, y, z, w, h, d, rx, ry, rz){
 	this.turn = {'rx':rx,'ry':ry,'rz':rz};
 	
 }
-
+	
