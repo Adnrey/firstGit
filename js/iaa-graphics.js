@@ -379,9 +379,11 @@ function iaaGraphixs(){
 		
 		return vpv;
 
+		// число = x - y + z
+		
 	}
-	 
-	 // Скалярное произведение векторов
+	
+	// Скалярное произведение векторов
 	function scalarProduct(p1, p2){
 	
 		var spv = p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
@@ -389,147 +391,6 @@ function iaaGraphixs(){
 		return spv;
 		
 	}	
-	
-	// Точка принадлежит областии
-	this.pointBelongsRange = function(lines, p3){
-		
-		var sign = undefined;
-		
-		for (var line of lines){
-			
-			var cur_sign =
-			
-			_.round(
-				(p3.x - line.p1.x)
-				*
-				(line.p2.y - line.p1.y)
-				-
-				(p3.y - line.p1.y)
-				*
-				(line.p2.x - line.p1.x)
-				
-				, 5);
-				
-			// console.log('cur_sign', cur_sign);
-				
-			if(cur_sign === 0){
-				
-				console.log('sign = 0');
-				
-				return true;
-				
-			}else if (sign === undefined){
-				
-				sign = cur_sign
-			
-			}else if (sign < 0 && cur_sign > 0 || sign > 0 && cur_sign < 0){
-				
-				// console.log('Не пренадлежит');
-				
-				return false;
-			
-			}
-			
-		}
-		
-		if (sign == undefined){
-		
-			console.log('Не пренадлежит');
-		
-			return false;
-		
-		}else{
-
-			console.log('Принадлежит');
-			
-			return true;
-			
-		}
-		
-		
-	}
-	
-	// Точка пересечения плоскости и отрезка
-	this.intersectionSegmentAndPlane = function(surface, l1, l2){
-		
-		var p1 = surface.points[0]; //Точка A, задающая плоскость
-		
-		//...............................
-		
-		var vl = salf.getVector(l1, l2); // Направляющий вектор. (W)
-		
-		var np =  salf.getVectorNormalPlane(surface); //Вектор нормали к плоскости (произведение векторов плоскости) (N)
-		
-		var e = scalarProduct(np, vl); // Сколярное произведение направляющего вектора и вектора нормали.
-		
-		//--
-		
-		var v = salf.getVector(l1, p1);
-		
-		var d = scalarProduct(np, v);
-		
-		//--
-		
-		if (e != 0 ){
-		
-			// Это значит что векторы нормали и направляющий вектор НЕ перпендикулярны
-			// Это значит что прямая не параллельна плоскости.
-			// Это значит что прямая пересикается с плоскостью
-			
-			// 1. Найти точку пересечения прямой и плоскости
-
-			var p = {};
-			
-			p.x = l1.x + vl.x * d / e;
-			p.y = l1.y + vl.y * d / e;
-			p.z = l1.z + vl.z * d / e;			
-			
-			// 2. Определить принадлежит ли точка пересечения отрузку	
-
-			var vl1_p = salf.getVector(p, l1);
-			
-			var vl2_p = salf.getVector(p, l2);
-			
-			if (scalarProduct(vl1_p,vl2_p) <= 0){ // Точка принадлежит отрезку
-				
-				return p;
-			
-			}else{
-
-				return undefined;
-			
-			};
-			
-		}else if(e == 0){
-			
-			// Это значит что векторы нормали и направляющий вектор перпендикулярны.
-			// Это в свою очередь значит что прямая паралельна плоскости
-
-			// Прямая либо парралельна плоскости, либо лежит в ней
-			// Если параллельна то Ax + By + Cz + D != 0
-			// Если лижит в плоскости то Ax + By + Cz + D == 0
-			// Подставить координаты любой точки отрезка в уравнение поверхности.
-			
-			var d = scalarProduct(np, vl); 
-			
-			if (d == 0){
-				
-				// прямая принадлежит плоскости
-				
-				console.log('прямая принадлежит плоскости');
-				
-			}else{
-				
-				console.log('прямая параллельна плоскости');
-				// прямая параллельна плоскости
-				
-			}
-			
-			return undefined;
-			
-		}
-		
-	}
 	
 	// Получить коэффициенты плоскости 
 	this.getCoefficientsPlane = function(points){
@@ -561,6 +422,274 @@ function iaaGraphixs(){
 
 	}	
 	
+	// Точка принадлежит областии
+	this.pointBelongsRange = function(lines, p3){
+		
+		var sign = undefined;
+		
+		for (var line of lines){
+			
+			var cur_sign =
+			
+			_.round(
+				(p3.x - line.p1.x)
+				*
+				(line.p2.y - line.p1.y)
+				-
+				(p3.y - line.p1.y)
+				*
+				(line.p2.x - line.p1.x)
+				
+				, 5);
+				
+			// console.log('cur_sign', cur_sign);
+				
+			if(cur_sign === 0){
+				
+				// console.log('sign = 0');
+				
+				return true;
+				
+			}else if (sign === undefined){
+				
+				sign = cur_sign
+			
+			}else if (sign < 0 && cur_sign > 0 || sign > 0 && cur_sign < 0){
+				
+				// console.log('Не пренадлежит');
+				
+				return false;
+			
+			}
+			
+		}
+		
+		if (sign == undefined){
+		
+			// console.log('Не пренадлежит');
+		
+			return false;
+		
+		}else{
+
+			// console.log('Принадлежит');
+			
+			return true;
+			
+		}
+		
+		
+	}
+
+	// Точка принадлежит отрезку (XY)
+	this.pointBelongsLineXY = function(line, p){
+
+		var p1 = salf.get_point(line.p1.x, line.p1.y, 0);
+
+		var p2 = salf.get_point(line.p2.x, line.p2.y, 0);
+	
+		var p3 = salf.get_point(p.x, p.y, 0);
+	
+		//1. Векторное произведение равно 0, точка лежит на прямой
+		//2. p1 <= p3 <= p2 || p1 >= p3 >= p2, точка лежит между p1 и p2
+		
+		var v1 = salf.getVector(p1, p2);
+		
+		var v2 = salf.getVector(p3, p2);
+		
+		var vp = salf.vectorProduct(v1, v2);
+		
+		vp = round_coordinat(vp.x) - round_coordinat(vp.y) + round_coordinat(vp.z);
+		
+		p1.round_coordinat(); p2.round_coordinat(); p3.round_coordinat();
+		
+		console.log('---------------------');
+		console.log(p1, p3, p2);
+		
+		var sp = 
+			(p1.x <= p3.x && p3.x <= p2.x || p1.x >= p3.x && p3.x >= p2.x)
+			&&
+			(p1.y <= p3.y && p3.y <= p2.y || p1.y >= p3.y && p3.y >= p2.y);
+		
+		if (sp){
+
+			if (vp == 0){
+				
+				console.log('Принадлежит','sp', sp, 'vp', vp);
+				
+				return true
+				
+			}else{
+				
+				console.log('Не принадлежит','sp', sp, 'vp', vp);
+				
+				return false
+				
+			}
+		
+		}else{
+
+			console.log('Не принадлежит','sp', sp, 'vp', vp);
+
+			return false
+			
+		}
+		
+	}
+	
+	// Точка принадлежит отрезку (XYZ)
+	this.pointBelongsLineXYZ = function(line, p3){
+
+		var p1 = line.p1;
+
+		var p2 = line.p2;
+	
+		//1. Векторное произведение равно 0, точка лежит на прямой
+		//2. p1 <= p3 <= p2 || p1 >= p3 >= p2, точка лежит между p1 и p2
+		
+		var v1 = salf.getVector(p1, p2);
+		
+		var v2 = salf.getVector(p3, p2);
+		
+		var vp = salf.vectorProduct(v1, v2);
+		
+		vp = round_coordinat(vp.x) - round_coordinat(vp.y) + round_coordinat(vp.z);
+		
+		var sp = 
+			(p1.x <= p3.x && p3.x <= p2.x || p1.x >= p3.x && p3.x >= p2.x)
+			&&
+			(p1.y <= p3.y && p3.y <= p2.y || p1.y >= p3.y && p3.y >= p2.y)
+			&&
+			(p1.z <= p3.z && p3.z <= p2.z || p1.z >= p3.z && p3.z >= p2.z);
+		
+		if (sp){
+
+			if (vp == 0){
+				
+				// console.log('Принадлежит', vp);
+				
+				return true
+				
+			}else{
+				
+				// console.log('Не принадлежит', vp);
+				
+				return false
+				
+			}
+
+			// return true;
+			
+		}else{
+
+			return false
+			
+		}
+		
+	}
+	
+	// Точка пересечения плоскости и отрезка
+	this.intersectionSegmentAndPlane = function(surface, p1, p2){
+		
+		var pA = surface.points[0]; //Точка A, задающая плоскость
+		
+		var pA = salf.get_point(pA.x, pA.y, pA.z);
+		
+		var pB = salf.get_point(p1.x, p1.y, p1.z);
+		
+		var pC = salf.get_point(p2.x, p2.y, p2.z);
+		
+		pA.round_coordinat(); pB.round_coordinat(); pC.round_coordinat();
+		
+		//...............................
+		
+		var vl = salf.getVector(pB, pC); // Направляющий вектор. (W)
+		
+		var np =  salf.getVectorNormalPlane(surface); //Вектор нормали к плоскости (произведение векторов плоскости) (N)
+		
+		var e = scalarProduct(np, vl); // Сколярное произведение направляющего вектора и вектора нормали.
+		
+		//--
+		
+		var v = salf.getVector(pB, pA);
+		
+		var d = scalarProduct(np, v);
+		
+		//--
+		
+		if (e != 0 ){
+		
+			// Это значит что векторы нормали и направляющий вектор НЕ перпендикулярны
+			// Это значит что прямая не параллельна плоскости.
+			// Это значит что прямая пересикается с плоскостью
+			
+			// 1. Найти точку пересечения прямой и плоскости
+
+			var x = pB.x + vl.x * d / e;
+			var y = pB.y + vl.y * d / e;
+			var z = pB.z + vl.z * d / e;			
+			
+			var p = salf.get_point(x, y, z);
+			
+			p.round_coordinat();
+
+			// 2. Определить принадлежит ли точка пересечения отрузку	
+
+			var vl1_p = salf.getVector(p, pB);
+			
+			var vl2_p = salf.getVector(p, pC);
+			
+			var sPr = scalarProduct(vl1_p,vl2_p);
+			
+			console.log('p', p);
+			console.log('pA', pA);
+			console.log('pB', pB);
+			console.log('pC', pC);
+			console.log('vl1_p',vl1_p);
+			console.log('vl2_p', vl2_p);
+			console.log('sPr', sPr);
+			
+			if (sPr <= 0){ // Точка принадлежит отрезку
+				
+				return p;
+			
+			}else{
+
+				return undefined;
+			
+			};
+			
+		}else if(e == 0){
+			
+			// Это значит что векторы нормали и направляющий вектор перпендикулярны.
+			// Это в свою очередь значит что прямая паралельна плоскости
+
+			// Прямая либо парралельна плоскости, либо лежит в ней
+			// Если параллельна то Ax + By + Cz + D != 0
+			// Если лижит в плоскости то Ax + By + Cz + D == 0
+			// Подставить координаты любой точки отрезка в уравнение поверхности.
+			
+			var d = scalarProduct(np, vl); 
+			
+			if (d == 0){
+				
+				// прямая принадлежит плоскости
+				
+				// console.log('прямая принадлежит плоскости');
+				
+			}else{
+				
+				// прямая параллельна плоскости
+				
+				// console.log('прямая параллельна плоскости');
+			}
+			
+			return undefined;
+			
+		}
+		
+	}
+
 	// Точка пересечения двух отрезков
 	this.getPointIntersectionLine = function(line1, line2){
 		
@@ -568,35 +697,41 @@ function iaaGraphixs(){
 		
 		var b1 = line2.p1, b2 = line2.p2;
 		
-		console.log("a1", a1, "a2", a2, "b1", b1, "b2", b2);
+		// console.log("a1", a1, "a2", a2, "b1", b1, "b2", b2);
 		
 		var kcm = [ // Матрица коэффициентов сравнения отрезка;
-			[a2.x - a1.x, b1.x - b2.x],
-			[a2.y - a1.y, b1.y - b2.y]
+			[a2.x - a1.x, b1.x - b2.x, 0],
+			[a2.y - a1.y, b1.y - b2.y, 0],
+			[a2.z - a1.z, b1.z - b2.z, 1]
 		];
 	
-		console.log("kcm", kcm);
+		// console.log("kcm", kcm);
 	
 		var rm = [ // Матрица значений правых частей уравнения
 			[b1.x - a1.x],
-			[b1.y - a1.y]
+			[b1.y - a1.y],
+			[b1.z - a1.z]
 		];
 
-		console.log("rm", rm);		
+		// console.log("rm", rm);		
 		
 		var okcm = salf.inverseMatrix(kcm); // Обратная матрица
 		
-		console.log("okcm", okcm);			
+		if (okcm == undefined) return undefined;
 		
-		var pm = salf.multiplyMatrix(okcm, rm);// Значение параметров описания отрезуов
+		// console.log("okcm", okcm);			
 		
-		console.log("pm", pm);			
+		var pm = salf.multiplyMatrix(okcm, rm);// Значение параметров описания отрезков
+		
+		// console.log("pm", pm);			
 		
 		var x = a1.x + (a2.x - a1.x) * pm[0][0];
 
 		var y = a1.y + (a2.y - a1.y) * pm[0][0];
 		
-		var p = salf.get_point(x, y, 0,0,0,0);
+		var z = a1.z + (a2.z - a1.z) * pm[0][0];
+		
+		var p = salf.get_point(x, y, z);
 		
 		return p;
 	
@@ -679,7 +814,7 @@ function iaaGraphixs(){
 		
 	}
 	
-	//Алгебраическое дополнение матрицы
+	// Алгебраическое дополнение матрицы
 	function matrixCofactor(i,j,A){   
 	 
 		var N = A.length, sign = ((i+j)%2==0) ? 1 : -1;
@@ -708,7 +843,7 @@ function iaaGraphixs(){
 	
 	}
 	
-	//Присоединенная матрица	
+	// Присоединенная матрица	
 	function adjugateMatrix(A){      
 	
 		var N = A.length, B = [], adjA = [];
@@ -746,7 +881,7 @@ function iaaGraphixs(){
 		
 		var det = determinant(A);
 		
-		if (det == 0) return false;
+		if (det == 0) return undefined;
 		
 		var N = A.length, A = adjugateMatrix(A);
 		
@@ -764,7 +899,7 @@ function iaaGraphixs(){
 		
 	}
 
-	//Перемножение матриц
+	// Перемножение матриц
 	this.multiplyMatrix = function(A,B){
 		
 		var rowsA = A.length, colsA = A[0].length,
@@ -801,6 +936,195 @@ function iaaGraphixs(){
 	
 	}
 	
+	// Округление значения координаты
+	function round_coordinat(v){
+		
+		return _.round(v,3);
+		
+	}	
+	
+	//..........
+
+	// Точка
+	function point(x, y, z){
+		
+		var salf = this;		
+		
+		this.x = x;
+		
+		this.y = y;
+		
+		this.z = z;
+		
+		this.virtual = false;
+		
+		this.get_xy = function(){
+			
+			return [salf.x, salf.y];
+			
+		}
+		
+		this.round_coordinat = function(){
+			
+			salf.x = round_coordinat(salf.x);
+			salf.y = round_coordinat(salf.y);
+			salf.z = round_coordinat(salf.z);
+			
+		}
+		
+	}
+
+	// Линия
+	function line(p1, p2){
+		
+		this.p1 = p1;
+		
+		this.p2 = p2;
+		
+		this.color = "#000000";
+		
+		this.thickness = 1; //Толщина линии
+		
+		this.display = function(snap){
+			
+			salf.createLine(p1.get_xy(), p2.get_xy(), this.color, this.thickness);
+			
+		}
+
+	}
+
+	// Поверхность
+	function surface(points){
+		
+		var _salf = this;
+		
+		this.points = [];
+		
+		this.lines = [];
+		
+		this.max_z = 0;
+		
+		{ // Инициализация
+			
+			var ps = undefined; // Первая точка
+
+			var pn = undefined; // Текущая точка
+			
+			var _line = undefined;
+			
+			var _nline = 0;
+			
+			_.forEach(points, function(item){
+				
+				_salf.max_z = Math.max(_salf.max_z, item.z);
+				
+				_salf.points.push(item);
+		
+				if(_.isUndefined(ps)){
+					
+					ps = item;
+
+				}else{
+					
+					_line = new line(pn, item);
+					
+					_line.n = _nline; _nline++;
+					
+					_salf.lines.push(_line);
+					
+				}
+
+				pn = item;
+				
+			});	
+			
+			if (ps != pn) {
+				
+				_line = new line(pn, ps);
+				
+				_line.n = _nline; _nline++;
+
+				_salf.lines.push(_line);
+				
+			};
+			
+			//---------------
+			
+			this.color = "#000000";
+			
+		}
+		
+		this.display = function(snap){
+			
+			var ps = [];
+			
+			for (var point of _salf.points){
+				
+				ps.push(point.get_xy());
+				
+			}
+			
+			snap.polyline(ps).attr({'fill':_salf.color, 'fill-opacity': 0.9});
+		
+			for (var line of _salf.lines){
+				
+				if (line.p1.virtual && line.p2.virtual) {
+					
+					line.thickness = 0.2;	
+
+				}
+				
+				line.color = _salf.color;
+				
+				line.display(snap);
+				
+			}
+		
+		}
+		
+	}
+
+	// Координаты точек равны
+	this.points_equal = function(p1, p2){
+		
+		if(
+			round_coordinat(p1.x) == round_coordinat(p2.x) &&
+			round_coordinat(p1.y) == round_coordinat(p2.y) &&
+			round_coordinat(p1.z) == round_coordinat(p2.z)
+			) {
+		
+			return true 
+			
+		}else {
+			
+			return false
+			
+		};
+		
+		
+	}
+	
+	// Получить точку
+	this.get_point = function(x,y,z){
+		
+		return new point(x, y, z);
+		
+	}
+
+	// Получить линия
+	this.get_line = function(p1, p2){
+		
+		return new line(p1, p2);
+		
+	}	
+
+	// Получить поверхность
+	this.get_surface = function(points){
+		
+		return new surface(points);
+		
+	}	
+
 	//...........
 	
 	// Создать линию (СоздатьЛинию)
@@ -864,128 +1188,5 @@ function iaaGraphixs(){
 		
 	}
 	
-	//..........
-
-	// Точка
-	function point(x, y, z){
-		
-		this.x = x;
-		
-		this.y = y;
-		
-		this.z = z;
-		
-		this.xy = [x, y];
-		
-	}
-
-	// Линия
-	function line(p1, p2){
-		
-		var salf = this;
-		
-		this.p1 = p1;
-		
-		this.p2 = p2;
-		
-		this.xy = [p1.xy,p2.xy];
-
-	}
-
-	// Поверхность
-	function surface(points){
-		
-		var salf = this;
-		
-		this.points = [];
-		
-		this.lines = [];
-		
-		this.xy = [];
-		
-		{ // Инициализация
-			
-			var ps = undefined; // Первая точка
-
-			var pn = undefined; // Текущая точка
-			
-			var _line = undefined;
-			
-			_.forEach(points, function(item){
-				
-				salf.points.push(item);
-		
-				if(_.isUndefined(ps)){
-					
-					ps = item;
-
-				}else{
-					
-					_line = new line(pn, item);
-					
-					salf.lines.push(_line);
-					
-					salf.xy.push(_line.xy);
-					
-				}
-
-				pn = item;
-				
-			});	
-			
-			if (ps != pn) {
-				
-				_line = new line(pn, ps);
-
-				salf.lines.push(_line);
-				
-				salf.xy.push(_line.xy);
-				
-			};
-			
-		}
-		
-	}
-
-	// Координаты точек равны
-	this.points_equal = function(p1, p2){
-		
-		if(
-			_.round(p1.x,5) == _.round(p2.x,5) &&
-			_.round(p1.y,5) == _.round(p2.y,5) &&
-			_.round(p1.z,5) == _.round(p2.z,5)
-			) {
-		
-			return true 
-			
-		}else {
-			
-			return false
-			
-		};
-		
-		
-	}
 	
-	// Получить точку
-	this.get_point = function(x,y,z){
-		
-		return new point(x, y, z);
-		
-	}
-
-	// Получить линия
-	this.get_line = function(p1, p2){
-		
-		return new line(p1, p2);
-		
-	}	
-
-	// Получить поверхность
-	this.get_surface = function(points){
-		
-		return new surface(points);
-		
-	}	
-
 }

@@ -111,12 +111,13 @@ function iaaCanvas(){
 		
 		{// ++ Времяночка..
 			
-			// myCanvas.m = 350.5;
-			// myCanvas.n = 374;
-			// myCanvas.scale = 0.7;
-			// myCanvas.scale = 0.1;
+			myCanvas.m = 327.5;
+			myCanvas.n = 380;
+			myCanvas.scale = 0.5;
+			// myCanvas.scale = 0.30000000000000004;
 			// myCanvas.turn = [-90.375, 197.625,0];
-			// myCanvas.turn = [27.375,-56.25,0];
+			// myCanvas.turn = [4.875, -14.625,0];
+			myCanvas.turn = [51.375, -39, 0];
 			
 			var draft = new iaaDraft('Новый проект', 600, 300, 400);
 			
@@ -2126,8 +2127,6 @@ function iaaSurFaces(){
 
 	this.display = function(){
 	
-		console.clear();
-		
 		snap_element_destroy();
 	
 		display1();
@@ -2207,23 +2206,6 @@ function iaaSurFaces(){
 	
 	function display1(){
 		
-		var a1 = myGraphix.get_point(5, 5, 0);
-		var a2 = myGraphix.get_point(7, 1, 0);
-		var b1 = myGraphix.get_point(3, 2, 0);
-		var b2 = myGraphix.get_point(9, 4, 0);
-		
-		var line1 = myGraphix.get_line(a1, a2);
-		
-		var line2 = myGraphix.get_line(b1, b2);
-		
-		var p = myGraphix.getPointIntersectionLine(line1, line2);
-		
-		console.log("p", p);
-		
-		// return
-		
-		// Пересечение отрезка и плоскости
-		
 		var draft = myCanvas.currentDraft;
 		
 		// Координаты точки поворота.
@@ -2236,129 +2218,308 @@ function iaaSurFaces(){
 		
 		// Координаты смещения
 		
-		var d_x = draft.position[0] + 80;
+		var d_x = draft.position[0] - 150;
 
-		var d_y = draft.position[1] - 200;
+		var d_y = draft.position[1] - 300;
 		
 		var d_z = draft.position[2];
 		
 		{// Рисуем прямоугольники синий
 		
-			var p1 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y - 100, d_z - 100, m, n, k, 0, 0, 0);
-			var p2 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y - 100, d_z - 100, m, n, k, 0, 0, 0);
-			var p7 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y + 100, d_z - 400, m, n, k, 0, 0, 0);
-			var p8 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y + 100, d_z - 400, m, n, k, 0, 0, 0);
-			
 			var color = 'blue';
-		
-			myGraphix.createСircle([p1[0], p1[1]], 3, color, color, 1);		
-			myGraphix.createСircle([p2[0], p2[1]], 3, color, color, 1);		
-			myGraphix.createСircle([p7[0], p7[1]], 3, color, color, 1);		
-			myGraphix.createСircle([p8[0], p8[1]], 3, color, color, 1);	
-
-			myCanvas.snap().polyline([p1[0], p1[1]], [p2[0], p2[1]], [p7[0], p7[1]], [p8[0], p8[1]])
-				.attr({'stroke': color, "stroke-width": 2, 'fill':color, 'fill-opacity': 0.8});
+			
+			var p1 = myGraphix.getCoordinatesPoint(draft, 600 + d_x, d_y - 100, d_z - 100, m, n, k, 0, 0, 0);
+			var p2 = myGraphix.getCoordinatesPoint(draft, 300 + d_x, d_y - 100, d_z - 100, m, n, k, 0, 0, 0);
+			var p7 = myGraphix.getCoordinatesPoint(draft, 300 + d_x, d_y + 100, d_z - 400, m, n, k, 0, 0, 0);
+			var p8 = myGraphix.getCoordinatesPoint(draft, 600 + d_x, d_y + 100, d_z - 400, m, n, k, 0, 0, 0);
+			
+			p1 = myGraphix.get_point(p1[0],p1[1],p1[2]);
+			p2 = myGraphix.get_point(p2[0],p2[1],p2[2]);
+			p7 = myGraphix.get_point(p7[0],p7[1],p7[2]);
+			p8 = myGraphix.get_point(p8[0],p8[1],p8[2]);
 
 		}
 
 		{// Рисуем прямоугольники красный
 		
-			var p5 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y - 100, d_z - 400, m, n, k, 0, 0, 0);
-			var p6 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y - 100, d_z - 400, m, n, k, 0, 0, 0);
-			var p3 = myGraphix.getCoordinatesPoint(draft, 400 + d_x, d_y + 100, d_z - 100, m, n, k, 0, 0, 0);
-			var p4 = myGraphix.getCoordinatesPoint(draft, 100 + d_x, d_y + 100, d_z - 100, m, n, k, 0, 0, 0);
-			
 			var color = 'red';
 			
-			myGraphix.createСircle([p5[0], p5[1]], 3, color, color, 1);		
-			myGraphix.createСircle([p6[0], p6[1]], 3, color, color, 1);		
-			myGraphix.createСircle([p3[0], p3[1]], 3, color, color, 1);		
-			myGraphix.createСircle([p4[0], p4[1]], 3, color, color, 1);	
-
-			myCanvas.snap().polyline([p5[0], p5[1]], [p6[0], p6[1]], [p3[0], p3[1]], [p4[0], p4[1]])
-				.attr({'stroke': color, "stroke-width": 2, 'fill':color, 'fill-opacity': 0.8});
+			var p5 = myGraphix.getCoordinatesPoint(draft, 200 + d_x, d_y - 100, d_z - 400, m, n, k, 0, 0, 0);
+			var p6 = myGraphix.getCoordinatesPoint(draft, 500 + d_x, d_y - 100, d_z - 400, m, n, k, 0, 0, 0);
+			var p3 = myGraphix.getCoordinatesPoint(draft, 500 + d_x, d_y + 100, d_z - 100, m, n, k, 0, 0, 0);
+			var p4 = myGraphix.getCoordinatesPoint(draft, 200 + d_x, d_y + 100, d_z - 100, m, n, k, 0, 0, 0);
 			
+			p5 = myGraphix.get_point(p5[0],p5[1],p5[2]);		
+			p6 = myGraphix.get_point(p6[0],p6[1],p6[2]);		
+			p3 = myGraphix.get_point(p3[0],p3[1],p3[2]);
+			p4 = myGraphix.get_point(p4[0],p4[1],p4[2]);
+
 		}
 
-		p1 = myGraphix.get_point(p1[0],p1[1],p1[2]);
-		p2 = myGraphix.get_point(p2[0],p2[1],p2[2]);
-		p3 = myGraphix.get_point(p3[0],p3[1],p3[2]);
-		p4 = myGraphix.get_point(p4[0],p4[1],p4[2]);
-		p5 = myGraphix.get_point(p5[0],p5[1],p5[2]);		
-		p6 = myGraphix.get_point(p6[0],p6[1],p6[2]);		
-		p7 = myGraphix.get_point(p7[0],p7[1],p7[2]);
-		p8 = myGraphix.get_point(p8[0],p8[1],p8[2]);
 		
 		var blue_fase = myGraphix.get_surface([p1,p2,p7,p8]);
+		
+		blue_fase.ref = '1';
+		blue_fase.color = 'blue';
 
 		var red_fase = myGraphix.get_surface([p5,p6,p3,p4]);
+		
+		red_fase.ref = '2';
+		red_fase.color = 'red';
+		
+		console.clear();		
+		
+		var fases = [blue_fase, red_fase];
+		
+		/////////////////////////////////////////////////////////
+		// 1. Линая пересечение поверхностей
+		
+		var p_intersection = [];
+		
+		fases.sort(function(f1, f2){
 
-		var cofb = myGraphix.getCoefficientsPlane(blue_fase.points);
-		var cofr = myGraphix.getCoefficientsPlane(red_fase.points);
-		
-		var A1 = cofr.a, B1 = cofr.b, C1 = cofr.c, D1 = cofr.d;
-		var A2 = cofb.a, B2 = cofb.b, C2 = cofb.c, D2 = cofb.d;
-		
-		var nv = {
-			x:   B2 * C1 - B1 * C2,
-			y: - (A2 * C1 - A1 * C2),
-			z:   A2 * B1 - A1 * B2
-		};
-		
-		if (B1*C2-B2*C1 != 0) { // x = 0
-		
-			var opr =  B1 *  C2 -   B2  *  C1;
-			var d1  = -D1 *  C2 - (-D2) *  C1;
-			var d2  =  B1 * -D2 -   B2  * -D1;
-			var x1 = 0;
-			var y1 = _.round(d1/opr, 9);
-			var z1 = _.round(d2/opr, 9);
+			for (var line of f2.lines){
+				
+				var p = myGraphix.intersectionSegmentAndPlane(f1, line.p1, line.p2);
+				
+				if (p == undefined) continue
+
+				p_intersection.push(p);
+				
+				// myGraphix.createСircle([p.x, p.y], 3, 'black', 'black', 1);	
+				
+				// myGraphix.createText([p.x + 10, p.y], '('+_.round(p.x, 0) +', '+_.round(p.y, 0) +', '+_.round(p.z, 0)+')', 'black');
+				
+			}				
 			
-		}else if (A1*C2-A2*C1 != 0){// y = 0
+		});
 		
-			var opr =  A1 *  C2 -   A2  *  C1;
-			var d1  = -D1 *  C2 - (-D2) *  C1;
-			var d2  =  A1 * -D2 -   A2  * -D1;
-			var x1 = _.round(d1/opr, 9);
-			var y1 = 0;
-			var z1 = _.round(d2/opr, 9);
+		var line_intersection = myGraphix.get_line(p_intersection[0], p_intersection[1]);
+		
+		// line_intersection.display(myCanvas.snap());
+		
+		/////////////////////////////////////////////////////////
+		// Разбиение на подграни
+		
+		var fases1 = [];
+		var global_line = [];
+		var global_point = [];
+		
+		var iter = 0;
+		
+		for (var fase of fases){
+	
+			var pov = {true:[],false:[]}, current = false; 
+	
+			for (var line of fase.lines){
+				
+				pov[current].push(line.p1);				
+				
+				var p = myGraphix.getPointIntersectionLine(line, line_intersection);
+
+				if (p == undefined) {console.log(line, undefined); continue}
+				
+				var bline1 = myGraphix.pointBelongsLineXYZ(line, p);
+
+				if (bline1 == true){
+				
+					p.virtual = true;
+				
+					pov[current].push(p); current = !current; pov[current].push(p);
+
+				};
 			
-		}else if (A1*B2-A2*B1 != 0) {// z = 0
+			}
 		
-			var opr =  A1 *  B2 -   A2  *  B1;
-			var d1  = -D1 *  B2 - (-D2) *  B1;
-			var d2  =  A1 * -D2 -   A2  * -D1;
-			var x1 = _.round(d1/opr, 9);
-			var y1 = _.round(d2/opr, 9);
-			var z1 = 0;
+				var new_fase = myGraphix.get_surface(pov[true]);
+		
+				new_fase.ref = fase.ref;
+
+				if (new_fase.ref == '2'){		
+
+					new_fase.color = fase.color; fases1.push(new_fase);
+					
+				}
+
+				if (pov[false].length != 0){
+
+					new_fase = myGraphix.get_surface(pov[false]);
+				
+					new_fase.ref = fase.ref;
+
+					if (new_fase.ref == '1'){
+
+						new_fase.color = fase.color; fases1.push(new_fase);
+						
+					}
+					
+				}			
+
+		}
+
+		/////////////////////////////////////////////////////////
+		// Определение очерёдности
+		
+		var p_g = myGraphix.get_point(myCanvas.m, myCanvas.n, -1000);
+		
+		var max_i = Math.floor(fases1.length/2);
+		
+		for (var i = 0; i < fases1.length; i++) {
+
+			for (var j = i + 1; j < fases1.length; j++) {
+				
+				var A = fases1[i], B = fases1[j];
+				
+				var rez = compare_fase(A, B);
+				
+				if (rez == 1){
+					
+					fases1[i] = B;
+					fases1[j] = A;
+
+				}
+				
+			}
+			
+			if (i == max_i) break;
 			
 		}
-		
-		var t = -1;
-		
-		var x2 = nv.x * t + x1;
-		
-		var y2 = nv.y * t + y1;
-
-		var z2 = nv.z * t + z1;
-		
-		// console.log("nx",nv.x,'ny',nv.y,'nz',nv.z);
-		// console.log("x1",x1,'y1',y1,'z1',z1);
-		// console.log("x2",x2,'y2',y2,'z2',z2);		
-
-		var p_otr1 = myGraphix.get_point(x1, y1, z1);
-		var p_otr2 = myGraphix.get_point(x2, y2, z2);
-		
-		myGraphix.createLine([p_otr1.x,p_otr1.y], [p_otr2.x, p_otr2.y], 'black', 1);
-		
-		myGraphix.createСircle([p_otr1.x, p_otr1.y], 3, 'black', 'black', 1);	
-		myGraphix.createСircle([p_otr2.x, p_otr2.y], 3, 'black', 'black', 1);
-		
-		// console.log(myGraphix.intersectionSegmentAndPlane(red_fase, p_otr1, p_otr2));
-		// console.log(myGraphix.intersectionSegmentAndPlane(blue_fase, p_otr1, p_otr2));
-		
-	}	
 	
+		function compare_fase(A,B){
+			
+			if (A.ref == B.ref) return 0;
+			
+			for (var lineA of A.lines){
+
+				for (var lineB of B.lines){
+
+					var p = myGraphix.getPointIntersectionLine(lineA, lineB);
+
+					if (p == undefined) continue;
+					
+					var bline1 = myGraphix.pointBelongsLineXY(lineA, p);
+					var bline2 = myGraphix.pointBelongsLineXY(lineB, p);
+					
+					// if (A.ref == 1 && lineA.n == 1 && B.ref == 2 && lineB.n == 1){
+						
+						// var bline1 = myGraphix.pointBelongsLineXY(lineA, p);
+						// var bline2 = myGraphix.pointBelongsLineXY(lineB, p);
+
+						// console.log(bline1, bline2, A.ref, lineA.n, B.ref, lineB.n);
+						
+					// }
+					
+					if (bline1 == true && bline2 == true){
+
+						var lineg = myGraphix.get_line(p_g, p);
+
+						global_line.push(lineg);
+
+						var pA = myGraphix.intersectionSegmentAndPlane(A, p_g, p);
+
+						var pB = myGraphix.intersectionSegmentAndPlane(B, p_g, p);
+						
+						// if (A.ref == 1 && lineA.n == 1 && B.ref == 2 && lineB.n == 1){
+
+							// var pA = myGraphix.intersectionSegmentAndPlane(A, p_g, p);
+
+							// var pB = myGraphix.intersectionSegmentAndPlane(B, p_g, p);
+
+							//global_point.push({x:p.x, y:p.y, z:p.z, color: 'red'});
+							
+							// console.log(pA, pB);
+
+						// }
+						
+						// continue
+
+						
+						
+						
+						
+						if (pA == undefined && pB == undefined) {
+
+							continue;
+
+						}else if (pA == undefined && pB != undefined){
+
+							// Та грань которая пересекается лежит ближе
+						
+							global_point.push({x:pB.x, y:pB.y, z:pB.z, color: B.color});
+
+							return 0;
+							
+						}else if (pA != undefined && pB == undefined){
+
+							// Та грань которая пересекается лежит ближе
+						
+							global_point.push({x:pA.x, y:pA.y, z:pA.z, color: A.color});
+
+							return 1;
+							
+						}else if (pA != undefined && pB != undefined){
+
+							// Определяем по координате z та что меньше та ближе
+						
+							global_point.push({x:pA.x, y:pA.y, z:pA.z, color: A.color});
+
+							global_point.push({x:pB.x, y:pB.y, z:pB.z, color: B.color});
+							
+							if (_.round(pA.z, 0) == _.round(pA.z, 0)){
+								
+								continue;
+								
+							}else{
+								
+								if(pA.z > pB.z){
+									
+									return 0;
+									
+								}else{
+									
+									return 1;
+									
+								}
+								
+							}
+							
+						}
+
+					}
+					
+				}
+
+			}
+		
+			return 0;
+		
+		}
+	
+		/////////////////////////////////////////////////////////
+		// Вывод на экран
+
+		for (var fase of fases1){
+
+			fase.display(myCanvas.snap());
+
+		}
+
+		for (var line of global_line){
+
+			line.display();
+
+		}
+
+		for (var point of global_point){
+
+			myGraphix.createСircle([point.x, point.y], 3, 'black', point.color, 1);
+
+			myGraphix.createText([point.x + 10, point.y], '('+_.round(point.z, 0)+')', 'black');
+
+		}
+
+	}
+
 }
  
 // Точка действия //
